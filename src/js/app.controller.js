@@ -69,7 +69,6 @@ app.controller("mainController", function ($scope, $timeout, $state, $filter, $r
     if (item.HasAccess) {
       $state.go(item.RouteValue);
       $(".main-panel-container").slideUp();
-      $scope.removeSearch();
       document.querySelector(".navigate-container").classList.remove("unvisible");
       $scope.panelIconState = false;
     }
