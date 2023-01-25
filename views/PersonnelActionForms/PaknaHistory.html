@@ -1,0 +1,608 @@
+<div class="" ng-if="!checkValidation">
+<div ng-include="redirectUrlForUnAuth"></div>
+</div>
+<div ng-if="checkValidation">
+  <div ng-if="loadingPage" class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
+    <div class="d-flex justify-content-center m-auto">
+      <i class="spinner-border text-primary" style="width: 50px; height: 50px;"></i>
+    </div>
+    <div class="mt-2">
+      <h3 class="text-center">درحال بارگذاری...</h3>
+    </div>
+  </div>
+  <div ng-if="!loadingPage">
+    <personnel personnel-data="personnelData" state-select="check" use-selected-personnel="useSelectedPersonnel()"></personnel>
+    <div class="card">
+      <p class="HeaderForm">
+        تاریخچه حکم های ارسالی به پاکنا
+      </p>
+      <div class="card">
+        <div>
+          <table class="newTableStyle">
+            <thead>
+              <tr>
+
+                <!--<th style="width: 5%">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" ng-model="checkedAllsS" ng-click="checkItemsSecond(secondWizardIssuance.Items)" value="" id="checkAllS">
+                        <label class="form-check-label" for="checkAllS">
+
+                        </label>
+                    </div>
+                </th>-->
+                <th style="width: 30%">
+                  نام پرسنل
+                </th>
+                <th style="width: 25%;">
+                  شماره حکم
+                </th>
+                <th style="width: 20%;">
+                  تاریخ اجرا
+                </th>
+                <th style="width: 20%;">
+                  تاریخ ورود اطلاعات
+                </th>
+              </tr>
+            </thead>
+            <tbody >
+              <tr ng-repeat="issuanceInSecondWizard in secondWizardIssuance.Items" class="pointer"
+                ng-class="{'bg-notSend':issuanceInSecondWizard.Status===1,'bg-error':issuanceInSecondWizard.Status===6,'bg-ok':issuanceInSecondWizard.Status===10}"
+                ng-attr-title="{{issuanceInSecondWizard.Status===1? 'فرستاده نشده':issuanceInSecondWizard.Status===6?'ارسال موفق به پاکنا':issuanceInSecondWizard.Status===10?'خطا در ارسال داده به پاکنا':''}}">
+                <!--<td>
+                    <div class="form-check">
+                        <input class="form-check-input" ng-model="checkedS" ng-click="checkItemSecond(issuanceInSecondWizard)" type="checkbox" value="" id="chS-{{issuanceInSecondWizard.Id}}">
+                        <label class="form-check-label" for="chS-{{issuanceInSecondWizard.Id}}">
+
+                        </label>
+                    </div>
+                </td>-->
+                <td>
+
+                  {{issuanceInSecondWizard.PFirstName}} {{issuanceInSecondWizard.PLastName}}
+                </td>
+                <td>
+                  {{issuanceInSecondWizard.FormNumber}}
+                </td>
+                <td>
+                  {{issuanceInSecondWizard.ExecuteDatePersian}}
+
+                </td>
+                <td>
+                  {{issuanceInSecondWizard.FillDatePersian}}
+                  <i class="spinner-border text-primary float-left" style="width: 15px;height: 15px;" ng-if="issuanceInSecondWizard.loading">
+                  </i>
+                  <span ng-if="issuanceInSecondWizard.Status===1" class="float-left pointer ml-1" title="مشاهده و ویرایش اطلاعات"
+                    ng-click="showAndEditModal(issuanceInSecondWizard)"><i class="far fa-edit "></i></span>
+                  <span ng-if="issuanceInSecondWizard.Status===1" class="float-left pointer ml-1" title="حذف"
+                    ng-click="removeItemModal(issuanceInSecondWizard)"><i class="far fa-trash "></i></span>
+                  <span ng-if="issuanceInSecondWizard.Status===1" class="float-left pointer ml-1" title="ارسال"
+                    ng-click="sendToPakna(issuanceInSecondWizard)"><i class="far fa-send "></i></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div class="col-lg-6" style="text-align: right; padding-right: 25px;">
+            <span ng-click="secondWizardIssuancePaging(secondWizardIssuance.TotalPages)" class="asp-label" style="cursor: pointer;">
+              <i class="far fa-chevron-right"></i>
+              <i class="far fa-chevron-right" style="margin-right: -3px;"></i>
+            </span>
+            <span class="asp-label" ng-click="secondWizardIssuancePaging(secondWizardIssuance.PageIndex + 1)"
+              style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+            <input class="form-control" id="paging" placeholder="{{secondWizardIssuance.PageIndex}} از  {{secondWizardIssuance.TotalPages}}"
+              style="width: 33%; display: inline-block; position: relative; top: 0;" ng-model="pageNumber"
+              ng-keyup="secondWizardIssuancePaging(pageNumber)">
+            <span class="asp-label" ng-click="secondWizardIssuancePaging(secondWizardIssuance.PageIndex -1)"
+              style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+            <span ng-click="secondWizardIssuancePaging(1)" class="asp-label" style="cursor: pointer;">
+              <i class="far fa-chevron-left" style="margin-left: -3px;"></i>
+              <i class=" far fa-chevron-left"></i>
+            </span>
+          </div>
+          <!--<div class="col-lg-6">
+              <button type="button" ng-disabled="!selectedSecondItem.length" class="new-button green float-left" ng-click="sendToPakna()">
+                  <i class="far fa-send"></i>
+                  ارسال
+                  <i class="spinner-border text-warning" style="width: 10px;height: 10px;" ng-if="loadingSendToPakna">
+                  </i>
+              </button>-->
+          <!--<button type="button" class="new-button red float-left ml-1" ng-click="removeItemModal()">
+              <i class="far fa-trash"></i>
+              حذف گروهی
+          </button>-->
+          <!--</div>-->
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="showAndEditModal">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="HeaderForm">
+              مشاهده و ویرایش جزئیات ارسالی
+              <span class="cancelIcon" ng-click="cancelShowAndEditModal()"><i class="far fa-close "></i></span>
+            </p>
+            <div class="card" ng-init="dateTimeMask()">
+              <div class="row">
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend ">
+                      <label class="input-group-text label-width-130px">
+                        کد دستگاه اجرایی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.OrganCode">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        شماره حکم در دستگاه اجرایی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.OrganOrderNumber">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('EducationDegree')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        مقطع تحصیلی
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.EducationDegree">
+                      <option ng-repeat="item in degreeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('MarriageStatus')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        وضعیت تاهل
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.MarriageStatus">
+                      <option ng-repeat="item in marriageData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تعداد فرزندان
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.ChildrenCount">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        نوع استخدام
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.EmploymentType">
+                  </div>
+                </div>
+
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        شماره مستخدم/شناسه
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.EmployeeNumber">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تاریخ استخدام
+                      </label>
+                    </div>
+                    <input type="text" class="form-control text-center date-picker"
+                      data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd" ng-model="showAndEdit.EmployeementDate">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        طبقه/گروه شغلی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.JobGroup">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('JobRank')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        رتبه شغلی
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.JobRank">
+                      <option ng-repeat="item in JobRankData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        نوع پایه
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.BaseType">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        نوع کادر
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.cadrType">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تاریخ شروع قرارداد
+                      </label>
+                    </div>
+                    <input type="text" dir="ltr" class="form-control text-center date-picker"
+                      data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy/mm/dd'" ng-model="showAndEdit.ContractStartDate"
+                      placeholder="yyyy/mm/dd" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تاریخ پایان قرارداد
+                      </label>
+                    </div>
+                    <input type="text" dir="ltr" class="form-control text-center date-picker"
+                      data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy/mm/dd'" ng-model="showAndEdit.ContractEndDate"
+                      placeholder="yyyy/mm/dd" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('SacrificialType')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        وضعیت ایثارگری
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.SacrificialType">
+                      <option ng-repeat="item in SacrificialTypeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        مدت حضور در جبهه (روز)
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.FrontlineDuration">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        درصد جانبازی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.VeteranPercent">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        مدت اسارت (روز)
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.CaptivityTerm">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        سابقه خدمت
+                      </label>
+                    </div>
+                    <p class="p-0 m-0" style="font-size:11px;"> سال:</p>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.WorkExperienceYears">
+                    <p class="p-0 m-0" style="font-size:11px;"> ماه:</p>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.WorkExperienceMonths">
+                    <p class="p-0 m-0" style="font-size:11px;"> روز:</p>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.WorkExperienceDays">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        سابقه تجربی
+                      </label>
+                    </div>
+                    <p class="p-0 m-0" style="font-size:11px;"> سال:</p>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.ExperimentalHistoryYears">
+                    <p class="p-0 m-0" style="font-size:11px;"> ماه:</p>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.ExperimentalHistoryMonths">
+                    <p class="p-0 m-0" style="font-size:11px;"> روز:</p>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.ExperimentalHistoryDays">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('OrderType')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        نوع حکم/قرارداد
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.OrderType">
+                      <option ng-repeat="item in OrderTypeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        توضیحات حکم
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.OrderComment">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تاریخ اجرای حکم/قرارداد
+                      </label>
+                    </div>
+                    <input type="text" dir="ltr" class="form-control text-center date-picker"
+                      data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy/mm/dd'" ng-model="showAndEdit.ExecutionDate" placeholder="yyyy/mm/dd"
+                      autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تاریخ صدور حکم/قرارداد
+                      </label>
+                    </div>
+                    <input type="text" dir="ltr" class="form-control text-center date-picker"
+                      data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy/mm/dd'" ng-model="showAndEdit.IssuanceDate" placeholder="yyyy/mm/dd"
+                      autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('EmploymentStatus')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        وضعیت اشتغال
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.EmploymentStatus">
+                      <option ng-repeat="item in EmploymentStatusData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('PensionFundType')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        صندوق بازنشستگی
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.PensionFundType">
+                      <option ng-repeat="item in PensionFundTypeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        حقوق و مزایا
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.SalaryAndBenefits">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        شناسه یکتای پست
+                      </label>
+                    </div>
+                    <input class="form-control text-center" autocomplete="off" ng-model="showAndEdit.OrganCode">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد ملی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" ng-model="showAndEdit.NationalCode" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        نام
+                      </label>
+                    </div>
+                    <input class="form-control text-center" ng-model="showAndEdit.FirstName" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        نام خانوادگی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" ng-model="showAndEdit.LastName" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        تاریخ تولد
+                      </label>
+                    </div>
+                    <input type="text" dir="ltr" class="form-control text-center date-picker"
+                      data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy/mm/dd'" ng-model="showAndEdit.BirthDate" placeholder="yyyy/mm/dd"
+                      autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('Province','BpProvinceCode')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد استان محل تولد
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.BpProvinceCode">
+                      <option ng-repeat="item in BpProvinceCodeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('County','BpCityCode')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد شهرستان محل تولد
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.BpCityCode">
+                      <option ng-repeat="item in BpCityCodeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد رشته تحصیلی
+                      </label>
+                    </div>
+                    <input class="form-control text-center" ng-model="showAndEdit.EducationFieldCode" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد شغل
+                      </label>
+                    </div>
+                    <input class="form-control text-center" ng-model="showAndEdit.JobCode" autocomplete="off">
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('Province','WpProvinceCode')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد استان محل خدمت
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.WpProvinceCode">
+                      <option ng-repeat="item in WpProvinceCodeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-4" ng-init="selected('County','WpCityCode')">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text label-width-130px">
+                        کد شهرستان محل خدمت
+                      </label>
+                    </div>
+                    <select class="form-control text-center" ng-model="showAndEdit.WpCityCode">
+                      <option ng-repeat="item in WpCityCodeData track by $index" ng-value="item.Code">{{item.Title}}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="">
+                <button type="button" class="new-button float-left mr-1" ng-click="confirmEdit(showAndEdit)">
+                  <i class="far fa-check"></i>
+                  تأیید
+                  <i class="spinner-border text-warning" style="width: 10px;height: 10px;" ng-if="loadingEdit">
+                  </i>
+                </button>
+                <button type="button" class="new-button red float-left" ng-click="cancelShowAndEditModal()">
+                  <i class="far fa-close"></i>
+                  انصراف
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-head">
+            <p class="HeaderForm">
+              تایید حذف
+              <span class="cancelIcon" ng-click="cancelDelete()"><i class="far fa-close "></i></span>
+            </p>
+            <div class="card">
+              <p style="text-align: center;" class="text-danger asp-label">
+                آیا از پاک کردن ردیف انتخاب شده اطمینان دارید
+              </p>
+            </div>
+            <div class="card">
+              <div style="text-align: left;">
+                <button type="button" class="new-button red" ng-click="cancelDelete()">
+                  <i class="far fa-close"></i>
+                  انصراف
+                </button>
+                <button type="button" class="new-button green" ng-click="confirmDelete()">
+                  <i class="far fa-check"></i>
+                  تایید
+                  <div class="spinner-border text-warning position-absolute" style="left:7px; width: 8px; height: 8px; bottom: 10px;"
+                    ng-if="loadingDelete"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

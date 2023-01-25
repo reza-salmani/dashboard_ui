@@ -1,0 +1,82 @@
+
+<div id="publicSum" class="dynamic-table" ng-if="checkingExist(assessment.publicTableData.Categories[0].Children) && assessment.AllowPublicPage" ng-style="assessment.isFromCartable?assessment.PublicStyle:''">
+    <public data="assessment.publicTableData.Categories[0].Children" item="assessment.publicTableData.Items"></public>
+
+    <div class="card" ng-if="checkingExist(assessment.publicTableData.NoCategoryFields) ">
+        <table class="">
+            <thead>
+                <tr class="">
+                    <th></th>
+                    <th>حداکثر</th>
+                    <th>حداقل</th>
+                    <th>امتیاز</th>
+                    <th>#</th>
+                </tr>
+            </thead>
+            <tbody id="NonCategrory">
+                <tr class="asp-label" ng-repeat="p in assessment.publicTableData.NoCategoryFields track by $index">
+                    <td class="pr-1">{{p.Title}}</td>
+                    <td class="text-center">{{p.MaxValue}}</td>
+                    <td class="text-center">{{p.MinValue}}</td>
+                    <td class="text-center">
+                        <div>
+                            <input dir="ltr" ng-readonly="!assessment.dynamicButtonAllow" ng-class="{'sumationInput':p.IsScore}" ng-init="inputMasks()" autocomplete="off" data="{{assessment.publicTableData.NoCategoryValues[$index]}}" class='form-control text-center numeric directive-input' ng-keyup='checkmaxMinInNon(assessment.publicTableData.NoCategoryValues[$index]);sumationPublic()' id='test-{{p.Id}}' ng-model='assessment.publicTableData.NoCategoryValues[$index].ScoreValue' type='text'>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div ng-if='p.HasAttachment && checkingExist(assessment.publicTableData.NoCategoryValues[$index].Id) && assessment.dynamicButtonAllow'>
+                            <input type='file' file-Model='files' multiple='multiple' name='files[]' id='{{p.Id}}' class='inputfile' accept='.xls,.xlsx,.pdf,.png,.jpg' title='آپلود فایل' />
+                            <label class='bg-transparent' for='{{p.Id}}'>
+                                <i class='far fa-upload text-dark p-0 m-0' style='font-size:15px'></i>
+                            </label>
+                            <strong class='numeratorFiles'>{{files.data.length}}</strong>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card" ng-if="assessment.AllowPublicPage && assessment.dynamicButtonAllow">
+        <div class="float-left">
+            <button type="button" class="new-button green" ng-click="confirmPublic()">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning" ng-if="loadingaccept"></div>
+            </button>
+            <!--<button class="new-button mr-1" ng-class="{'bg-danger':button.ActionTypeIdentity === 3,'bg-info':button.ActionTypeIdentity === 2,'bg-primary':button.ActionTypeIdentity === 1}" ng-if="buttonsArray.length && currentWorkFlowLevel[0].SecurityForms.length ===1" ng-repeat="button in buttonsArray" ng-click="dynamicButton(button)">
+                {{button.ActionTitle}}
+                <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning" ng-if="button.loadingDynamicButton"></div>
+            </button>-->
+        </div>
+    </div>
+    <div class="modal fade" id="publicErrorModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        اشکالات نمرات وارد شده
+                        <span class="float-left pointer" style="margin: 0 5px;" ng-click="cancelPublickError()"><i class="far fa-close  text-danger"></i></span>
+                    </p>
+                    <div class="card">
+                        <p class="center text-danger asp-label">
+                            لطفا موارد زیر را بررسی فرمایید
+                        </p>
+                        <ul>
+                            <li class="asp-label" style="text-align: right;line-height: 2.5em;" ng-repeat="error in assessment.publicErrors">
+                                {{error.Title}}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div style="text-align: left;">
+                            <button type="button" class="new-button" ng-click="cancelPublickError()">
+                                متوجه شدم
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

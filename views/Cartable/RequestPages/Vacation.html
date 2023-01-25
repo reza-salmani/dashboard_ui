@@ -1,0 +1,1471 @@
+﻿<div ng-controller="vacationRequestCtrl">
+    <p ng-if="hourVacation" class="HeaderForm">
+        درخواست مرخصی ساعتی
+    </p>
+    <p ng-if="dayVacation" class="HeaderForm">
+        درخواست مرخصی روزانه
+    </p>
+    
+    <!------------------- select vacation type ---------------------->
+    <div ng-if="!DetailsHourMode && !DetailsDayMode" class="card">
+        <div class="col-sm-4">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label class="input-group-text">
+                        نوع مرخصی
+                    </label>
+                </div>
+                <select ng-init="vacationType = 2" class="form-control text-right form-select" ng-change="changeVacationType(vacationType)"
+                    ng-model="vacationType">
+                    <option ng-value="0">
+                        لطفا انتخاب نمایید...
+                    </option>
+                    <option ng-value="1">
+                        ساعتی
+                    </option>
+                    <option ng-value="2">
+                        روزانه
+                    </option>
+                </select>
+    
+            </div>
+        </div>
+    </div>
+    
+    <!------------------- create hour Vacation ---------------------->
+    <div ng-if="hourVacation">
+        <form name="CreateHourForm">
+            <div class="card" ng-init="maskInput()">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">
+                                        تاریخ مرخصی
+                                    </label>
+                                </div>
+                                <input type="text" autocomplete="off" name="NstartDayDateH" ng-model="createHourVacationData.leaveDate"
+                                    ng-class="{'border-danger': CreateHourForm.NstartDayDateH.$invalid}" required ng-disabled="SubmitOccured"
+                                    data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" class="form-control text-center date-picker"
+                                    id="startHDate"
+                                    ng-change="showTrafficThisDay();checkFriday(createHourVacationData.leaveDate);checkLimitation(createHourVacationData.leaveDate)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">
+                                        ساعت خروج
+                                    </label>
+                                </div>
+                                <input class="form-control text-center time" data-autoclose="true" data-placement="bottom" autocomplete="off"
+                                    data-align="top" name="NExitTimeH" ng-model="createHourVacationData.fromTime"
+                                    ng-class="{'border-danger': CreateHourForm.NExitTimeH.$invalid}" required ng-disabled="SubmitOccured"
+                                    style="direction: ltr !important;" id="fromTime" placeholder="HH:MM" type="text" ng-change="checkBigerThan4Hour()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">
+                                        ساعت ورود
+                                    </label>
+                                </div>
+                                <input class="form-control text-center time" data-autoclose="true" data-placement="bottom" autocomplete="off"
+                                    data-align="top" name="NInterTimeH" ng-model="createHourVacationData.toTime" ng-disabled="SubmitOccured"
+                                    ng-class="{'border-danger': CreateHourForm.NInterTimeH.$invalid}" required style="direction: ltr !important;"
+                                    id="toTime" placeholder="HH:MM" type="text" ng-change="checkBigerThan4Hour()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" ng-if="trafficHours.item1.length">
+                <div class="table-body">
+                    <table class="test">
+                        <thead>
+                            <tr>
+                                <th class="w-20">
+                                    انتخاب به عنوان
+                                </th>
+                                <th class="w-20">
+                                    ساعت
+                                </th>
+                                <th class="w-20">
+                                    نوع تردد
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in trafficHours.item1[0].myData">
+                                <td>
+                                    <select ng-class="{'selected': selectedHours.fromTime == 'selectHourToUse{{item.id}}' ||
+                                                    selectedHours.toTime == 'selectHourToUse{{item.id}}'
+                                                    }" class="form-control selectHourToUse" name="selectHourToUse" id="selectHourToUse{{item.id}}"
+                                        ng-model="selectHourToUse" ng-change="handleSelectHourToUse(item.id)">
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="fromTiml-{{item.rollCallTime}}">ساعت شروع</option>
+                                        <option value="toTiml-{{item.rollCallTime}}">ساعت پایان</option>
+                                    </select>
+                                </td>
+                                <td class="w-20">{{item.rollCallTime}}</td>
+                                <td class="w-20">{{item.rollCallTypeTitle}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="float-left">
+                    <button ng-if="buttonsArrayShow && !finalRequest" ng-repeat="item in buttonsArray track by item.ActionId"
+                        ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}"
+                        type="button" class="new-button ml-1" ng-click="DynamicConfirms(item,createHourVacationData,'create')">
+                        <i ng-class="{'fa-check':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                            class="fa"></i>
+                        {{item.ActionTitle}}
+                    </button>
+                    <button ng-if="!buttonsArrayShow && !finalRequest" type="button" class="new-button green mr-1"
+                        ng-disabled="IsLimited || CreateHourForm.NstartDayDateH.$invalid || CreateHourForm.NExitTimeH.$invalid || CreateHourForm.NInterTimeH.$invalid"
+                        ng-click="request(createHourVacationData)">
+                        <i class="far fa-check ml-1"></i>ثبت
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!------------------- details hour Vacation ---------------------->
+    <div ng-if="DetailsHourMode">
+        <p class="HeaderForm">
+            درخواست مرخصی ساعتی
+        </p>
+        <form name="CreateHourForm">
+            <div class="card" ng-init="maskInput()">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">
+                                        تاریخ مرخصی
+                                    </label>
+                                </div>
+                                <input type="text" class="form-control" readonly ng-value="convertToShamsi(hourVacationDetailsData.leaveDate)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">
+                                        ساعت خروج
+                                    </label>
+                                </div>
+                                <input type="text" class="form-control" readonly ng-value="hourVacationDetailsData.fromTime" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">
+                                        ساعت ورود
+                                    </label>
+                                </div>
+                                <input type="text" class="form-control" readonly ng-value="hourVacationDetailsData.toTime" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="float-left">
+                    <button ng-if="buttonsArrayShow && finalRequest && CheckState" ng-repeat="item in buttonsArray track by item.ActionId" type="button"
+                        class="new-button ml-1" ng-click="DynamicConfirms(item,hourVacationDetailsData,'update')"
+                        ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                        <i ng-class="{'fa-check':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                            class="fa"></i>
+                        {{item.ActionTitle}}
+                    </button>
+                </div>
+                <div class="float-left">
+                    <button ng-if="buttonsArrayShow && finalRequest && !CheckState" ng-repeat="item in buttonsArray track by item.ActionId" type="button"
+                        class="new-button ml-1" ng-click="DynamicConfirms(item,hourVacationDetailsData,'update')"
+                        ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                        <i ng-class="{'fa-check':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                            class="fa"></i>
+                        {{item.ActionTitle}}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!------------------- create day Vacation ---------------------->
+    <div ng-if="dayVacation" class="">
+        <form name="CreateDayForm">
+            <div class="row pl-4 pr-4" ng-init="maskInput()">
+                <div class="col-lg-10 card">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px text-right">
+                                        تاریخ شروع مرخصی
+                                    </label>
+                                </div>
+                                <input type="text" autocomplete="off" required name="NstartDayDate"
+                                    ng-class="{'border-danger': CreateDayForm.NstartDayDate.$invalid}" ng-disabled="SubmitOccured"
+                                    ng-change="checkLimitation(createDayVacationData.fromDate);setValidatorFn(CreateDayForm,createDayVacationData.fromDate,createDayVacationData.fromDate)"
+                                    class="form-control date-picker text-center " data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd"
+                                    id="startDayDate" ng-model="createDayVacationData.fromDate">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px text-right">
+                                        تاریخ پایان مرخصی
+                                    </label>
+                                </div>
+                                <input type="text" autocomplete="off"
+                                    ng-change="setValidatorFn(CreateDayForm,createDayVacationData.fromDate,createDayVacationData.toDate)"
+                                    ng-disabled="SubmitOccured" required name="NendDayDate"
+                                    ng-class="{'border-danger': CreateDayForm.NendDayDate.$invalid}" class="form-control date-picker text-center"
+                                    data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" id="endDayDate"
+                                    ng-model="createDayVacationData.toDate">
+    
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px text-right text-right">
+                                        نوع مرخصی
+                                    </label>
+                                </div>
+                                <select ng-disabled="CreateDayForm.NstartDayDate.$invalid || CreateDayForm.NendDayDate.$invalid || SubmitOccured"
+                                    ng-options="item.name for item in selectgroupVacationType.item1 track by item.id" required name="NVacationType"
+                                    ng-model="createDayVacationData.SelectVacationTypeInCreate"
+                                    ng-change="onChangeVacationType(createDayVacationData.SelectVacationTypeInCreate.id)"
+                                    ng-class="{'border-danger': CreateDayForm.NVacationType.$invalid}"
+                                    class="form-control form-select text-right"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="treatment">
+                        <div class="row" ng-init="maskInput()">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            علت مرخصی
+                                        </label>
+                                    </div>
+                                    <input type="text" class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off"
+                                        ng-model="createDayVacationData.subjectLeaveAC" ng-click="AutoCompleteSearch('SubjectLeaveAC')"
+                                        ng-blur="AutoCompleteSearchCreate(createDayVacationData.subjectLeaveAC,'SubjectLeaveAC')"
+                                        ng-keyup="AutoCompleteSearch('SubjectLeaveAC')">
+                                </div>
+                                <div class="card position-absolute" style="z-index: 100;width: inherit;" ng-class="{'hidden': !showAutoCompleteReason}">
+                                    <div class="table-body">
+                                        <table class="table table-striped" style="font-size: 10px;">
+                                            <thead>
+                                                <tr>
+                                                    <td>عنوان</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-if="wordListReason.length" ng-repeat="item in wordListReason track by item.id"
+                                                    ng-click="selectPredict(item.description,'SubjectLeaveAC')">
+                                                    <td class="text-center">
+                                                        <strong class="">{{item.description}}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-if="!wordListReason.length">
+                                                    <td class="text-center">داده ای برای نمایش وجود ندارد😥</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            واحد درمانی
+                                        </label>
+                                    </div>
+                                    <input type="text" class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off"
+                                        ng-model="createDayVacationData.treatmentUnitAC" ng-click="AutoCompleteSearch('TreatmentUnitAC')"
+                                        ng-blur="AutoCompleteSearchCreate(createDayVacationData.treatmentUnitAC,'TreatmentUnitAC')"
+                                        ng-keyup="AutoCompleteSearch('TreatmentUnitAC')">
+                                </div>
+                                <div class="card position-absolute" style="z-index: 100;width: inherit;"
+                                    ng-class="{'hidden': !showAutoCompleteTreatmentUnitAC}">
+                                    <div class="table-body">
+                                        <table class="table table-striped" style="font-size: 10px;">
+                                            <thead>
+                                                <tr>
+                                                    <td class="">عنوان</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-if="wordListUnit.length" ng-repeat="item in wordListUnit track by item.id"
+                                                    ng-model="item.description" ng-click="selectPredict(item.description,'TreatmentUnitAC')">
+                                                    <td class="text-center">
+                                                        <strong class="">{{item.description}}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-if="!wordListUnit.length">
+                                                    <td class="text-center">داده ای برای نمایش وجود ندارد😥</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            پزشک معتمد
+                                        </label>
+                                    </div>
+                                    <input type="text" ng-disabled="SubmitOccured" class="form-control text-center" autocomplete="off"
+                                        ng-model="createDayVacationData.trustedDoctorAC" ng-click="AutoCompleteSearch('TrustedDoctorAC')"
+                                        ng-blur="AutoCompleteSearchCreate(createDayVacationData.trustedDoctorAC,'TrustedDoctorAC')"
+                                        ng-keyup="AutoCompleteSearch('TrustedDoctorAC')">
+                                </div>
+                                <div class="card position-absolute" style="z-index: 100;width: inherit;"
+                                    ng-class="{'hidden': !showAutoCompleteTrustedDoctorAC}">
+                                    <div class="table-body">
+                                        <table class="table table-striped" style="font-size: 10px;">
+                                            <thead>
+                                                <tr>
+                                                    <td class="">عنوان</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="item in wordListDoctor track by item.id" ng-model="item.description"
+                                                    ng-click="selectPredict(item.description,'TrustedDoctorAC')">
+    
+                                                    <td class="text-center">
+                                                        <strong class="">{{item.description}}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-if="!wordListDoctor.length">
+                                                    <td class="text-center">داده ای برای نمایش وجود ندارد😥</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            پزشک معالج
+                                        </label>
+                                    </div>
+                                    <input ng-disabled="SubmitOccured" id="englishName" type="text" class="form-control text-center" autocomplete="off"
+                                        ng-model="createDayVacationData.treatmentDoctor">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            نظام پزشکی
+                                        </label>
+                                    </div>
+                                    <input ng-disabled="SubmitOccured" type="text" autocomplete="off" class="form-control text-center "
+                                        ng-model="createDayVacationData.doctorialNum">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            شماره نامه
+                                        </label>
+                                    </div>
+                                    <input ng-disabled="SubmitOccured" type="text" autocomplete="off" class="form-control text-center "
+                                        ng-model="createDayVacationData.letterNum">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="hardDisease">
+                        <div class="row" ng-init="maskInput()">
+                            <div class="col-sm-6 col-md-4">
+                                <div style="margin-bottom: 15px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text label-width-100px text-right">
+                                                شماره مجوز
+                                            </label>
+                                        </div>
+                                        <input ng-disabled="SubmitOccured" type="text" autocomplete="off" class="form-control text-center "
+                                            ng-model="createDayVacationData.licenseNum">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div style="margin-bottom: 15px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text label-width-100px text-right">
+                                                تاریخ مجوز
+                                            </label>
+                                        </div>
+                                        <input ng-disabled="SubmitOccured" type="text" id="licenseDate" autocomplete="off"
+                                            class="form-control date-picker text-center " data-inputmask-alias="datetime"
+                                            data-inputmask-inputformat="yyyy/mm/dd" ng-model="createDayVacationData.licenseDate">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="maternity">
+                        <div class="row" ng-init="maskInput()">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            واحد درمانی
+                                        </label>
+                                    </div>
+                                    <input type="text" class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off"
+                                        ng-model="createDayVacationData.treatmentUnitAC" ng-click="AutoCompleteSearch('TreatmentUnitAC')"
+                                        ng-blur="AutoCompleteSearchCreate(createDayVacationData.treatmentUnitAC,'TreatmentUnitAC')"
+                                        ng-keyup="AutoCompleteSearch('TreatmentUnitAC')">
+                                </div>
+                                <div class="card position-absolute" style="z-index: 100;width: inherit;"
+                                    ng-class="{'hidden': !showAutoCompleteTreatmentUnitAC}">
+                                    <div class="table-body">
+                                        <table class="table table-striped" style="font-size: 10px;">
+                                            <thead>
+                                                <tr>
+                                                    <td>عنوان</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-if="wordListUnit.length" ng-repeat="item in wordListUnit track by item.id"
+                                                    ng-click="selectPredict(item.description,'TreatmentUnitAC')">
+                                                    <td class="text-center p-0">
+                                                        <p class="mt-2 p-0">{{item.description}}</p>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-if="!wordListUnit.length">
+                                                    <td class="text-center">داده ای برای نمایش وجود ندارد😥</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            پزشک معتمد
+                                        </label>
+                                    </div>
+                                    <input type="text" ng-disabled="SubmitOccured" class="form-control text-center" autocomplete="off"
+                                        ng-model="createDayVacationData.trustedDoctorAC" ng-click="AutoCompleteSearch('TrustedDoctorAC')"
+                                        ng-blur="AutoCompleteSearchCreate(createDayVacationData.trustedDoctorAC,'TrustedDoctorAC')"
+                                        ng-keyup="AutoCompleteSearch('TrustedDoctorAC')">
+                                </div>
+                                <div class="card position-absolute" style="z-index: 100;width: inherit;"
+                                    ng-class="{'hidden': !showAutoCompleteTrustedDoctorAC}">
+                                    <div class="table-body">
+                                        <table class="table table-striped" style="font-size: 10px;">
+                                            <thead>
+                                                <tr>
+                                                    <td>عنوان</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-if="wordListDoctor.length" ng-repeat="item in wordListDoctor track by item.id"
+                                                    ng-click="selectPredict(item.description,'TrustedDoctorAC')">
+                                                    <td class="text-center p-0">
+                                                        <p class="mt-2 p-0">{{item.description}}</p>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-if="!wordListDoctor.length">
+                                                    <td class="text-center">داده ای برای نمایش وجود ندارد😥</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px text-right">
+                                            پزشک معالج
+                                        </label>
+                                    </div>
+                                    <input ng-disabled="SubmitOccured" type="text" class="form-control text-center" autocomplete="off"
+                                        ng-model="createDayVacationData.treatmentDoctor">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div style="margin-bottom: 15px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text label-width-100px text-right">
+                                                نظام پزشکی
+                                            </label>
+                                        </div>
+                                        <input ng-disabled="SubmitOccured" type="text" autocomplete="off" class="form-control text-center "
+                                            ng-model="createDayVacationData.doctorialNum">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4">
+                                <div style="margin-bottom: 15px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text label-width-100px text-right">
+                                                شماره نامه
+                                            </label>
+                                        </div>
+                                        <input ng-disabled="SubmitOccured" type="text" autocomplete="off" class="form-control text-center "
+                                            ng-model="createDayVacationData.letterNum">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="entitlement">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="input-group ">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text text-start w_130">
+                                            مدت مرخصی انتخابی
+                                        </label>
+                                    </div>
+                                    <input dir="ltr" type="text" class="form-control text-center " ng-value="leaveDayInfo.leaveDays">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text pl-3 pt-3 pb-3 pr-1 text-right">
+                                        توضیحات (آدرس و تلفن تماس)
+                                    </label>
+                                </div>
+                                <input ng-disabled="SubmitOccured" type="text" class="form-control" autocomplete="off" style="min-height: 50px;"
+                                    multiple="true" ng-model="createDayVacationData.description">
+                            </div>
+    
+                        </div>
+                    </div>
+                </div>
+                <div class="card col-lg-2" style="height:150px;">
+                    <p class="HeaderForm small-font font-weight-bold">
+                        لیست ترددها در بازه انتخابی
+                    </p>
+                    <div class="d-flex">
+                        <div class="col-6"><span class="big-font">تاریخ</span></div>
+                        <div class="col-6"><span class="big-font">ساعات</span></div>
+                    </div>
+                    <div class="selectSideBox" style="overflow-y:auto;overflow-x:hidden">
+                        <div class="row" ng-repeat="item in SideInfoData">
+                            <div class="col-6"><span class="small-font">{{item.PersianDate}}</span></div>
+                            <div class="col-6"><span class="small-font">{{item.AllTimeRollCall}}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="entitlement" class="card">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        مانده مرخصی
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumLeaveRemaining" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        مدت غیبت
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumAbsentsHourPerHour" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        جمع ساعتی
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.hourLeavePerHour" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        مدت تاخیر ورود
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumStartDelayPerHour" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        مدت تعجیل خروج
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumEndHurryPerHour" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        جمع روزانه امسال
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.leaveDaily" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        جمع کل امسال
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumUsed" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        مرخصی مجاز در هر نوبت
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="leaveDayInfo.everyRound" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text text-start label-width-200px">
+                                        مرخصی مجاز در سال
+                                    </label>
+                                </div>
+                                <input dir="ltr" type="text" class="form-control text-center " ng-value="leaveDayInfo.totalYear" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" ng-if="treatment && treatmentData !=undefined">
+                <div class="row">
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    مرخصی رفته در ماه
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                                ng-value="treatmentData.sickLeaveInMonth">
+                        </div>
+    
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    مرخصی رفته در سال
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                                ng-value="treatmentData.sickLeaveInYear">
+                        </div>
+    
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    حداکثر مرخصی قابل استفاده در سال
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly ng-value="treatmentData.maxYear">
+                        </div>
+    
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    حداکثر مرخصی قابل استفاده در ماه
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly ng-value="treatmentData.maxMonth">
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+            <div class="card" ng-if="maternity && maternityData!=undefined && PersonnelInfo.Gender!=1">
+                <div class="row">
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    تعداد مرخصی رفته
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                                ng-value="maternityData.numberOfLeaveGone">
+                        </div>
+    
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    تعداد مرخصی باقیمانده
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                                ng-value="maternityData.allowedCntDays">
+                        </div>
+    
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+    
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start">
+                                    تعداد مرخصی مورد درخواست
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly ng-value="maternityData.leaveDays">
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="row">
+                    <div class="d-flex m-auto justify-content-right col-md-8">
+                        <em ng-if="treatment && treatmentData !=undefined && !treatmentData.canEsLeave" class="text-danger small-font">
+                            مدت مرخصی مورد درخواست شما : <strong>{{treatmentData.leaveDays}}</strong> روز - محدودیت
+                            <strong ng-if="!treatmentData.canSickLeaveMonth"> ماهانه</strong>
+                            <strong ng-if="!treatmentData.canSickLeaveYear"> ،سالانه </strong>وجود دارد
+                        </em>
+                        <strong ng-if="maternity && ((maternityData!=undefined && !maternityData.canMaternityLeaveMonth) || PersonnelInfo.Gender ===1)">
+                            <em class="text-danger small-font">
+                                امکان ثبت
+                                مرخصی زایمان برای شما وجود
+                                ندارد
+                            </em>
+                        </strong>
+                        <strong ng-if="entitlement && !leaveDayInfo.canLeave">
+                            <ul class="small-font text-right">
+                                <em class="medium-font text-danger">امکان ثبت مرخصی به دلایل زیر برای شما وجود ندارد</em>
+                                <li ng-if="IntitlementInfo.sumLeaveRemaining - createDayVacationData.leaveDays <0">
+                                    <strong class="small-font text-right">
+                                        منفی
+                                        شدن مانده مرخصی
+                                    </strong>
+                                </li>
+                                <li ng-if="!leaveDayInfo.canLeaveYear">
+                                    <strong class="small-font text-right">
+                                        عدم مطابقت با حداکثر
+                                        مجاز
+                                        سالانه
+                                    </strong>
+                                </li>
+                                <li ng-if="!leaveDayInfo.canEveryRound">
+                                    <strong class="small-font text-right">
+                                        عدم مطابقت با حداکثر
+                                        مرخصی
+                                        مجاز
+                                        در
+                                        هر نوبت
+                                    </strong>
+                                </li>
+                            </ul>
+                        </strong>
+                    </div>
+                    <div class="col-md-4 pb-4">
+                        <button type="button" ng-if="treatment && !buttonsArrayShowDay && !finalRequest" class="new-button green mr-1 float-left"
+                            ng-disabled="IsLimited || CreateDayForm.$invalid || !treatmentData.canEsLeave" ng-click="requestDay(createDayVacationData)">
+    
+                            <i class="far fa-check ml-1"></i>ثبت
+                        </button>
+                        <button type="button" ng-if="maternity && !buttonsArrayShowDay && !finalRequest" class="new-button green mr-1 float-left"
+                            ng-disabled="IsLimited || CreateDayForm.$invalid || maternityData.allowedCntDays ==0 || PersonnelInfo.Gender==1"
+                            ng-click="requestDay(createDayVacationData)">
+                            <i class="far fa-check ml-1"></i>ثبت
+                        </button>
+                        <button type="button" ng-if="entitlement && !buttonsArrayShowDay && !finalRequest" class="new-button green mr-1 float-left"
+                            ng-disabled="!leaveDayInfo.canLeave || IntitlementInfo.sumLeaveRemaining - leaveDayInfo.leaveDays <0"
+                            ng-click="requestDay(createDayVacationData)">
+                            <i class="far fa-check ml-1"></i>ثبت
+                            <i class="spinner-border text-warning" style="width: 10px;height: 10px;" ng-if="loadingCreateDay">
+                            </i>
+                        </button>
+                        <button type="button" ng-if="!treatment && !maternity  && !entitlement && !buttonsArrayShowDay && !finalRequest"
+                            class="new-button green mr-1 float-left" ng-disabled="IsLimited || CreateDayForm.$invalid"
+                            ng-click="requestDay(createDayVacationData)">
+                            <i class="far fa-check ml-1"></i>ثبت
+                        </button>
+                        <button ng-if="buttonsArrayShowDay && !finalRequest" ng-repeat="item in buttonsArrayDay track by item.ActionId" type="button"
+                            class="new-button ml-1" ng-click="DynamicConfirmsDay(item,createDayVacationData,'create')"
+                            ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                            <i ng-class="{'fa-check':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                                class="fa"></i>
+                            {{item.ActionTitle}}
+                        </button>
+                    </div>
+    
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!------------------- details day Vacation ---------------------->
+    <div ng-if="DetailsDayMode">
+        <div class="card">
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px text-right">
+                                تاریخ شروع مرخصی
+                            </label>
+                        </div>
+                        <input type="text" autocomplete="off" readonly class="form-control text-center "
+                            ng-value="convertToShamsi(dayVacationDetailsData.fromDate)">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px text-right">
+                                تاریخ پایان مرخصی
+                            </label>
+                        </div>
+                        <input type="text" autocomplete="off" class="form-control text-center" readonly
+                            ng-value="convertToShamsi(dayVacationDetailsData.toDate)">
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px text-right text-right">
+                                نوع مرخصی
+                            </label>
+                        </div>
+                        <select disabled ng-model="dayVacationDetailsData.dayLeaveTypeId" class="form-control form-select text-right">
+                            <option ng-repeat="item in selectgroupVacationType.item1" ng-value="item.id">{{item.name}}</option>
+                        </select>
+                    </div>
+                </div>
+    
+    
+            </div>
+            <div ng-if="dayVacationDetailsData.dayLeaveTypeId ===1">
+                <div class="row">
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    علت مرخصی
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.subjectLeave">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    واحد درمانی
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.treatmentUnit">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    پزشک معتمد
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.trustedDoctor">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    پزشک معالج
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.doctorName">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    نظام پزشکی
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.medicalSystemNo">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    شماره نامه
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.letterNo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="dayVacationDetailsData.dayLeaveTypeId===5">
+                <div class="row" ng-init="maskInput()">
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    شماره مجوز
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.licenseNo">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    تاریخ مجوز
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.licenseDate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="dayVacationDetailsData.dayLeaveTypeId ===6">
+                <div class="row" ng-init="maskInput()">
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    واحد درمانی
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.treatmentUnit">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    پزشک معتمد
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.trustedDoctor">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    پزشک معالج
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.doctorName">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    نظام پزشکی
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off"
+                                ng-model="dayVacationDetailsData.medicalSystemNo">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text label-width-100px text-right text-right">
+                                    شماره نامه
+                                </label>
+                            </div>
+                            <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.letterNo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-4">
+                    <div class="input-group ">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start w_130">
+                                مدت مرخصی انتخابی
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" readonly class="form-control text-center " ng-value="dayVacationDetailsData.leaveDayCount">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-150px text-right text-right">
+                            توضیحات (آدرس و تلفن تماس)
+                        </label>
+                    </div>
+                    <input type="text" class="form-control text-center" readonly autocomplete="off" ng-model="dayVacationDetailsData.description">
+                </div>
+            </div>
+        </div>
+        <div ng-if="dayVacationDetailsData.dayLeaveTypeId ===2 && !buttonsArrayDay.length" class="card">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    مانده مرخصی
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumLeaveRemaining" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    مدت غیبت
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumAbsentsHourPerHour" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    جمع ساعتی
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.hourLeavePerHour" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    مدت تاخیر ورود
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumStartDelayPerHour" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    مدت تعجیل خروج
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumEndHurryPerHour" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    جمع روزانه امسال
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.leaveDaily" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    جمع کل امسال
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="IntitlementInfo.sumUsed" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    مرخصی مجاز در هر نوبت
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="leaveDayInfo.everyRound" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-1">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text text-start label-width-200px">
+                                    مرخصی مجاز در سال
+                                </label>
+                            </div>
+                            <input dir="ltr" type="text" class="form-control text-center " ng-value="leaveDayInfo.totalYear" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" ng-if="dayVacationDetailsData.dayLeaveTypeId ===1 && treatmentData !=undefined && !buttonsArrayDay.length">
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                مرخصی رفته در ماه
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                            ng-value="treatmentData.sickLeaveInMonth">
+                    </div>
+    
+                </div>
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                مرخصی رفته در سال
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                            ng-value="treatmentData.sickLeaveInYear">
+                    </div>
+    
+                </div>
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                حداکثر مرخصی قابل استفاده در سال
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly ng-value="treatmentData.maxYear">
+                    </div>
+    
+                </div>
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                حداکثر مرخصی قابل استفاده در ماه
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly ng-value="treatmentData.maxMonth">
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+        <div class="card"
+            ng-if="dayVacationDetailsData.dayLeaveTypeId ===6 && maternityData!=undefined && PersonnelInfo.Gender!=1 && !buttonsArrayDay.length">
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                تعداد مرخصی رفته
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                            ng-value="maternityData.numberOfLeaveGone">
+                    </div>
+    
+                </div>
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                تعداد مرخصی باقیمانده
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly
+                            ng-value="maternityData.allowedCntDays">
+                    </div>
+    
+                </div>
+                <div class="col-sm-6 col-md-4">
+    
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text text-start">
+                                تعداد مرخصی مورد درخواست
+                            </label>
+                        </div>
+                        <input dir="ltr" type="text" autocomplete="off" class="form-control text-center " readonly ng-value="maternityData.leaveDays">
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div ng-if="!buttonsArrayDay.length" class="col-lg-4">
+                <div class="input-group ">
+                    <p class="medium-font">وضعیت درخواست : <strong class="text-danger big-font">{{dayVacationDetailsData.leaveStateTitle}}</strong></p>
+                </div>
+            </div>
+            <div class="float-left">
+                <button ng-if="buttonsArrayShowDay && finalRequest && CheckStateDay" ng-repeat="item in buttonsArrayDay track by item.ActionId"
+                    type="button" class="new-button ml-1" ng-click="DynamicConfirmsDay(item,dayVacationDetailsData,'update')"
+                    ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                    <i ng-class="{'fa-undo':item.ActionTypeIdentity === 3,'fa-check':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                        class="fa"></i>
+                    {{item.ActionTitle}}
+                </button>
+            </div>
+            <div class="float-left">
+                <button ng-if="buttonsArrayShowDay && finalRequest && !CheckStateDay" ng-repeat="item in buttonsArrayDay track by item.ActionId"
+                    type="button" class="new-button ml-1" ng-click="DynamicConfirmsDay(item,dayVacationDetailsData,'update')"
+                    ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                    <i ng-class="{'fa-check':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                        class="fa"></i>
+                    {{item.ActionTitle}}
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!------------------- select manager to send modal ------------------------->
+    <div class="modal" id="selectManagers">
+        <div class="modal-dialog modal-fullscreen-md-down">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        انتخاب مسئول مربوطه
+                        <span class="cancelIcon" ng-click="cancelManagerSelection()"><i class="far fa-close "></i></span>
+                    </p>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="table-body">
+                                    <table class="test">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 5%;">
+    
+                                                </th>
+                                                <th style="width: 95%;">
+                                                    نام و نام خانوادگی
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="manager in managers.Items">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" ng-click="Addmanagers(manager.Id)"
+                                                            id="select-manager-{{manager.Id}}">
+                                                        <label class="form-check-label asp-label" style="font-size: 10px;"
+                                                            for="select-manager-{{manager.Id}}">
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{manager.FirstName}} {{manager.LastName}}
+                                                </td>
+                                            </tr>
+                                            <tr ng-if="managers.Items[0].HasMoreRow" ng-click="getMore()" class="pointer">
+    
+                                                <td colspan="2">
+                                                    موارد بیشتر...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="row col-12">
+                                    <div class="col-6 text-right">
+                                        <span ng-click="loadPagePersonnelSelected(managers.TotalPages)" style="cursor: pointer;">
+                                            <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                                            <i class="far fa-chevron-right asp-label" style="margin-right: -3px; font-size: 0.7em;"></i>
+                                        </span>
+                                        <span class="asp-label" ng-click="loadPagePersonnelSelected(managers.PageIndex+1)"
+                                            style="margin: 0 5px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                                        <input class="form-control text-center" id="pagingD"
+                                            placeholder="{{managers.PageIndex}} از {{managers.TotalPages}}"
+                                            style="width: 35%; display: inline-block; position: relative; top: 0; font-size: 0.7em;"
+                                            ng-model="pageNumbers" ng-keyup="loadPagePersonnelSelected(pageNumbers);">
+                                        <span class="asp-label" ng-click="loadPagePersonnelSelected(managers.PageIndex-1)"
+                                            style="margin: 0 5px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                                        <span ng-click="loadPagePersonnelSelected(1)" style="cursor: pointer;">
+                                            <i class="far fa-chevron-left asp-label" style="margin-left: -3px; font-size: 0.7em;"></i>
+                                            <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <p class="p-o m-0 mt-1 medium-font">* تعداد کل : <strong>{{managers.TotalRow}}</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-sm-12" style="text-align: left;">
+                                <button class="new-button red" ng-click="cancelManagerSelection()">
+                                    <i class="far fa-close"></i>
+                                    انصراف
+                                </button>
+                                <button ng-if="buttonsArrayShow" class="new-button green" ng-click="confirmSelectManagers()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                                <button ng-if="buttonsArrayShowDay" class="new-button green" ng-click="confirmSelectManagersDay()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------------------- closed list modal ---------------------->
+    <div class="modal " id="showClosedModal">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        لیست محاسبات بسته شده
+                        <span class="cancelIcon" title="بستن" ng-click="closeClosedList()"><i class="far fa-close "></i></span>
+                    </p>
+    
+                    <div class="table-body">
+                        <table class="test">
+                            <thead>
+                                <tr>
+                                    <th class="w-20">نام</th>
+                                    <th class="w-20">کد پرسنلی</th>
+                                    <th class="w-20">تاریخ بستن</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in showClosedList">
+                                    <td class="w-20 text-center">{{item.PersonName}}</td>
+                                    <td class="w-20 text-center">{{item.DossierNo}}</td>
+                                    <td class="w-20 text-center">{{item.RollCallDatePersian}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <div style="text-align: left;">
+                            <button type="button" class="new-button red" ng-click="closeClosedList()">
+                                <i class="far fa-close ml-1"></i>بستن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

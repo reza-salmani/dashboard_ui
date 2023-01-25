@@ -1,0 +1,492 @@
+﻿<div ng-if="PersonnelActionForm.viewType!=null" class="alert alert-info p-0 container col-11 d-flex justify-content-center m-auto">حکم قبلی (دستی)</div>
+<div class="col-sm-12">
+    <div id="total-info">
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" style="width: 33.3%;">
+                        {{PersonnelActionForm.writInfo.Pre.Organization}}
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('FirstName'):checkNonCurrencyWithEx('FirstName')">
+                        نام:
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.FirstName}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('Family'):checkNonCurrencyWithEx('Family')">
+                        نام خانوادگی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Family}}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('FatherName'):checkNonCurrencyWithEx('FatherName')">
+                        نام پدر :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.FatherName}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('NationalCode'):checkNonCurrencyWithEx('NationalCode')">
+                        کد ملی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.NationalCode}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('PersonnelNo'):checkNonCurrencyWithEx('PersonnelNo')">
+                        شماره کارمند :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.PersonnelNo}}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('BcNo'):checkNonCurrencyWithEx('BcNo')">
+                        شماره شناسنامه :
+                        <span class="table-font">
+
+                            {{PersonnelActionForm.writInfo.Pre.BcNo}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('IssuePlaceHierarchy'):checkNonCurrencyWithEx('IssuePlaceHierarchy')">
+                        محل صدور:
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.IssuePlaceHierarchy[0].Title}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('BirthPlaceHierarchy'):checkNonCurrencyWithEx('BirthPlaceHierarchy')">
+                        محل تولد:
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.BirthPlaceHierarchy[0].Title}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('BirthDatePersian'):checkNonCurrencyWithEx('BirthDatePersian')">
+                        تاریخ تولد:
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.BirthDatePersian}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('GenderDescription'):checkNonCurrencyWithEx('GenderDescription')">
+                        جنسیت :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.GenderDescription}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" style="width:50%" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('Degree'):checkNonCurrencyWithEx('Degree')">
+                        بالاترین مدرک:
+                        <span ng-if="!PersonnelActionForm.writInfo.Pre.UseNextDegree" class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Degree}}
+                        </span>
+                        <span ng-if="PersonnelActionForm.writInfo.Pre.UseNextDegree" class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Degree}}(مشمول بهره مندی از امتیاز یک مقطع تحصیلی بالاتر)
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width:50%" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('Discipline'):checkNonCurrencyWithEx('Discipline')">
+                        رشته تحصیلی:
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Discipline}} <span ng-if="PersonnelActionForm.writInfo.Pre.Discipline != PersonnelActionForm.writInfo.Pre.SubDiscipline">-{{PersonnelActionForm.writInfo.Pre.SubDiscipline}}</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font" style="width:50%" ng-class="PersonnelActionForm.viewType!='ex'?(checkNonCurrency('PostCode') || checkNonCurrency('Post')):checkNonCurrencyWithEx('PostCode')||checkNonCurrencyWithEx('Post')">
+                        عنوان پست سازمانی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Post}} ({{PersonnelActionForm.writInfo.Pre.PostCode}})
+                        </span>
+
+                    </td>
+                    <td class="medium-font" style="width:50%" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('PostUniqueCode'):checkNonCurrencyWithEx('PostUniqueCode')">
+                        شناسه یکتای پست سازمانی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.PostUniqueCode}}
+                        </span>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font" style="width:50%" ng-if="PersonnelActionForm.writInfo.Pre.CommuniqueUnit ==undefined" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('Unit'):checkNonCurrencyWithEx('Unit')">
+                        واحد سازمانی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Unit}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width:50%" ng-if="PersonnelActionForm.writInfo.Pre.CommuniqueUnit !=undefined" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('CommuniqueUnit'):checkNonCurrencyWithEx('CommuniqueUnit')">
+                        واحد سازمانی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.CommuniqueUnit}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width:50%" ng-if="PersonnelActionForm.writInfo.Pre.CommuniqueUnitUniqueCode ==undefined" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('UnitUniqueCode'):checkNonCurrencyWithEx('UnitUniqueCode')">
+                        شناسه یکتای واحد سازمانی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.UnitUniqueCode}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width:50%" ng-if="PersonnelActionForm.writInfo.Pre.CommuniqueUnitUniqueCode !=undefined" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('CommuniqueUnitUniqueCode'):checkNonCurrencyWithEx('CommuniqueUnitUniqueCode')">
+                        شناسه یکتای واحد سازمانی :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.CommuniqueUnitUniqueCode}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('Job'):checkNonCurrencyWithEx('Job')">
+                        عنوان شغل :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.Job}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('JobPosition'):checkNonCurrencyWithEx('JobPosition')">
+                        طبقه :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.JobPosition}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('ExpertType'):checkNonCurrencyWithEx('ExpertType')">
+                        رتبه :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.ExpertType}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" style="width: 50%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('ServiceDurationText'):checkNonCurrencyWithEx('ServiceDurationText')">
+                        سابقه خدمت مورد قبول :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.ServiceDuration[0]}} سال {{PersonnelActionForm.writInfo.Pre.ServiceDuration[1]}} ماه
+                            {{PersonnelActionForm.writInfo.Pre.ServiceDuration[2]}} روز
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 50%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('ExperienceDurationText'):checkNonCurrencyWithEx('ExperienceDurationText')">
+                        سابقه تجربی قابل قبول :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.ExperienceDuration[0]}} سال {{PersonnelActionForm.writInfo.Pre.ExperienceDuration[1]}}
+                            ماه {{PersonnelActionForm.writInfo.Pre.ExperienceDuration[2]}} روز
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font" ng-if="PersonnelActionForm.writInfo.Pre.DutyLocationHierarchy!=null" style="width: 50%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('DutyLocationHierarchy'):checkNonCurrencyWithEx('DutyLocationHierarchy')">
+                        محل خدمت :
+                        <span class="table-font" ng-repeat="location in PersonnelActionForm.writInfo.Pre.DutyLocationHierarchy">
+                            <strong class="text-danger">{{setPreLocationTitle(location)}}</strong>{{location.Title}} /
+                        </span>
+                    </td>
+                    <td class="medium-font" ng-if="PersonnelActionForm.writInfo.Pre.DutyLocationHierarchy==null && PersonnelActionForm.writInfo.Pre.LocationHierarchy!=null" style="width: 50%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('LocationHierarchy'):checkNonCurrencyWithEx('LocationHierarchy')">
+                        محل خدمت :
+                        <span class="table-font" ng-repeat="location in PersonnelActionForm.writInfo.Pre.LocationHierarchy">
+                            <strong class="text-danger">{{setPreLocationTitle(location)}}</strong>{{location.Title}} /
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 50%;">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <!-- <tr>
+                    <td class="medium-font" style="width: 33.3%;">
+                        استخدام
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;">
+                        مدت قرارداد از تاریخ
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;">
+                        تا تاریخ
+                    </td>
+                </tr> -->
+                <tr>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('WarInfoDescription'):checkNonCurrencyWithEx('WarInfoDescription')">
+                        وضعیت ایثارگری :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.WarInfoDescription}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('MaritalStateDescription'):checkNonCurrencyWithEx('MaritalStateDescription')">
+                        وضعیت تاهل :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.MaritalStateDescription}}
+                        </span>
+                    </td>
+                    <td class="medium-font" style="width: 33.3%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('ChildrenCount'):checkNonCurrencyWithEx('ChildrenCount')">
+                        تعداد فرزند :
+                        <span class="table-font">
+                            {{PersonnelActionForm.writInfo.Pre.ChildrenCount}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <span class="pointer modal-chev" ng-click="slider('total-info')"
+       style="position: absolute;bottom: 3%;left: 3%;"><i class="far fa-chevron-up "></i></span>
+</div>
+<div class="col-sm-12">
+    <div id="total-items">
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="medium-font" style="vertical-align: top;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('ActionTypeTitle'):checkNonCurrencyWithEx('ActionTypeTitle')">
+                            نوع حکم :
+                            <span class="table-font">
+                                {{PersonnelActionForm.writInfo.Pre.ActionTypeTitle}}
+                            </span>
+                            <br>
+                            شرح حکم :
+                            <textarea disabled ng-model="PersonnelActionForm.writInfo.Pre.Brief.StringValue" style="min-height: 50px!important;font-size: 11px !important;" class="form-control"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <table>
+                <thead class="tableHeaderColorAlone">
+                    <tr>
+                        <th style="width: 46%;">
+                            حقوق ثابت و فوق العاده
+                            <span ng-if="PersonnelActionForm.writInfo.Pre.Helps != null" class="pointer float-right bg-transparent text-dark-red" title="مشاهده جزئیات" ng-click="showDetails('pre')"><i class="far fa-eye "></i></span>
+                            <div class="card" style="font-size:11px;width: auto; height: auto; z-index: 1000; position: absolute; max-height: 300px; overflow-y: scroll;overflow-x:hidden" ng-if="PersonnelActionForm.showDetailsItemStatePre">
+                                <table ng-if="PersonnelActionForm.writInfo.Pre.Helps.Simples.length">
+                                    <thead>
+                                        <tr>
+                                            <th>عنوان</th>
+                                            <th>مقدار</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="items in PersonnelActionForm.writInfo.Pre.Helps.Simples track by $index">
+                                            <th style="width:50%">{{items.FieldTitle}}</th>
+                                            <td class="medium-font" ng-repeat="item in items.Values" ng-if="item.Denominator !=undefined" class="text-dark-red font-weight-bolder bg-light" style="width:50%;font-size:10px">
+                                                {{item.Numerator}}
+                                            </td>
+                                            <td class="medium-font" ng-repeat="item in items.Values" ng-if="item.BitValue !=undefined" class="text-dark-red font-weight-bolder bg-light" style="width: 50%; font-size: 10px">
+                                                <i ng-if="item.BitValue" class="far fa-check text-success font-weight-bolder"> بله</i>
+                                                <i ng-if="!item.BitValue" class="far fa-close text-danger font-weight-bolder"> خیر</i>
+                                            </td>
+                                            <td class="medium-font" ng-repeat="item in items.Values" ng-if="item.StringValue !=undefined" class="text-dark-red font-weight-bolder bg-light" style="width: 50%; font-size: 10px">
+                                                {{item.StringValue}} - {{item.CalculationDescription.split(':')[2].split(',')[0].split('.')[0]}}
+                                            </td>
+                                            <td class="medium-font" ng-repeat="item in items.Values" ng-if="item.DurationMonth !=undefined" class="text-dark-red font-weight-bolder bg-light" style="width: 50%; font-size: 10px">
+                                                {{item.DurationYear}}سال و {{item.DurationMonth}} ماه و{{item.DurationDay}} روز
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                                <ul ng-if="PersonnelActionForm.writInfo.Pre.Helps.Stairs.length" class="d-inline-flex m-0 p-0 list-unstyled">
+                                    <li class="border border-info bg-light p-1" style="width: 100px; font-size: 10px" ng-repeat="item in PersonnelActionForm.writInfo.Pre.Helps.Stairs[0].Values track by $index" ng-if="item.FieldIdentifier==='H_IDX_DPLM_DEG_ID'">تحصیلات</li>
+                                    <li class="border border-info bg-light p-1" style="width: 100px; font-size: 10px" ng-repeat="item in getSortedItems(PersonnelActionForm.writInfo.Pre.Helps.Stairs[0].Values)" ng-if="item.FieldIdentifier!='H_IDX_DPLM_DEG_ID'">
+                                        {{item.FieldTitle}}
+                                        <div class="d-flex justify-content-between m-auto">
+                                            <div class="col-3 p-0 m-0">س</div>
+                                            <div class="col-3 p-0 m-0">م</div>
+                                            <div class="col-3 p-0 m-0">ر</div>
+                                        </div>
+                                    </li>
+                                    <li class="border border-info bg-light p-1" style="width:10%">امتیاز</li>
+                                    <li class="border border-info bg-light p-1" style="width:10%">مهارت</li>
+                                </ul>
+                                <ul id="parentIdPRE" ng-if="PersonnelActionForm.writInfo.Pre.Helps.Stairs.length" ng-repeat="items in getSortedItems(PersonnelActionForm.writInfo.Pre.Helps.Stairs)" class="d-inline-flex m-0 p-0 list-unstyled">
+                                    <li class="border bg-light border-info p-1" style="width: 100px; font-size: 10px" ng-repeat="item in items.Values" ng-if="item.FieldIdentifier == 'H_IDX_DPLM_DEG_ID'">
+                                        {{item.StringValue}}
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 100px; font-size: 10px" ng-repeat="item in getSortedItems(items.Values)" ng-if="item.FieldIdentifier != 'H_IDX_DPLM_DEG_ID'">
+                                        <div class="d-flex justify-content-between m-auto pointer" ng-mouseenter="showTitle(item.FieldIdentifier,items,$index,$parent.$parent.$index,'Pre')" ng-mouseleave="showTitleLeave($index,$parent.$parent.$index,'Pre')">
+                                            <div style="position: absolute; padding: 5px; left: 0;  border-radius: 5px; z-index: 50; max-width: 250px; max-height: 50px; display: none; border: none; background-color: rgba(0,0,0,.9) " id="PREsvc{{$index}}{{$parent.$parent.$index}}"></div>
+                                            <div style="position: absolute; padding: 5px; right: -40px; border-radius: 5px; z-index: 50; max-width: 250px; max-height: 50px; display: none; border: none; background-color: rgba(0,0,0,.9) " id="PREexp{{$index}}{{$parent.$parent.$index}}"></div>
+                                            <div class="col-3 p-0 m-0">{{item.DurationYear}}</div>
+                                            <div class="col-3 p-0 m-0">{{item.DurationMonth}}</div>
+                                            <div class="col-3 p-0 m-0">{{item.DurationDay}}</div>
+                                        </div>
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 10%; font-size: 10px" ng-repeat="item in items.Values" ng-if="item.StringValue !=undefined">
+                                        {{item.CalculationDescription.split(':')[2].split(',')[0].split('.')[0]}}
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 10%; font-size: 10px" ng-repeat="item in items.Values" ng-if="item.StringValue !=undefined">
+                                        {{item.CalculationDescription.split(':')[4].split(',')[0].split('.')[0]}}
+
+                                    </li>
+                                </ul>
+                                <ul id="parentIdsumPRE" ng-if="PersonnelActionForm.writInfo.Pre.Helps.Stairs.length" class="d-inline-flex m-0 p-0 list-unstyled">
+                                    <li class="border bg-light border-info p-1" style="width: 100px; font-size: 10px">
+                                        مجموع
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 100px; font-size: 10px" ng-if="PersonnelActionForm.writInfo.Pre.Helps.StairsServiceSum !=undefined">
+                                        <div class="d-flex justify-content-between m-auto pointer" ng-mouseenter="showTitleSum(PersonnelActionForm.writInfo.Pre.Helps.StairsServiceSummaries,'svcSum','Pre')" ng-mouseleave="showTitleLeaveSum('svcSum','Pre')">
+                                            <div style="position: absolute; padding: 5px;left:0;bottom:0; border-radius: 5px; z-index: 50; max-width: 550px; max-height: 250px; display: none; border: none; background-color: rgba(0,0,0,.9) " id="PREsvcSum"></div>
+                                            <div class="col-3 p-0 m-0">{{PersonnelActionForm.writInfo.Pre.Helps.StairsServiceSum.Year}}</div>
+                                            <div class="col-3 p-0 m-0">{{PersonnelActionForm.writInfo.Pre.Helps.StairsServiceSum.Month}}</div>
+                                            <div class="col-3 p-0 m-0">{{PersonnelActionForm.writInfo.Pre.Helps.StairsServiceSum.Day}}</div>
+                                        </div>
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 100px; font-size: 10px" ng-if="PersonnelActionForm.writInfo.Pre.Helps.StairsExperiencSum !=undefined">
+                                        <div class="d-flex justify-content-between m-auto pointer" ng-mouseenter="showTitleSum(PersonnelActionForm.writInfo.Pre.Helps.StairsExperienceSummaries,'expSum','Pre')" ng-mouseleave="showTitleLeaveSum('expSum','Pre')">
+                                            <div style="position: absolute; padding: 5px; right: -40px; bottom: 0; border-radius: 5px; z-index: 50; max-width: 550px; max-height: 250px; display: none; border: none; background-color: rgba(0,0,0,.9) " id="PREexpSum"></div>
+                                            <div class="col-3 p-0 m-0">{{PersonnelActionForm.writInfo.Pre.Helps.StairsExperiencSum.Year}}</div>
+                                            <div class="col-3 p-0 m-0">{{PersonnelActionForm.writInfo.Pre.Helps.StairsExperiencSum.Month}}</div>
+                                            <div class="col-3 p-0 m-0">{{PersonnelActionForm.writInfo.Pre.Helps.StairsExperiencSum.Day}}</div>
+                                        </div>
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 10%; font-size: 10px">
+                                        -
+                                    </li>
+                                    <li class="border bg-light border-info p-1" style="width: 10%; font-size: 10px">
+                                        -
+                                    </li>
+                                </ul>
+                            </div>
+                        </th>
+                        <th style="width: 22%;">
+                            امتیاز
+                        </th>
+                        <th style="width: 22%;">
+                            مبلغ
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="rows in PersonnelActionForm.writInfo.Pre.CurrencyGroupCategories" ng-if="rows.CategoryTitle != null">
+                        <td class="medium-font" colspan="3" style="border: none;padding: 0;font-size:1em">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td class="medium-font" rowspan="{{rows.Items.length}}" style="padding: 0;width: 24%;">
+                                            {{rows.CategoryTitle}}
+                                        </td>
+                                        <td class="medium-font" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(rows.Items[0].Currency.Field.Identifier):checkCurrencyWithEx(rows.Items[0].Currency.Field.Identifier)"
+                                            style="width: 22%;height:26.6px">
+                                            {{rows.Items[0].Currency.Field.Title}}
+                                        </td>
+                                        <td class="medium-font" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(rows.Items[0].Currency.Field.Identifier):checkCurrencyWithEx(rows.Items[0].Currency.Field.Identifier)"
+                                            style="width: 22%;height:26.6px">
+                                            {{rows.Items[0].Score.NumericValue}}
+                                        </td>
+                                        <td class="medium-font" ng-attr-title="{{rows.Items[0].PreCurrrency!=null?'عدد قبل از ضریب تعدیل: ' +rows.Items[0].PreCurrrency:''}}" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(rows.Items[0].Currency.Field.Identifier):checkCurrencyWithEx(rows.Items[0].Currency.Field.Identifier)"
+                                            style="width: 22%;height:26.6px">
+                                            {{addComma(rows.Items[0].Currency.NumericValue)}}
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat="currency in rows.Items" ng-if="!$first">
+                                        <td class="medium-font" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(currency.Currency.Field.Identifier):checkCurrencyWithEx(currency.Currency.Field.Identifier)"
+                                            style="width: 22%;height:26.6px">
+                                            {{currency.Currency.Field.Title}}
+                                        </td>
+                                        <td class="medium-font" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(currency.Currency.Field.Identifier):checkCurrencyWithEx(currency.Currency.Field.Identifier)"
+                                            style="width: 22%;height:26.6px">
+                                            {{currency.Score.NumericValue}}
+                                        </td>
+                                        <td class="medium-font" ng-attr-title="{{currency.PreCurrrency!=null?'عدد قبل از ضریب تعدیل: ' +currency.PreCurrrency:''}}" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(currency.Currency.Field.Identifier):checkCurrencyWithEx(currency.Currency.Field.Identifier)"
+                                            style="width: 22%;height:26.6px">
+                                            {{addComma(currency.Currency.NumericValue)}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="rows in PersonnelActionForm.writInfo.Pre.CurrencyGroupCategories" ng-if="rows.CategoryTitle == null">
+                        <td class="medium-font" colspan="3" style="padding: 0;border: none;font-size: 1em;">
+                            <table>
+                                <tbody>
+                                    <tr ng-repeat="currency in rows.Items">
+                                        <td class="medium-font" style="width: 46%;">
+                                            {{currency.Currency.Field.Title}}
+                                        </td>
+                                        <td class="medium-font" style="width: 22%;" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(currency.Score.Field.Identifier):checkCurrencyWithEx(currency.Score.Field.Identifier)">
+                                            {{currency.Score.NumericValue}}
+                                        </td>
+                                        <td class="medium-font" style="width: 22%;" ng-class="PersonnelActionForm.viewType!='ex'?checkCurrency(currency.Currency.Field.Identifier):checkCurrencyWithEx(currency.Currency.Field.Identifier)">
+                                            {{addComma(currency.Currency.NumericValue)}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('TotalWagePersian'):checkNonCurrencyWithEx('TotalWagePersian')">
+                        حقوق و فوق العاده های مندرج در این حکم جمعا به مبلغ <strong>{{PersonnelActionForm.writInfo.Pre.TotalWagePersian}}</strong> ریال
+                    </td>
+                </tr>
+                <tr>
+                    <td class="medium-font">
+                        پس از وضع کسور قانونی از <strong>{{PersonnelActionForm.writInfo.Pre.Credit.StringValue}}</strong> فصل
+                        <strong>{{PersonnelActionForm.writInfo.Pre.Chapter.StringValue}}</strong>
+                        ماده<strong>{{PersonnelActionForm.writInfo.Pre.Article.StringValue}}</strong> قابل
+                        پرداخت است
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" style="width: 30%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('ExecutionDatePersian'):checkNonCurrencyWithEx('ExecutionDatePersian')">
+                        <span class="medium-font">
+                            تاریخ اجرا: {{PersonnelActionForm.writInfo.Pre.ExecutionDatePersian}}
+                        </span>
+                    </td>
+                    <!--<td class="medium-font" style="width: 25%;" >-->
+                    <!-- تاریخ خاتمه -->
+                    <!--</td>-->
+                    <td class="medium-font" style="width: 35%;" ng-class="PersonnelActionForm.viewType!='ex'?(checkNonCurrency('FormNumberTitle') ||checkNonCurrency('IssueTitle')) :checkNonCurrencyWithEx('FormNumberTitle')||checkNonCurrencyWithEx('IssueTitle')">
+                        تاریخ صدور <input class="form-control date-picker" disabled id="issueDate" ng-model="PersonnelActionForm.writInfo.Pre.Issue.StringValue" style="display: inline-block;font-size:10px !important">
+                    </td>
+                    <td class="medium-font" style="width: 35%;" ng-class="PersonnelActionForm.viewType!='ex'?(checkNonCurrency('FormNumberTitle') ||checkNonCurrency('IssueTitle')) :checkNonCurrencyWithEx('FormNumberTitle')||checkNonCurrencyWithEx('IssueTitle')">
+                        شماره حکم <input class="form-control" disabled style="display: inline-block; font-size: 10px !important " ng-model="PersonnelActionForm.writInfo.Pre.FormNumber.StringValue">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="medium-font" style="width: 40%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('BossNameTitle'):checkNonCurrencyWithEx('BossNameTitle')">
+                        نام و نام خانوادگی مقام مسئول :
+                        <input class="form-control-custom width-90" id="SiniorInfo" ng-model="PersonnelActionForm.writInfo.Pre.BossName.StringValue">
+                        <img ng-if="checkingExist(PersonnelActionForm.writInfo.Pre.SignatureBase64)" crossorigin="use-credentials" referrerpolicy="no-referrer" alt="no sign" src="{{PersonnelActionForm.preSignatureBase64}}" width="100px" height="40px"/>
+                    </td>
+                    <td class="medium-font" style="width: 40%;" ng-class="PersonnelActionForm.viewType!='ex'?checkNonCurrency('BossPostTitle'):checkNonCurrencyWithEx('BossPostTitle')">
+                        پست سازمانی مقام مسئول :
+                        <strong>{{PersonnelActionForm.writInfo.Pre.BossPost.StringValue}}</strong>
+                    </td>
+                    <td class="medium-font" style="width: 20%;">
+                        نسخه : نسخ حکم
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <span class="pointer modal-chev" ng-click="slider('total-items')"
+       style="position: absolute;bottom: 3%;left: 3%;"><i class="far fa-chevron-up "></i></span>
+</div>

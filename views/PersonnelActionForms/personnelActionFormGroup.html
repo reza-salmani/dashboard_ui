@@ -1,0 +1,1322 @@
+﻿<form id="personnelActionGroupForm">
+    <div class="" ng-if="!PersonnelActionForm.checkValidation">
+        <div ng-include="PersonnelActionForm.redirectUrlForUnAuth"></div>
+    </div>
+    <div ng-if="PersonnelActionForm.checkValidation">
+        <p class="HeaderForm">
+            احکام گروهی
+        </p>
+        <div ng-if="PersonnelActionForm.loadingFailed && !PersonnelActionForm.loadingPage"
+            class="d-flex m-auto p-2 rounded w-50 bg-warning text-black font-weight-bold">
+            <h3 class="text-center">صفحه مورد نظر به درستی بارگذاری نشده است. لطفا مجدد تلاش نمایید!</h3>
+        </div>
+        <div ng-if="PersonnelActionForm.loadingPage && !PersonnelActionForm.loadingFailed"
+            class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
+            <div class="d-flex justify-content-center m-auto">
+                <i class="spinner-border text-primary" style="width: 50px; height: 50px;"></i>
+            </div>
+            <div class="mt-2">
+                <h3 class="text-center">درحال بارگذاری...</h3>
+            </div>
+        </div>
+        <div ng-if="!PersonnelActionForm.loadingPage && !PersonnelActionForm.loadingFailed">
+            <!-- advance filter -->
+            <div class="accordion" id="advanceSearch">
+                <div class="accordion-item">
+                    <div id="advanceSearch-collapseOne" class="accordion-collapse collapse" aria-labelledby="advanceSearch-headingOne"
+                        data-parent="#advanceSearch">
+                        <div class="accordion-body">
+                            <advance-search search-data="SearchDataItem" acardion-heading="advanceSearch-headingOne"
+                                acardion-target="advanceSearch-collapseOne" return-func="returnSearchDataFunc(SearchDataItem)"></advance-search>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- filter grid -->
+            <div class="card" ng-init="inputMasks()">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <label class="input-group-text">
+                                    تاریخ صدور از
+                                </label>
+                            </div>
+                            <input type="text" class="form-control date-picker" data-inputmask-alias="datetime"
+                                data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd"
+                                ng-model="PersonnelActionForm.showFilters.isfd">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <label class="input-group-text">
+                                    تاریخ صدور تا
+                                </label>
+                            </div>
+                            <input type="text" class="form-control date-picker" data-inputmask-alias="datetime"
+                                data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd"
+                                ng-model="PersonnelActionForm.showFilters.isud">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <label class="input-group-text">
+                                    تاریخ اجرا از
+                                </label>
+                            </div>
+                            <input type="text" class="form-control date-picker" data-inputmask-alias="datetime"
+                                data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd"
+                                ng-model="PersonnelActionForm.showFilters.exfd">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <label class="input-group-text">
+                                    تاریخ اجرا تا
+                                </label>
+                            </div>
+                            <input type="text" class="form-control date-picker" data-inputmask-alias="datetime"
+                                data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd"
+                                ng-model="PersonnelActionForm.showFilters.exud">
+                        </div>
+                    </div>
+                    <div class="col-lg-3" ng-if="PersonnelActionForm.refreshEmployeeTypeState">
+                        <custom-select selected-id="employeeType" max-selectable="1" required="false"
+                            disabled="PersonnelActionForm.employeeTypeDisable" footer="true" get-data="PersonnelActionForm.getEmployeeType"
+                            returned-data="PersonnelActionForm.returnedEmployeeTypeData"
+                            return-func="returnDataEmployeeTypeFunc(PersonnelActionForm.returnedEmployeeTypeData)"></custom-select>
+                    </div>
+                    <div class="col-lg-3" ng-if="!PersonnelActionForm.refreshWritTypeState"></div>
+                    <div class="col-lg-3" ng-if="PersonnelActionForm.refreshWritTypeState">
+                        <custom-select selected-id="writType" max-selectable="1" required="false" disabled="PersonnelActionForm.writTypeDisable"
+                            footer="true" get-data="PersonnelActionForm.getWritType" returned-data="PersonnelActionForm.returnedWritTypeData"
+                            return-func="returnDataWritTypeFunc(PersonnelActionForm.returnedWritTypeData)"></custom-select>
+                    </div>
+                    <div class="col-lg-3" ng-click="getActionFormTypeIdentiyFunc()">
+                        <custom-select selected-id="ActionFormTypeIdentiy" max-selectable="1" required="false" disabled="false" footer="true"
+                            get-data="PersonnelActionForm.getActionFormTypeIdentiy" returned-data="PersonnelActionForm.returnedActionFormTypeIdentiy"
+                            return-func="returnActionFormTypeIdentiyFunc(PersonnelActionForm.returnedActionFormTypeIdentiy)"></custom-select>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <label class="input-group-text">
+                                    شماره حکم
+                                </label>
+                            </div>
+                            <input class="form-control" autocomplete="off" ng-model="PersonnelActionForm.showFilters.frno">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="form-control bg-transparent">
+                                <div class="row">
+                                    <div class="custom-control custom-radio" style="width:33%">
+                                        <input type="radio" class="custom-control-input" ng-value="'0'" ng-model="PersonnelActionForm.showFilters.dft"
+                                            id="confirmed" name="confirmedRdio">
+                                        <label class="custom-control-label pt-2" for="confirmed">تایید شده</label>
+                                    </div>
+                                    <div class="custom-control custom-radio" style="width:33%">
+                                        <input type="radio" class="custom-control-input" ng-value="'1'" ng-model="PersonnelActionForm.showFilters.dft"
+                                            id="unconfirmed" name="confirmedRdio">
+                                        <label class="custom-control-label pt-2" for="unconfirmed">تایید نشده</label>
+                                    </div>
+                                    <div class="custom-control custom-radio" style="width:33%">
+                                        <input type="radio" class="custom-control-input" ng-value="null"
+                                            ng-model="PersonnelActionForm.showFilters.dft" id="null" name="confirmedRdio">
+                                        <label class="custom-control-label pt-2" for="null">همه</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="form-control bg-transparent">
+                                <div class="row text-right mr-1">
+                                    <div class="custom-control custom-checkbox" style="width:50%">
+                                        <input type="checkbox" class="custom-control-input" ng-false-value="null" ng-true-value="1"
+                                            ng-model="PersonnelActionForm.showFilters.il" id="latestWrits">
+                                        <label class="custom-control-label pt-1" for="latestWrits">آخرین احکام</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox" style="width:50%">
+                                        <input type="checkbox" class="custom-control-input" ng-false-value="null" ng-true-value="1"
+                                            ng-model="PersonnelActionForm.showFilters.gidx" id="PersonnelActionForms">
+                                        <label class="custom-control-label pt-1" for="PersonnelActionForms">گروه حکم</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div class="form-control bg-transparent">
+                                <div class="row text-right mr-1">
+                                    <div class="custom-control custom-checkbox" style="width:50%">
+                                        <input type="checkbox" class="custom-control-input" ng-false-value="null" ng-true-value="2"
+                                            ng-model="PersonnelActionForm.showFilters.dp" id="hasCorrection">
+                                        <label class="custom-control-label pt-1" for="hasCorrection">اصلاحیه دار</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox" style="width:50%">
+                                        <input type="checkbox" class="custom-control-input" ng-false-value="null" ng-true-value="1"
+                                            ng-model="PersonnelActionForm.showFilters.hv" id="hasValue">
+                                        <label class="custom-control-label pt-1" for="hasValue">دارای مقادیر</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center m-auto border" style="width:98%"></div>
+                    <div class="col-12 row">
+                        <div class="col-lg-7 pr-0">
+                            <div class="row col-12 p-0">
+                                <div style="width:20%">
+                                    <div class="custom-control custom-checkbox text-right">
+                                        <input type="checkbox" class="custom-control-input" ng-false-value="null" ng-true-value="1"
+                                            ng-model="PersonnelActionForm.showFilters.hp" id="hasPayment">
+                                        <label class="custom-control-label medium-font pt-1" for="hasPayment">احکام تایید شده مالی</label>
+                                    </div>
+                                </div>
+                                <div style="width:30%">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <label class="input-group-text">
+                                                تاریخ پردا
+                                                خت از
+                                            </label>
+                                        </div>
+                                        <input type="text" ng-disabled="!checkingExist(PersonnelActionForm.showFilters.hp)"
+                                            class="form-control date-picker" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd"
+                                            autocomplete="off" placeholder="yyyy/mm/dd" ng-model="PersonnelActionForm.showFilters.hpfd">
+                                    </div>
+                                </div>
+                                <div class="mr-2 ml-5" style="width:30%">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <label class="input-group-text">
+                                                تاریخ پرداخت تا
+                                            </label>
+                                        </div>
+                                        <input type="text" ng-disabled="!checkingExist(PersonnelActionForm.showFilters.hp)"
+                                            class="form-control date-picker" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd"
+                                            autocomplete="off" placeholder="yyyy/mm/dd" ng-model="PersonnelActionForm.showFilters.hpud">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row col-12">
+                                <div class="mr-0" style="width:30%">
+                                    <div class="custom-control custom-checkbox text-right">
+                                        <input type="checkbox" class="custom-control-input" ng-false-value="null" ng-true-value="1"
+                                            ng-model="PersonnelActionForm.showFilters.idt" id="hasIssue">
+                                        <label class="custom-control-label medium-font pt-1" for="hasIssue">احکام مشکل دار</label>
+                                    </div>
+                                </div>
+                                <div style="width:60%" ng-click="getDirtyCauseFunc()">
+                                    <custom-select selected-id="DirtyCause" required="false" disabled="PersonnelActionForm.showFilters.idt !==1"
+                                        footer="false" max-selectable="0" get-data="PersonnelActionForm.getDirtyCause"
+                                        returned-data="PersonnelActionForm.returnedDirtyCause"
+                                        return-func="returnDirtyCauseFunc(PersonnelActionForm.returnedDirtyCause)"></custom-select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12" style="text-align: left;">
+                        <button ng-if="PersonnelActionForm.checkValidationOnBtn" type="button" class="new-button green" ng-disabled="loading"
+                            ng-click="showGroupCreateModal()">
+                            <i class="far fa-plus"></i>
+                            صدور گروهی
+                            <div style="width: 10px; height: 10px" class="spinner-border spinner-border-sm text-white" ng-show="loadingGroupCreate">
+                            </div>
+                        </button>
+                        <button class="new-button red collapsed accordion-header" id="advanceSearch-headingOne" type="button" data-toggle="collapse"
+                            data-target="#advanceSearch-collapseOne" aria-expanded="false" aria-controls="advanceSearch-collapseOne">
+                            جستجوی پیشرفته
+                        </button>
+                        <button type="button" class="new-button" ng-disabled="loading" ng-click="removeFilter()">
+                            <i class="far fa-eye"></i>
+                            حذف فیترهای موجود
+                        </button>
+                        <button type="button" class="new-button" ng-disabled="loading" ng-click="ShowSearchFilter(PersonnelActionForm.showFilters)">
+                            <i class="far fa-eye"></i>
+                            مشاهده احکام
+                            <div style="width: 10px; height: 10px" class="spinner-border spinner-border-sm text-white" ng-show="loadingGridData">
+                            </div>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+            <!-- writ action form -->
+            <div class="card " style="margin-bottom:50px" ng-if="PersonnelActionForm.showGrid">
+                <div class="overflow-y p-0" style="max-height:280px !important">
+
+                    <table class="newTableStyle" style="border-bottom:none !important;border-top:none !important">
+                        <thead class="big-font">
+                            <tr>
+                                <th class="w-40px">
+                                    <div class="d-flex float-right">
+                                        <input type="checkbox" class="p-0 ml-1" title="انتخاب همه" ng-click="checkAllBtn($event)" />
+                                        <input type="checkbox" class="p-0 m-0" title="انتخاب این صفحه" id="checkThisPageId"
+                                            ng-checked="checkThisPageState()"
+                                            ng-click="checkThisPageBtn($event,PersonnelActionForm.writList.Items)" />
+                                    </div>
+                                </th>
+                                <th class="w-20p">
+                                    نام پرسنل
+                                </th>
+                                <th class="w-45p">
+                                    نوع حکم
+                                </th>
+                                <th class="w-15p">
+                                    شماره حکم
+                                </th>
+                                <th class="w-45px">
+                                    وضعیت
+                                </th>
+                                <th class="w-10p">
+                                    تاریخ اجرا
+                                </th>
+                                <th class="w-10p">
+                                    تاریخ صدور
+                                </th>
+                                <th class="w-60px">
+                                    گزینه ها
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-if="PersonnelActionForm.loadingGridData">
+                                <td class="col-12 text-center text-danger font-weight-bold" colspan="8">درحال جستجو...</td>
+                            </tr>
+                            <tr ng-if="!checkingExist(PersonnelActionForm.writList.Items) && !PersonnelActionForm.loadingGridData">
+                                <td class="col-12 text-center text-danger font-weight-bold" colspan="8">داده ای یافت نشد</td>
+                            </tr>
+                        </tbody>
+                        <tbody class="big-font font-weight-lighter" ng-if="checkingExist(PersonnelActionForm.writList.Items)"
+                            ng-repeat="writ in PersonnelActionForm.writList.Items track by writ.Id">
+                            <tr id="parent-tr-{{writ.Id}}" title="{{writ.TypeIdentity ==2?'حکم دستی':'حکم سیستمی'}}">
+                                <td ng-class="colorMarker(writ)">
+                                    <div class="d-flex justify-content-center">
+                                        <input type="checkbox" class="p-0 m-0" ng-checked="checkState(writ)"
+                                            ng-click="checkThisItemBtn($event,writ)" />
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="table-tree">
+                                        <span class="pointer float-right mr-1" ng-if="writ.HasChildren"
+                                            ng-click="showChildren(writ)" title="مشاهده اصلاحیه"><i id="plus-{{writ.Id}}" class="far fa-plus "></i></span>
+                                        {{writ.Personnel.FirstName}} {{writ.Personnel.LastName}}
+                                    </span>
+                                    <span ng-if="checkingExist(writ.Medium)" class="badge badge-info pointer" ng-click="showWrit(writ.Medium)">
+                                        {{writ.Medium.ActionTypeTitle}}
+                                    </span>
+                                </td>
+                                <td class="text-center pointer" ng-click="showWrit(writ)">{{writ.ActionTypeTitle}}</td>
+                                <td class="text-center">{{writ.FormNumber}}</td>
+                                <td class="text-center">
+                                    <i class="far fa-check text-success d-flex justify-content-center m-auto" title="تأیید شده سیستمی"
+                                        ng-if="!writ.IsDraft && !writ.HasPayment"></i>
+                                    <i class="far fa-close text-danger d-flex justify-content-center m-auto" title="تأیید نشده"
+                                        ng-if="writ.IsDraft && !writ.HasPayment"></i>
+                                    <div class="d-flex justify-content-center m-auto" title="تأیید شده مالی" ng-if="writ.HasPayment">
+                                        <div class="p-0" style="z-index: 10; margin: 0 0 0 -2px"><i class="far fa-check text-success"></i></div>
+                                        <div class=" p-0" style="z-index: 10; margin: 0 -2px 0 0"><i class="far fa-check text-success"></i></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">{{writ.ExecuteDatePersian}}</td>
+                                <td class="text-center">{{writ.IssueDatePersian}}</td>
+                                <td class="text-center">
+                                    <div class="d-flex" dir="ltr">
+                                        <div class="spinner-border spinner-border-sm float-left text-primary" ng-if="writ.loading"
+                                            style="margin-top: 0; margin-right: 5px;">
+                                        </div>
+                                        <span ng-if="!writ.loading" class="pointer float-left" style="margin: 0 7px 0 0;"
+                                            ng-click="showWrit(writ)" title="مشاهده حکم"><i class="far fa-eye "></i></span>
+
+                                        <span class="pointer float-left" ng-if="writ.HasValue" style="margin: 0 7px 0 0;" title="چاپ"
+                                            ng-click="printModal([writ],'grid')"><i class="far fa-print "></i></span>
+                                        <span class="far fa-book float-left pointer"
+                                            ng-if="writ.DependantType != 1 && !writ.IsDraft&& PersonnelActionForm.checkValidationOnBtn"
+                                            style="margin: 0 7px 0 0;" title="اصلاحیه حکم" ng-click="correction(writ)"><i class="far fa-print "></i></span>
+                                        <span class="pointer float-left" style="margin: 0 7px 0 0;"
+                                            ng-if="writ.IsDraft && !writ.HasPayment&& PersonnelActionForm.checkValidationOnBtn" title="تایید حکم"
+                                            ng-click="accept(writ)"><i class="far fa-check-square "></i></span>
+                                        <span class="pointer float-left"
+                                            ng-if="writ.IsDraft && !writ.HasPayment&& PersonnelActionForm.checkValidationOnBtn"
+                                            style="margin: 0 7px 0 0;" title="حذف حکم" ng-click="deleteIssuance(writ)"><i class="far fa-trash "></i></span>
+                                        <span class="pointer float-left" title="بازگشت حکم" ng-click="setForReturn(writ)"
+                                            ng-if="!writ.IsDraft && !writ.IsMiddleMan && !writ.HasPayment" style="margin: 0 7px 0 0;"><i class="far fa-undo "></i></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="plusCollapse-{{writ.Id}}">
+                                <td colspan="8" style="display:none" id="innerchild-{{writ.Id}}">
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+                <div class="col-12 d-flex justify-content-center mt-1 mb-1 border border-info"></div>
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="mr-1 text-right">
+                            <span ng-click="pagingGrid(PersonnelActionForm.writList.TotalPages)" class="asp-label" style="cursor: pointer;">
+                                <i class="far fa-chevron-right"></i>
+                                <i class="far fa-chevron-right" style="margin-right: -3px;"></i>
+                            </span>
+                            <span class="asp-label" ng-click="pagingGrid(PersonnelActionForm.writList.PageIndex +1)"
+                                style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                            <input class="form-control text-center" id="paging"
+                                placeholder="{{PersonnelActionForm.writList.PageIndex}} از  {{PersonnelActionForm.writList.TotalPages}}"
+                                style="width: 150px; display: inline-block; position: relative; top: 0;" ng-model="PersonnelActionForm.pageNumber"
+                                ng-keyup="pagingGrid(PersonnelActionForm.pageNumber)">
+                            <span class="asp-label" ng-click="pagingGrid(PersonnelActionForm.writList.PageIndex-1)"
+                                style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left"></i></span>
+                            <span ng-click="pagingGrid(1)" class="asp-label" style="cursor: pointer;">
+                                <i class="far fa-chevron-left" style="margin-left: -3px;"></i>
+                                <i class=" far fa-chevron-left"></i>
+                            </span>
+                        </div>
+                        <div class="float-left">
+                            <div class="d-flex">
+                                <div class="d-flex ml-2 small-font">
+                                    <p class="p-0 pl-1 m-0">دستی</p>
+                                    <div class="border ManualColor"></div>
+                                </div>
+                                <div class="d-flex ml-2 small-font">
+                                    <p class="p-0 pl-1 m-0">سیستمی</p>
+                                    <div class="border AutoColor"></div>
+                                </div>
+                                <div class="d-flex small-font">
+                                    <p class="p-0 pl-1 m-0">مشکل دار</p>
+                                    <div class="border dirtyColor"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="col-sm-4"></div> -->
+                    <div class="col-lg-7">
+                        <button type="button" class="new-button red" ng-if="PersonnelActionForm.checkValidationOnBtn"
+                            ng-disabled="!PersonnelActionForm.localSelectedWritItems.length && !PersonnelActionForm.CheckAllItems"
+                            ng-click="deleteIssuanceGroup()">
+                            <i class="far fa-trash"></i>
+                            حذف احکام انتخاب شده
+                            <div class="spinner-border spinner-border-sm float-left text-primary" ng-if="PersonnelActionForm.groupDeleteLoading"
+                                style="margin-top: 0; margin-right: 5px;">
+                            </div>
+                        </button>
+                        <button type="button" class="new-button" ng-click="printModal(PersonnelActionForm.localSelectedWritItems,'groupPrint')"
+                            ng-disabled="!PersonnelActionForm.localSelectedWritItems.length && !PersonnelActionForm.CheckAllItems">
+                            <i class="far fa-print"></i>
+                            چاپ احکام انتخاب شده
+                            <div class="spinner-border spinner-border-sm float-left text-warning" ng-if="PersonnelActionForm.groupPrintLoading"
+                                style="margin-top: 0; margin-right: 5px; width: 8px; height: 8px">
+                            </div>
+                        </button>
+                        <button type="button" class="new-button green" ng-if="PersonnelActionForm.checkValidationOnBtn"
+                            ng-disabled="!PersonnelActionForm.localSelectedWritItems.length && !PersonnelActionForm.CheckAllItems"
+                            ng-click="confirmGroup()">
+                            <i class="far fa-check"></i>
+                            تایید احکام انتخاب شده
+                            <div class="spinner-border spinner-border-sm float-left text-warning" ng-if="PersonnelActionForm.groupConfirmLoading"
+                                style="margin-top: 0; margin-right: 5px; width: 8px; height: 8px">
+                            </div>
+                        </button>
+                        <button type="button" class="new-button green" ng-if="PersonnelActionForm.checkValidationOnBtn"
+                            ng-disabled="!PersonnelActionForm.localSelectedWritItems.length && !PersonnelActionForm.CheckAllItems"
+                            ng-click="setForReturnGroup()">
+                            <i class="far fa-close"></i>
+                            عدم تایید احکام انتخاب شده
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- show action form -->
+            <div class="modal fade " id="writModal">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                مشاهده حکم
+                                <span class="cancelIcon" ng-click="closeWritModal()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="row">
+                                    <div class="col-sm-12 asp-label" style="text-align: right;">
+                                        <div dir="ltr" class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label id="exedit" ng-if="PersonnelActionForm.exIsTrue" ng-click="setView('ex')"
+                                                class="btn btn-outline-info small-font">
+                                                <input type="radio" name="options" value="ex" ng-model="PersonnelActionForm.viewType" id="option1" />
+                                                مقایسه با اصلاحیه
+                                            </label>
+                                            <label id="prewrit" class="btn btn-outline-info small-font" ng-click="setView('pre')">
+                                                <input type="radio" name="options" value="pre" ng-model="PersonnelActionForm.viewType" id="option2" />
+                                                مقایسه با قبلی
+                                            </label>
+                                            <label id="current" class="btn btn-outline-info small-font active" ng-click="setView(null)">
+                                                <input type="radio" name="options" value="{{null}}" ng-model="PersonnelActionForm.viewType"
+                                                    id="option3" />
+                                                حکم فعلی
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="row">
+                                    <div ng-if="PersonnelActionForm.viewType == 'ex' && PersonnelActionForm.writInfo.ExOne.TypeIdentity !==2"
+                                        style="padding: 0;" class="col-lg-6">
+                                        <div ng-include="PersonnelActionForm.exPage"></div>
+                                    </div>
+                                    <div ng-if="PersonnelActionForm.viewType == 'ex' && PersonnelActionForm.writInfo.ExOne.TypeIdentity ===2"
+                                        style="padding: 0;" class="col-lg-6">
+                                        <div ng-include="PersonnelActionForm.exPageM"></div>
+                                    </div>
+                                    <div ng-if="PersonnelActionForm.viewType == 'pre' && PersonnelActionForm.writInfo.Pre.TypeIdentity !==2"
+                                        class="col-lg-6" style="padding: 0;">
+                                        <div ng-include="PersonnelActionForm.prePage"></div>
+                                    </div>
+                                    <div ng-if="PersonnelActionForm.viewType == 'pre' && PersonnelActionForm.writInfo.Pre.TypeIdentity ===2"
+                                        class="col-lg-6" style="padding: 0;">
+                                        <div ng-include="PersonnelActionForm.prePageM"></div>
+                                    </div>
+                                    <div ng-if="PersonnelActionForm.writInfo.Current.TypeIdentity !==2"
+                                        ng-class="!checkingExist(PersonnelActionForm.viewType) ? ['col-lg-12']:['col-lg-6']"
+                                        ng-include="PersonnelActionForm.currentPage" style="padding: 0;">
+                                    </div>
+                                    <div ng-if="PersonnelActionForm.writInfo.Current.TypeIdentity ===2"
+                                        ng-class="!checkingExist(PersonnelActionForm.viewType) ? ['col-lg-12']:['col-lg-6']"
+                                        ng-include="PersonnelActionForm.currentPageM" style="padding: 0;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="mr-3" style="width:150px;position:absolute">
+                                    <div class="row">
+                                        <div class="d-flex ml-3">
+                                            <strong class="ml-1" style="height: 20px; border: 5px solid rgba(0, 0, 255, 0.20) !important"></strong>
+                                            <p class="small-font p-0">جدید</p>
+                                        </div>
+                                        <div class="d-flex ml-3">
+                                            <strong class="ml-1" style="height: 20px; border: 5px solid rgba(255, 255, 0, 0.20) !important"></strong>
+                                            <p class="small-font p-0">تغییر یافته</p>
+                                        </div>
+                                        <div class="d-flex">
+                                            <strong class="ml-1" style="height: 20px; border: 5px solid rgba(255, 0, 0, 0.20) !important"></strong>
+                                            <p class="small-font p-0">حذف شده</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="text-align: left;" ng-show="!PersonnelActionForm.correctStatus">
+                                    <button type="button" class="new-button bg-warning text-dark"
+                                        ng-click="printModal([PersonnelActionForm.selectedWritItemInfo],'printFromShowingWrit')">
+                                        <i class="far fa-print"></i>
+                                        چاپ
+                                        <div class="spinner-border spinner-border-sm float-left text-primary"
+                                            ng-if="PersonnelActionForm.inShowPrintLoading" style="margin-top: 0; margin-right: 5px;">
+                                        </div>
+                                    </button>
+                                    <button type="button" class="new-button red" ng-click="closeWritModal()">
+                                        <i class="far fa-close"></i>
+                                        بستن
+                                    </button>
+                                    <button type="button" ng-if="PersonnelActionForm.checkValidationOnBtn" class="new-button"
+                                        ng-disabled="PersonnelActionForm.selectedWritItemInfo.HasPayment" ng-click="changeCorrectStatus()">
+                                        <i class="far fa-edit"></i>
+                                        ویرایش حکم
+                                        <div style="left: 8px; bottom: 10px; width: 8px; height: 8px"
+                                            class="spinner-border text-warning position-absolute" ng-if="loading"></div>
+                                    </button>
+                                    <button type="button" class="new-button green"
+                                        ng-if="PersonnelActionForm.writInfo.IsDraft && !PersonnelActionForm.exIsTrue && PersonnelActionForm.checkValidationOnBtn"
+                                        ng-click="accept(PersonnelActionForm.writInfo)">
+                                        <i class="far fa-check"></i>
+                                        تایید حکم
+                                    </button>
+                                </div>
+                                <div style="text-align: left;"
+                                    ng-show="PersonnelActionForm.correctStatus && PersonnelActionForm.checkValidationOnBtn">
+                                    <button type="button" class="new-button red" ng-click="cancelCorrectStatus()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green" ng-click="confirmCorrectModal()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- accept action form -->
+            <div class="modal fade" id="acceptModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                تایید حکم
+                                <span class="cancelIcon" ng-click="cancelAccept()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="center">
+                                    <p class="text-danger asp-label">
+                                        آیا از تایید این حکم مطمئن هستید؟
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button type="button" class="new-button red" ng-click="cancelAccept()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green" ng-click="confirmAccept()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div style=" bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                                            ng-if="PersonnelActionForm.confirmAcceptloading"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- accept group action form -->
+            <div class="modal fade" id="checkConfirmModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                تایید احکام انتخاب شده
+                                <span class="cancelIcon" ng-click="cancelCheckConfirm()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <p class="center text-danger asp-label">
+                                    آیا از تایید احکام انتخاب شده مطمئن هستید؟
+                                </p>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button class="new-button red" ng-click="cancelCheckConfirm()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button class="new-button green" ng-click="confirmCheck()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div style=" bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                                            ng-if="PersonnelActionForm.confirmAcceptGrouploading"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- return action form -->
+            <div class="modal fade" id="returnModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                بازگشت حکم
+                                <span class="cancelIcon" ng-click="cancelReturnIssuance()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="center">
+                                    <p class="text-danger asp-label">
+                                        آیا از بازگشت این حکم مطمئن هستید؟
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button type="button" class="new-button red" ng-click="cancelReturnIssuance()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green" ng-click="confirmReturnIssuance()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div style=" bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                                            ng-if="PersonnelActionForm.confirmReturnloading"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- delete action form -->
+            <div class="modal fade" id="issuanceDeleteModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                حذف حکم
+                                <span class="cancelIcon" ng-click="cancelDeleteIssuance()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="center">
+                                    <p class="text-danger asp-label">
+                                        آیا از پاک کردن این حکم مطمئن هستید؟
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button type="button" class="new-button red" ng-click="cancelDeleteIssuance()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green" ng-click="confirmDeleteIssuance()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div style=" bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                                            ng-if="confirmDeleteLoading"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- delete group action form -->
+            <div class="modal fade" id="deleteIssuanceModalGroup">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                حذف احکام گروهی
+                                <span class="cancelIcon" ng-click="cancelDeleteIssuanceConfirm()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="center">
+                                    <p class="text-danger asp-label">
+                                        آیا از پاک کردن همه احکام انتخابی مطمئن هستید؟
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button type="button" class="new-button red" ng-click="cancelDeleteIssuanceConfirm()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green" ng-click="deleteIssuanceGroupConfirm()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div class="spinner-border spinner-border-sm text-warning" ng-if="PersonnelActionForm.groupDeleteLoading"
+                                            style="width: 8px; height: 8px">
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- return group action form -->
+            <div class="modal fade" id="returnGroupModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                بازگشت احکام گروهی
+                                <span class="cancelIcon" ng-click="cancelReturnGroup()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="center">
+                                    <p class="text-danger asp-label">
+                                        آیا از بازگشت همه احکام انتخابی مطمئن هستید؟
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button type="button" class="new-button red" ng-click="cancelReturnGroup()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green" ng-click="ReturnGroupConfirm()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div class="spinner-border spinner-border-sm float-left text-warning"
+                                            ng-if="PersonnelActionForm.groupReturnLoading"
+                                            style="margin-top: 0; margin-right: 5px; width: 8px; height: 8px">
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- print action form -->
+            <div class="modal" style="background-color:rgba(0,0,0,0.5)" id="printConfirmModal">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                انتخاب موارد چاپ
+                                <span class="cancelIcon" ng-click="cancelPrint()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card">
+                                <div class="row">
+                                    <div class="col-lg-4" style="text-align: right;">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" ng-click="checkPrintAll($event,PersonnelActionForm.printSetting.Items)"
+                                                    class="custom-control-input" id="all" />
+                                                <label class="custom-control-label pt-1" for="all">
+                                                    انتخاب همه
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4" style="text-align: right;" ng-if="!EmployeeTypeIsSameInItems">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" ng-init="PersonnelActionForm.printItems.allInOne = ''" ng-false-value="''"
+                                                    class="custom-control-input" ng-true-value="'&aio=true'"
+                                                    ng-model="PersonnelActionForm.printItems.allInOne" id="checkForDistinct" />
+                                                <label class="custom-control-label pt-1" for="checkForDistinct">
+                                                    در قالب یک فایل کلی
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4"
+                                        ng-if="PersonnelActionForm.selectedItemForPrinting.length ===1 && PersonnelActionForm.selectedItemForPrinting[0].IsMiddleMan"
+                                        style="text-align: right;">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" ng-true-value="true" ng-false-value="false"
+                                                    ng-model="PersonnelActionForm.printItems.correctStatusPrint" class="custom-control-input"
+                                                    id="customCheck-i-correct" />
+                                                <label class="custom-control-label pt-1" for="customCheck-i-correct">
+                                                    چاپ همراه با اصلاحیه
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 ml-auto mr-auto mt-1 mb-1 d-flex justify-content-center border"></div>
+                                <div class="row">
+                                    <div class="col-sm-12" style="text-align: right;"
+                                        ng-repeat="printSet in PersonnelActionForm.printSetting.Items track by $index">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label"
+                                            ng-repeat="subPrintSet in printSet.Values track by $index">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" ng-checked="checkSelectedState(subPrintSet)" class="custom-control-input"
+                                                    ng-click="setCheckboxForWritPrintType($event,subPrintSet,$index)" id="customCheck-i-{{$index}}"
+                                                    name="example1" />
+                                                <label class="custom-control-label pt-1" for="customCheck-i-{{$index}}">
+                                                    {{subPrintSet.t}}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 ml-auto mr-auto mt-1 mb-1 d-flex justify-content-center border"></div>
+                                <div class="row">
+                                    <div class="col-lg-3" style="text-align: right;">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" value="pdf" name="outputType" ng-model="PersonnelActionForm.printItems.outputType"
+                                                    class="custom-control-input" id="outputTypepdf" />
+                                                <label class="custom-control-label pt-1" for="outputTypepdf">
+                                                    <i class="far fa-file-pdf big-font text-success"></i>pdf
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3" style="text-align: right;">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" value="docx" name="outputType"
+                                                    ng-model="PersonnelActionForm.printItems.outputType" class="custom-control-input"
+                                                    id="outputTypeword" />
+                                                <label class="custom-control-label pt-1" for="outputTypeword">
+                                                    <i class="far fa-file-word big-font text-primary"></i> word
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3" style="text-align: right;">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" value="xlsx" name="outputType"
+                                                    ng-model="PersonnelActionForm.printItems.outputType" class="custom-control-input"
+                                                    id="outputTypexlsx" />
+                                                <label class="custom-control-label pt-1" for="outputTypexlsx">
+                                                    <i class="far fa-file-excel big-font text-info"></i> excel
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3" style="text-align: right;">
+                                        <div style="text-align: right; display: inline-block; margin: 5px;" class="asp-label">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" value="zip" name="outputType" ng-model="PersonnelActionForm.printItems.outputType"
+                                                    class="custom-control-input" id="outputTypzip" />
+                                                <label class="custom-control-label pt-1" for="outputTypezip">
+                                                    <i class="far fa-file-zipper big-font text-warning"></i> zip
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button type="button" class="new-button red" ng-click="cancelPrint()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button type="button" class="new-button green"
+                                        ng-disabled="!checkingExist(PersonnelActionForm.selectedPrintSettingItems)|| !checkingExist(PersonnelActionForm.printItems.outputType)"
+                                        ng-click="confirmPrint(PersonnelActionForm.printItems)">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div style=" bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                                            ng-if="PersonnelActionForm.confirmPrintloading"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- correction action form -->
+            <div class="modal fade" id="correctModal">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                صدور اصلاحیه حکم برای : <strong>{{PersonnelActionForm.correctItem.ActionTypeTitle}}</strong> به شماره : <strong
+                                    class="badge badge-success p-1">{{PersonnelActionForm.correctItem.FormNumber}}</strong>
+                                <span class="cancelIcon" ng-click="cancelCorrect()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div class="card" ng-init="inputMasks()">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text">
+                                                    تاریخ اجرا
+                                                </label>
+                                            </div>
+                                            <input class="form-control" disabled="disabled"
+                                                ng-model="PersonnelActionForm.correctItem.ExecuteDatePersian">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text">
+                                                    تاریخ اصلاحیه
+                                                </label>
+                                            </div>
+                                            <input class="form-control date-picker" data-inputmask-alias="datetime"
+                                                data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd"
+                                                ng-model="PersonnelActionForm.correctItem.correctDate">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text">
+                                                    شماره اصلاحیه
+                                                </label>
+                                            </div>
+                                            <input class="form-control" type="number" ng-model="PersonnelActionForm.correctItem.maxNumber">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="overflow-y p-0" style="max-height:280px !important">
+                                            <table class="newTableStyle" style="border-bottom:none !important;border-top:none !important">
+                                                <thead class="big-font">
+                                                    <tr>
+                                                        <th style="width: 5%;">
+                                                            <input type="checkbox" ng-model="checkAll"
+                                                                ng-checked="checkAllState(PersonnelActionForm.correctIssuanceList)"
+                                                                ng-click="addAllToCorrectList($event,PersonnelActionForm.correctIssuanceList)" />
+                                                        </th>
+                                                        <th style="width: 10%;">
+                                                            شماره حکم
+                                                        </th>
+                                                        <th style="width: 40%;">
+                                                            عنوان
+                                                        </th>
+                                                        <th style="width: 20%;">
+                                                            تاریخ اجرا
+                                                        </th>
+                                                        <th style="width: 20%;">
+                                                            تاریخ صدور
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="data in PersonnelActionForm.correctIssuanceList">
+                                                        <td class="m-0 p-0">
+                                                            <input type="checkbox" ng-click="addToCorrectList($event,data)"
+                                                                ng-checked="checkCorrectList(data.Id)" id="customCheck-correct-{{data.Id}}"
+                                                                name="example1" />
+                                                        </td>
+                                                        <td class="m-0 p-0" ng-class="selfSelectorForCorrection($index)">
+                                                            {{data.FormNumber}}
+                                                        </td>
+                                                        <td class="m-0 p-0">
+                                                            {{data.ActionTypeTitle}}
+                                                        </td>
+                                                        <td class="m-0 p-0">
+                                                            {{data.ExecuteDatePersian}}
+                                                        </td>
+                                                        <td class="m-0 p-0">
+                                                            {{data.IssueDatePersian}}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div style="text-align: left;">
+                                    <button class="new-button red" ng-click="cancelCorrect()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button ng-disabled="!checkingExist(PersonnelActionForm.correctToSend)" class="new-button green"
+                                        ng-click="confirmCorrect(PersonnelActionForm.correctItem)">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                        <div style="left: 8px; bottom: 10px; width: 8px; height: 8px"
+                                            class="spinner-border text-warning position-absolute" ng-if="loadingCorrection"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- creation action form -->
+            <div class="modal fade" id="groupCreateModal">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p class="HeaderForm">
+                                صدور گروهی احکام
+                                <span class="cancelIcon" ng-click="cancelGroupCreation()"><i class="far fa-close "></i></span>
+                            </p>
+                            <div ng-if="PersonnelActionForm.firstLevel">
+                                <div class="accordion" id="advanceSearchGroup">
+                                    <div class="accordion-item">
+                                        <div id="advanceSearch-collapseGroupOne" class="accordion-collapse collapse"
+                                            aria-labelledby="advanceSearch-headingGroupOne" data-parent="#advanceSearchGroup">
+                                            <advance-search search-data="SearchDataItemGroup" acardion-heading="advanceSearch-headingGroupOne"
+                                                acardion-target="advanceSearch-collapseGroupOne"
+                                                return-func="returnSearchDataGroupFunc(SearchDataItemGroup)"></advance-search>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <custom-select selected-id="employeeTypeINGroupCreate" max-selectable="0" required="true" disabled="false"
+                                                footer="true" get-data="getEmployeeTypeGroupCreate"
+                                                returned-data="returnedEmployeeTypeDataGroupCreate"
+                                                return-func="returnDataEmployeeTypeGroupCreateFunc(returnedEmployeeTypeDataGroupCreate)"></custom-select>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <button class="new-button mr-1 float-left" ng-click="showPersonnelsInCreateGroup()"
+                                                ng-disabled="!checkingExist(PersonnelActionForm.groupCreate.employeeTypeId)" type="button">
+                                                مشاهده
+                                            </button>
+                                            <button class="new-button red collapsed accordion-header float-left" id="advanceSearch-headingGroupOne"
+                                                type="button" data-toggle="collapse" data-target="#advanceSearch-collapseGroupOne"
+                                                aria-expanded="false" aria-controls="advanceSearch-collapseGroupOne">
+                                                جستجوی پیشرفته
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-if="PersonnelActionForm.ShowPersonnels" class="card">
+                                    <div class="table-body p-0 m-0" style="height:350px !important">
+                                        <table class="test">
+                                            <thead id="table_header" style="position: sticky; top: 0;z-index:10;">
+                                                <tr class="row p-0 m-0">
+                                                    <th style="width: 5%">
+                                                        <div class="d-flex">
+                                                            <input type="checkbox" class="p-0 ml-1" title="انتخاب همه"
+                                                                ng-click="checkAllGroup($event)" />
+                                                            <input type="checkbox" class="p-0 m-0" title="انتخاب این صفحه"
+                                                                ng-checked="checkThisPageBtnState(tableData.Items)"
+                                                                ng-click="checkThisPageGroup($event,tableData.Items)" />
+                                                        </div>
+                                                    </th>
+                                                    <th style="width: 25%">
+                                                        نام
+                                                    </th>
+                                                    <th style="width: 25%">
+                                                        نام خانوادگی
+                                                    </th>
+                                                    <th style="width: 25%">
+                                                        شماره مستخدمی
+                                                    </th>
+                                                    <th style="width: 20%">
+                                                        کد پرسنلی
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table_body" class="row w-100 m-0">
+                                                <tr ng-repeat="personnel in tableData.Items track by personnel.Id"
+                                                    class="row p-0 m-0 w-100 col-12 pointer">
+                                                    <td style="width: 5%">
+                                                        <input type="checkbox" ng-checked="checkStateGroup(personnel)"
+                                                            ng-click="selectPersonelItem($event,personnel)">
+                                                    </td>
+                                                    <td style="width: 25%">
+                                                        {{personnel.FirstName}}
+                                                    </td>
+                                                    <td style="width: 25%">
+                                                        {{personnel.LastName}}
+                                                    </td>
+                                                    <td style="width: 25%">
+                                                        {{personnel.PersonnelNo}}
+                                                    </td>
+                                                    <td style="width: 20%">
+                                                        {{personnel.DossierNo}}
+                                                    </td>
+                                                </tr>
+                                                <tr class="row" ng-if="tableData.Items == undefined">
+                                                    <td colspan="5">
+                                                        <p class="text-danger text-center">
+                                                            موردی با این مشخصات پیدا نشد
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-12 mr-auto  ml-auto mt-1 mb-1 d-flex justify-content-center border"></div>
+                                    <div class="not_select">
+                                        <div class="row">
+                                            <div class="col" style="text-align: right;">
+                                                <span ng-click="changePagination(tableData.TotalPages)" style="cursor: pointer;">
+                                                    <i class="far fa-angle-double-right" style="font-size: 1.1em;"></i>
+                                                </span>
+
+                                                <span class="asp-label" ng-click="changePagination(tableData.PageIndex+1)"
+                                                    style="margin: 0 10px; cursor: pointer; font-size: 1.1em;"><i class="far fa-angle-right "></i></span>
+
+                                                <input class="form-control text-center" id="pagingD"
+                                                    placeholder="{{tableData.PageIndex}} از  {{tableData.TotalPages}}"
+                                                    style="width: 30%; display: inline-block; position: relative; top: 0; font-size: 1.1em;"
+                                                    ng-model="pageNumber" ng-keyup="changePagination(pageNumber);">
+
+                                                <span class="asp-label" ng-click="changePagination(tableData.PageIndex-1)"
+                                                    style="margin: 0 10px; cursor: pointer; font-size: 1.1em;"><i class="far fa-angle-left "></i></span>
+
+                                                <span ng-click="changePagination(1)" style="cursor: pointer;">
+                                                    <i class="far fa-angle-double-left asp-label" style="margin-left: -3px; font-size: 1.1em;"></i>
+                                                </span>
+
+                                            </div>
+                                            <div class="col" style="text-align: left;">
+                                                <button ng-click="nextLevel()"
+                                                    ng-disabled="!checkingExist(PersonnelActionForm.groupCreate.personnels)" class="new-button green">
+                                                    <i class="far fa-check"></i>
+                                                    تایید افراد انتخاب شده و مرحله بعد
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card" ng-if="PersonnelActionForm.secondLevel">
+                                <div class="col-sm-4 p-0" ng-init="inputMasks()">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text">
+                                                تاریخ اجرا
+                                            </label>
+                                        </div>
+                                        <input class="form-control date-picker" ng-model="executeDate" ng-change="enableContinue(executeDate)"
+                                            data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off"
+                                            placeholder="yyyy/mm/dd" />
+                                    </div>
+                                </div>
+                            </div>
+                            {{executeDate}}
+                            <div class="card" ng-if="PersonnelActionForm.thirdLevel">
+                                <div class="col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <custom-select selected-id="writTypeInGroupCreation" max-selectable="0" required="true" disabled="false"
+                                                footer="true" get-data="PersonnelActionForm.getWritTypeInGroupCreation"
+                                                returned-data="PersonnelActionForm.returnedWritTypeInGroupCreationData"
+                                                return-func="returnDataWritTypeINGroupCreationFunc(PersonnelActionForm.returnedWritTypeInGroupCreationData)"></custom-select>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <label class="input-group-text">
+                                                        شماره حکم
+                                                    </label>
+                                                </div>
+                                                <input class="form-control" required
+                                                    ng-class="{'border border-danger':!checkingExist(PersonnelActionForm.groupCreate.entry.no)}"
+                                                    ng-model="PersonnelActionForm.groupCreate.entry.no">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4" ng-init="inputMasks()">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <label class="input-group-text">
+                                                        تاریخ صدور
+                                                    </label>
+                                                </div>
+                                                <input class="form-control date-picker" id="entryDate1" required
+                                                    ng-class="{'border border-danger':!checkingExist(PersonnelActionForm.groupCreate.entryDateStart)}"
+                                                    data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" placeholder="yyyy/mm/dd"
+                                                    ng-model="PersonnelActionForm.groupCreate.entryDateStart" autocomplete="off">
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-lg-12 p-0">
+                                    <div class="input-group ">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text">
+                                                شرح حکم
+                                            </label>
+                                        </div>
+                                        <textarea disabled class="form-control" ng-model="PersonnelActionForm.groupCreate.entry.des"
+                                            style="height: 10em !important;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card" ng-if="PersonnelActionForm.thirdLevel || PersonnelActionForm.secondLevel">
+                                <div class="col-12">
+                                    <div class="float-right medium-font">تعداد افراد انتخاب شده:
+                                        <strong>{{PersonnelActionForm.groupCreate.IdsP.length}}</strong> نفر</div>
+                                    <div class="float-left">
+                                        <button ng-if="PersonnelActionForm.thirdLevel" class="new-button red" ng-click="cancelGroupCreation()">
+                                            <i class="far fa-close"></i>
+                                            انصراف
+                                        </button>
+                                        <button ng-if="PersonnelActionForm.thirdLevel" class="new-button green" ng-click="returnLevel()">
+                                            <i class="far fa-undo"></i>
+                                            بازگشت
+                                        </button>
+                                        <button ng-if="PersonnelActionForm.secondLevel" ng-disabled="!PersonnelActionForm.groupCreate.Continue"
+                                            class="new-button" ng-click="showThirdLevel()">
+                                            ادامه
+                                            <i class="far fa-arrow-left"></i>
+                                        </button>
+                                        <button ng-if="PersonnelActionForm.thirdLevel" class="new-button green"
+                                            ng-disabled="!checkingExist(PersonnelActionForm.groupCreate.entry.isuuanceId) ||!checkingExist(PersonnelActionForm.groupCreate.entryDateStart) ||!checkingExist(PersonnelActionForm.groupCreate.entry.no)"
+                                            ng-click="confirmThirdLevel(PersonnelActionForm.groupCreate)">
+                                            <i class="far fa-check"></i>
+                                            تایید و ادامه
+                                            <div style="width: 8px; height: 8px" class="spinner-border text-warning" ng-if="groupCreateLoading"></div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="PersonnelActionForm.forthLevel">
+                                <div class="table-body p-0 m-0" style="height:350px !important">
+                                    <table class="test">
+                                        <thead id="table_header" style="position: sticky; top: 0;z-index:10;">
+                                            <tr class="row p-0 m-0">
+                                                <th style="width: 5%">
+                                                    <div class="d-flex">
+                                                        <input type="checkbox" title="انتخاب همه" ng-click="checkAllFinal($event)" />
+                                                    </div>
+                                                </th>
+                                                <th style="width: 25%">
+                                                    نام
+                                                </th>
+                                                <th style="width: 25%">
+                                                    نام خانوادگی
+                                                </th>
+                                                <th style="width: 25%">
+                                                    شماره مستخدمی
+                                                </th>
+                                                <th style="width: 20%">
+                                                    کد پرسنلی
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table_body" class="row w-100 m-0">
+                                            <tr ng-repeat="finalPersonnel in PersonnelActionForm.groupCreate.personnels track by finalPersonnel.Id"
+                                                class="row p-0 m-0 w-100 col-12 pointer">
+                                                <td style="width: 5%">
+                                                    <input type="checkbox" ng-checked="checkFinalState(finalPersonnel)"
+                                                        ng-click="selectFinalPersonelItem($event,finalPersonnel)">
+                                                </td>
+                                                <td style="width: 25%">
+                                                    {{finalPersonnel.FirstName}}
+                                                </td>
+                                                <td style="width: 25%">
+                                                    {{finalPersonnel.LastName}}
+                                                </td>
+                                                <td style="width: 25%">
+                                                    {{finalPersonnel.PersonnelNo}}
+                                                </td>
+                                                <td style="width: 20%">
+                                                    {{finalPersonnel.DossierNo}}
+                                                </td>
+                                            </tr>
+                                            <tr class="row" ng-if="!checkingExist(PersonnelActionForm.groupCreate.personnels)">
+                                                <td colspan="5">
+                                                    موردی با این مشخصات پیدا نشد
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col" style="text-align: left;">
+                                    <button ng-click="revertActionForms()" title="لطفا موردی را از لیست انتخاب نمایید"
+                                        ng-disabled="!checkingExist(PersonnelActionForm.FinalIds)" class="new-button red">
+                                        <i class="far fa-check"></i>
+                                        انصراف و حذف پیشنویس ها
+                                        <div style=" width: 8px; height: 8px" class="spinner-border text-warning" ng-if="groupCreateRemoveLoading">
+                                        </div>
+                                    </button>
+                                    <button ng-click="confirmActionForms()" title="لطفا موردی را از لیست انتخاب نمایید"
+                                        ng-disabled="!checkingExist(PersonnelActionForm.FinalIds)" class="new-button green">
+                                        <i class="far fa-check"></i>
+                                        تایید احکام پیش نویس
+                                        <div style="width: 8px; height: 8px" class="spinner-border text-warning" ng-if="groupCreateAcceptLoading">
+                                        </div>
+                                    </button>
+                                    <button ng-click="final()" class="new-button">
+                                        <i class="far fa-check"></i>
+                                        پایان
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

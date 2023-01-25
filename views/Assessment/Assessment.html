@@ -1,0 +1,429 @@
+﻿<div ng-controller="evaluationCtrl">
+<div class="" ng-if="!assessment.checkValidation">
+    <div ng-include="assessment.redirectUrlForUnAuth"></div>
+</div>
+<div ng-if="assessment.checkValidation" ng-style="assessment.isFromCartable?'':assessment.directStyle">
+    <div ng-if="assessment.loadingFailed && !assessment.loadingPage" class="d-flex m-auto p-2 rounded w-50 bg-warning text-black font-weight-bold">
+        <h3 class="text-center">صفحه مورد نظر به درستی بارگذاری نشده است. لطفا مجدد تلاش نمایید!</h3>
+    </div>
+    <div ng-if="assessment.loadingPage && !assessment.loadingFailed" class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
+        <div class="d-flex justify-content-center m-auto">
+            <i class="spinner-border text-primary" style="width: 50px; height: 50px;"></i>
+        </div>
+        <div class="mt-2">
+            <h3 class="text-center">درحال بارگذاری...</h3>
+        </div>
+    </div>
+    <div ng-if="!assessment.loadingPage && !assessment.loadingFailed">
+        <p class="HeaderForm">
+            <strong class="">{{assessment.formInfo.Title}}</strong>
+        </p>
+        <!-- Header Info for personnel to assessmenting -->
+        <div class="card">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend ">
+                            <label style="width: 110px" class="input-group-text">
+                                1- دستگاه
+                            </label>
+                        </div>
+                        <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                            {{assessment.headerInfo.OrganName}}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend ">
+                            <label style="width: 180px" class="input-group-text">
+                                2- نام و نام خانوادگی ارزشیابی شونده
+                            </label>
+                        </div>
+                        <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                            {{assessment.personnelInfo.FirstName}} {{assessment.personnelInfo.LastName}}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend ">
+                            <label style="width: 110px" class="input-group-text">
+                                3- کد ملی
+                            </label>
+                        </div>
+                        <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                            {{assessment.personnelInfo.NationalCode}}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend ">
+                            <label style="width: 110px" class="input-group-text">
+                                4- عنوان پست سازمانی
+                            </label>
+                        </div>
+                        <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                            {{assessment.headerInfo.PostName}}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend ">
+                            <label style="width: 110px" class="input-group-text">
+                                5- واحد سازمانی
+                            </label>
+                        </div>
+                        <p ng-if="!assessment.headerInfo.CommuniqueUnitName.length" ng-class="{'font-size-10px':assessment.isFromCartable}"
+                            class="form-control height-center" style="text-align: right;">
+                            {{assessment.headerInfo.UnitName}}
+                        </p>
+                        <p ng-if="assessment.headerInfo.CommuniqueUnitName.length" ng-class="{'font-size-10px':assessment.isFromCartable}"
+                            class="form-control height-center" style="text-align: right;">
+                            {{assessment.headerInfo.CommuniqueUnitName}}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend ">
+                            <label style="width: 110px" class="input-group-text">
+                                6- دوره ارزشیابی از
+                            </label>
+                        </div>
+                        <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                            {{assessment.priodsInfo.StartDatePersian}}
+                        </p>
+                        <h class=" pt-1 ml-1 mr-1" style="font-size: 12px">تا:</h>
+                        <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                            {{assessment.priodsInfo.FinishDatePersian}}
+                        </p>
+                    </div>
+                </div>
+                <!--<div class="col-sm-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend ">
+                                <label style="width: 110px" class="input-group-text">
+                                    7- مدت اشتغال در دوره
+                                </label>
+                            </div>
+                            <p ng-class="{'font-size-10px':assessment.isFromCartable}" class="form-control height-center" style="text-align: right;">
+                                {{assessment.headerInfo.EmploymentDistance}}
+                            </p>
+                        </div>
+                    </div>-->
+            </div>
+        </div>
+        <!-- dynamicaly created section of asessment priods -->
+        <div id="accordion" ng-if="assessment.headerInfo.Allowed">
+            <div class="card" ng-repeat="section in evaluation" id="accord-{{section.Id}}">
+                <div class="card-header accordion-toggle" style="cursor: pointer;" href="#demo-{{section.Id}}" data-toggle="collapse">
+                    <p class="text-right asp-label"><strong ng-if="section.Id ==1">8: عوامل ارزشیابی</strong></p>
+                    <p ng-if="section.Id !=3" class="asp-label" style="width: 85%; display: inline-block; text-align: right; margin: 5px;">
+                        {{section.Title}}
+                        <span ng-if="section.Id ==2" class="float-left">مجموع امتیاز مکتسبه : <strong
+                                id="public">{{assessment.SumScorePublicSection}}</strong></span>
+                        <span ng-if="section.Id ==1" class="float-left">مجموع امتیاز مکتسبه :
+                            <strong>{{assessment.SumScoreSpecialSection}}</strong></span>
+                    </p>
+                    <p ng-if="section.Id ==3" class="asp-label text-right">
+                        <strong>{{section.Title}}</strong>
+
+                    </p>
+                    <div style="width: 10%; display: inline-block; text-align: left;">
+                        <i class="far fa-chevron-down pointer gray" style="margin: 0 5px;"></i>
+                    </div>
+                </div>
+                <div class="card-body collapse" ng-class="{'show':section.selected}" style="padding: 0;" data-parent="#accordion"
+                    id="demo-{{section.Id}}">
+                    <div class="container-fluid " style="padding: 0;" ng-style="">
+                        <div ng-include="section.page"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card position-sticky" style="bottom:0;margin-bottom:50px !important"
+                ng-if="assessment.dynamicButtonAllow && assessment.isFromCartable">
+                <div class="float-left">
+                    <button type="button" class="new-button mr-1"
+                        ng-class="{'bg-danger':button.ActionTypeIdentity === 3,'bg-info':button.ActionTypeIdentity === 2,'bg-primary':button.ActionTypeIdentity === 1}"
+                        style="margin-right: 5px;" ng-repeat="button in assessment.buttonsArray" ng-click="dynamicButton(button)">
+                        {{button.ActionTitle}}
+                        <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning"
+                            ng-if="button.loadingDynamicButton"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- confirming for delete modal -->
+        <div class="modal fade" id="deleteConfirm">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p class="HeaderForm">
+                            تایید حذف
+                            <span class="cancelIcon" ng-click="cancelDelete()"><i class="far fa-close "></i></span>
+                        </p>
+                        <div class="card">
+                            <p class="asp-label text-danger" style="text-align: center; font-size: 1em;">
+                                آیا از حذف این مورد اطمینان دارید ؟
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div style="text-align: left;">
+                                <button type="button" class="new-button red" ng-click="cancelDelete()">
+                                    <i class="far fa-close"></i>
+                                    انصراف
+                                </button>
+                                <button type="button" class="new-button green" ng-click="confirmDeleteModal()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- create new item for program -->
+        <div class="modal fade" id="createNewOne">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p class="HeaderForm">
+                            ایجاد هدف جدید
+                            <span class="cancelIcon" ng-click="cancelCreate()"><i class="far fa-close "></i></span>
+                        </p>
+                        <div class="card">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" style="min-width: 13.5em;">
+                                                    اقدامات/ فعالیت ها/ پروژه های مورد انتظار واحد سازمانی
+                                                </label>
+                                            </div>
+                                            <input class="form-control" ng-model="assessment.createNewOneForProgram.Title" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <label class="input-group-text" style="min-width: 13.5em;">
+                                                    نتایج مورد انتظار
+                                                </label>
+                                            </div>
+                                            <input class="form-control" ng-model="assessment.createNewOneForProgram.QuantitativeResult" type="text">
+                                        </div>
+                                    </div>
+                                    <!--<div class="col-sm-12">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" ng-model="assessment.createNewOneForProgram.Public" id="customCheck" name="example1">
+                                                <label class="custom-control-label small-font pt-2" for="customCheck">قابل مشاهده و استفاده توسط همه</label>
+                                            </div>
+                                        </div>-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div style="text-align: left;">
+                                <button type="button" class="new-button red" ng-click="cancelCreate()">
+                                    <i class="far fa-close"></i>
+                                    انصراف
+                                </button>
+                                <button type="button" class="new-button green" ng-click="confirmCreateNew(assessment.createNewOneForProgram)">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                    <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning"
+                                        ng-if="createNewOneForProgramLoading"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- table list for created new program-->
+        <div class="modal fade" id="list">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p class="HeaderForm">
+                            لیست
+                            <span class="cancelIcon" ng-click="cancelList()"><i class="far fa-close "></i></span>
+                        </p>
+                        <div class="card">
+                            <div class="table-header">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th style="width: 50%;">
+                                                اهداف
+                                            </th>
+                                            <th style="width: 45%;">
+                                                نتیجه مورد نظر
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="table-body">
+                                <table class="test">
+                                    <tbody>
+                                        <tr ng-repeat="goal in assessment.tableDataList.Items">
+                                            <td>
+                                                <input type="checkbox" ng-model="sss" name="li-{{goal.Id}}" ng-checked="checkListTableSelected(goal)"
+                                                    ng-click="addToListPrePed($event,goal)">
+                                            </td>
+                                            <td style="width: 50%;">
+                                                <input type="text" title="{{goal.Title}}" ng-value="goal.Title" ng-disabled="!goal.editMode"
+                                                    style="width: 90%; display: inline-block; font-size: 1em !important" class="form-control">
+                                            </td>
+                                            <td style="width: 45%;">
+                                                <input type="text" title="{{goal.QuantitativeResult}}" ng-value="goal.QuantitativeResult"
+                                                    ng-disabled="!goal.editMode" style="width: 90%; display: inline-block; font-size: 1em !important"
+                                                    class="form-control">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="container">
+                                <div class="row position-relative">
+                                    <div class="height-center" style="text-align: right;">
+                                        <span ng-click="loadPageModal(assessment.tableDataList.TotalPages)" style="cursor: pointer;">
+                                            <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                                            <i class="far fa-chevron-right asp-label" style="margin-right: -3px; font-size: 0.7em;"></i>
+                                        </span>
+                                        <span class="asp-label" ng-click="loadPageModal(assessment.tableDataList.PageIndex+1)"
+                                            style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                                        <input class="form-control" id="pagingDM"
+                                            placeholder="{{assessment.tableDataList.PageIndex}} از  {{assessment.tableDataList.TotalPages}}"
+                                            style="width: 30%; display: inline-block; position: relative; top: 0; font-size: 0.7em;"
+                                            ng-model="assessment.pageNumberForListTable" ng-keyup="loadPageModal(assessment.pageNumberForListTable);">
+                                        <span class="asp-label" ng-click="loadPageModal(assessment.tableDataList.PageIndex-1)"
+                                            style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                                        <span ng-click="loadPageModal(1)" style="cursor: pointer;">
+                                            <i class="far fa-chevron-left asp-label" style="margin-left: -3px; font-size: 0.7em;"></i>
+                                            <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                                        </span>
+                                    </div>
+                                    <div style="text-align: left;">
+                                        <button class="new-button red" ng-click="cancelList()">
+                                            <i class="far fa-close"></i>
+                                            انصراف
+                                        </button>
+                                        <button class="new-button green" ng-click="addFromNewListToTableData()">
+                                            <i class="far fa-check"></i>
+                                            تایید
+                                            <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning"
+                                                ng-if="AddProgramFromListLoading"></div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Of Evaluator For Select  -->
+        <div class="modal fade" id="selectPersonnel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p class="HeaderForm">
+                            انتخاب پرسنل
+                            <span class="cancelIcon" ng-click="cancelSelectPersonnel()"><i class="far fa-close "></i></span>
+                        </p>
+
+                        <div class="card">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="table-body">
+                                        <table class="test">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 5%;"></th>
+                                                    <th style="width: 95%;">
+                                                        نام و نام خانوادگی
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="person in assessment.personnelForSelecting.Items">
+                                                    <td>
+                                                        <input type="checkbox" ng-click="addToSelectedPersonnel($event,person)"
+                                                            id="select-person-{{person.Id}}">
+                                                    </td>
+                                                    <td>
+                                                        {{person.FirstName}} {{person.LastName}}
+                                                    </td>
+                                                </tr>
+                                                <tr ng-if="assessment.personnelForSelecting.Items[0].HasMoreRow" ng-click="getMore()" class="pointer">
+
+                                                    <td colspan="2">
+                                                        موارد بیشتر...
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row col-12">
+                                        <div class="col-6 text-right">
+                                            <span ng-click="loadPagePersonnelSelected(assessment.personnelForSelecting.TotalPages)"
+                                                style="cursor: pointer;">
+                                                <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                                                <i class="far fa-chevron-right asp-label" style="margin-right: -3px; font-size: 0.7em;"></i>
+                                            </span>
+                                            <span class="asp-label" ng-click="loadPagePersonnelSelected(assessment.personnelForSelecting.PageIndex+1)"
+                                                style="margin: 0 5px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                                            <input class="form-control text-center" id="pagingD"
+                                                placeholder="{{assessment.personnelForSelecting.PageIndex}} از {{assessment.personnelForSelecting.TotalPages}}"
+                                                style="width: 35%; display: inline-block; position: relative; top: 0; font-size: 0.7em;"
+                                                ng-model="pageNumbers" ng-keyup="loadPagePersonnelSelected(pageNumbers);">
+                                            <span class="asp-label" ng-click="loadPagePersonnelSelected(assessment.personnelForSelecting.PageIndex-1)"
+                                                style="margin: 0 5px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                                            <span ng-click="loadPagePersonnelSelected(1)" style="cursor: pointer;">
+                                                <i class="far fa-chevron-left asp-label" style="margin-left: -3px; font-size: 0.7em;"></i>
+                                                <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                                            </span>
+                                        </div>
+                                        <div class="col-6 text-center">
+                                            <p class="p-o m-0 mt-1 medium-font">* تعداد کل :
+                                                <strong>{{assessment.personnelForSelecting.TotalRow}}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="row">
+                                <div class="col-sm-12" style="text-align: left;">
+                                    <button class="new-button red" ng-click="cancelSelectPersonnel()">
+                                        <i class="far fa-close"></i>
+                                        انصراف
+                                    </button>
+                                    <button class="new-button green" ng-disabled="!assessment.selectedPersonnelForMove.length"
+                                        ng-click="confirmSelectPersonnel()">
+                                        <i class="far fa-check"></i>
+                                        تایید
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

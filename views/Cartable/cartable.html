@@ -1,0 +1,584 @@
+﻿<div class="" ng-if="!checkValidation">
+  <div ng-include="redirectUrlForUnAuth"></div>
+</div>
+<div ng-if="checkValidation">
+  <div ng-if="loadingPage" class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
+    <div class="d-flex justify-content-center m-auto">
+      <i class="spinner-border text-primary" style="width: 50px; height: 50px;"></i>
+    </div>
+    <div class="mt-2">
+      <h3 class="text-center">درحال بارگذاری...</h3>
+    </div>
+  </div>
+  <div ng-if="!loadingPage">
+    <div class="row cartableMain">
+      <div class="col-sm-2 card" style="border-left: 1px solid lightgray;">
+        <ul p-0>
+          <li class="border-bottom p-0 border-info" ng-click="clickRequrstBtn()">
+            <i class="far fa-book"></i>
+            <span class="cartable-label">
+              درخواست ها
+            </span>
+          </li>
+          <li ng-if="requestItems" id="requestItemsid" class="card position-absolute border-0 p-0"
+            style="z-index:100;width:100%;border:1px solid lightgray !important">
+            <ul>
+              <li class="border-bottom">
+                <p class="cartable-label big-font text-primary p-0 m-0">
+                  تردد
+                </p>
+              </li>
+              <li id="requestsTraffic" class="cat-li p-0  m-0 pr-3 border-0">
+                <ul>
+                  <li id="mission" class="text-right cat-li" ng-click="goToPage('mission')">
+                    <p class="cartable-label big-font text-info p-0 m-0">
+                      مأموریت
+                    </p>
+                  </li>
+                  <li id="vacation" class="text-right cat-li" ng-click="goToPage('vacation')">
+                    <p class="cartable-label big-font text-info p-0 m-0">
+                      مرخصی
+                    </p>
+                  </li>
+                  <!--<li id="vacation" class="text-right cat-li" ng-click="goToPage('traffic')">
+                          <span class="cartable-label">
+                              تردد
+                          </span>
+                      </li>-->
+                </ul>
+              </li>
+              <li id="assessment" class="text-right cat-li" ng-click="goToPage('assessment')">
+                <p class="cartable-label big-font text-primary p-0 m-0">
+                  ارزشیابی
+                </p>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <div style="margin-top: 20px;">
+          <ul>
+            <li id="inbox" class="selected-cat cat-li" ng-click="setCartableList('inbox')">
+              <i class="far fa-envelope"></i>
+              <span class="cartable-label">
+                صندوق دریافتی
+              </span>
+              <!-- <span class="badge badge-primary float-left">10</span> -->
+              <!-- <span class="badge badge-danger float-left" style="margin-left: 5px;">5</span> -->
+            </li>
+            <li id="outbox" class="cat-li" ng-click="setCartableList('outbox')">
+              <i class="far fa-upload"></i>
+              <span class="cartable-label">
+                صندوق ارسالی
+              </span>
+              <!-- <span class="badge badge-info float-left">5</span> -->
+            </li>
+            <li id="tracking" class="cat-li" ng-click="setCartableList('tracking')">
+              <i class="far fa-upload"></i>
+              <span class="cartable-label">
+                صندوق پیگیری
+              </span>
+              <!-- <span class="badge badge-info float-left">5</span> -->
+            </li>
+            <li ng-if="tags.length > 0">
+              <i class="far fa-file"></i>
+              <span class="cartable-label">
+                {{tags[0].Tag}}
+              </span>
+              <span class="float-left pointer" style="font-size: 0.8em !important;" ng-click="deleteTag(tags[0])"><i class="far fa-trash "></i></span>
+              <span class="float-left pointer" style="font-size: 0.8em !important;margin-left: 5px;" ng-click="editTag(tags[0])"><i
+                  class="far fa-edit "></i></span>
+            </li>
+            <li ng-if="tags[1] != undefined">
+              <i class="far fa-file"></i>
+              <span class="cartable-label">
+                {{tags[1].Tag}}
+              </span>
+              <span class="float-left pointer" style="font-size: 0.8em !important;" ng-click="deleteTag(tags[1])"><i class="far fa-trash "></i></span>
+              <span class="float-left pointer" style="font-size: 0.8em !important;margin-left: 5px;" ng-click="editTag(tags[1])"><i
+                  class="far fa-edit"></i></span>
+            </li>
+          </ul>
+          <div style="margin-top: -15px;" ng-if="tags.length > 2" class="collapse" id="customeFolder">
+            <ul>
+              <li ng-repeat="tag in tags" ng-if="$index > 1">
+                <i class="far fa-file"></i>
+                <span class="cartable-label">
+                  {{tag.Tag}}
+                </span>
+                <span class="float-left pointer" style="font-size: 0.8em !important;" ng-click="deleteTag(tag)"><i class="far fa-trash "></i></span>
+                <span class="float-left pointer" style="font-size: 0.8em !important;margin-left: 5px;" ng-click="editTag(tag)"><i
+                    class="far fa-edit"></i></span>
+              </li>
+            </ul>
+          </div>
+          <div style="margin-top: -15px;">
+            <ul>
+              <li style="text-align: center;" ng-if="tags.length > 2" data-toggle="collapse" data-target="#customeFolder">
+                <i class="far fa-ellipsis-h pointer"></i>
+              </li>
+              <!-- <li style="text-align: center;" ng-click="addNewTag()">
+                      <i class="far fa-plus pointer"></i>
+                  </li> -->
+            </ul>
+          </div>
+        </div>
+
+      </div>
+      <div class="card" style="height:100%;width:81%">
+        <div class="card">
+          <div class="row" ng-if="!pageLoaded">
+            <div class="custom-control custom-checkbox  custom-control-inline" style="margin-right: 5px;position: relative;">
+              <input type="checkbox" ng-checked="selectAll" ng-model="searchInrequest.checkAll" ng-click="setAll()" class="custom-control-input"
+                id="customCheck1" name="example1">
+              <label class="custom-control-label" for="customCheck1"></label>
+            </div>
+            <div class="pr-1">
+              <span class="pointer" title="بروزرسانی داده های جدول" ng-click="reloadBox()"><i class="far fa-repeat "></i></span>
+              <span class="pointer big-font " title="تغییر وضعیت رکوردها به خوانده نشده" ng-click="setAsUnReadFunc(cartableList.Items)"
+                ng-if="setAsRead"><i class="far fa-envelope-open "></i></span>
+              <span class="pointer big-font" title="تغییر وضعیت رکوردها به خوانده شده" ng-click="setAsReadFunc(cartableList.Items)"
+                ng-if="!setAsRead">
+                <p class="font-weight-bolder position-absolute text-dark-red" style="top:-5px;margin-left:0">{{Unseen}}</p><i
+                  class="far fa-envelope "></i>
+              </span>
+            </div>
+            <div class="row col-12">
+              <div class="col-lg-4">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      نوع درخواست
+                    </label>
+                  </div>
+                  <select id="filterItem" class="form-control" ng-model="searchInrequest.itemX">
+                    <option value="" selected="selected">لطفا انتخاب نمایید...</option>
+                    <option ng-repeat="item in filterItems track by item.Id" ng-value="item.Id">{{item.Title}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      عنوان درخواست
+                    </label>
+                  </div>
+                  <input type="text" class="form-control" ng-model="searchInrequest.requestTitle" />
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شماره پیگیری
+                    </label>
+                  </div>
+                  <input type="text" class="form-control" ng-model="searchInrequest.requestNomber" />
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="input-group" ng-init="maskInput()">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ شروع
+                    </label>
+                  </div>
+                  <input type="text" autocomplete="off" class="form-control date-picker text-center" data-inputmask-alias="datetime"
+                    data-inputmask-inputformat="yyyy/mm/dd" placeholder="yyyy/mm/dd" ng-model="searchInrequest.fromDateInRequests">
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="input-group" ng-init="maskInput()">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ پایان
+                    </label>
+                  </div>
+                  <input type="text" autocomplete="off" class="form-control date-picker text-center" data-inputmask-alias="datetime"
+                    data-inputmask-inputformat="yyyy/mm/dd" placeholder="yyyy/mm/dd" ng-model="searchInrequest.toDateInRequests">
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <button class="new-button float-left" ng-click="changeStateOfFilterItem(searchInrequest)">
+                  جستجو
+                  <div style="width: 10px; height: 10px" class="spinner-border spinner-border-sm text-white" ng-show="loadingSearchInrequest"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="row" ng-if="pageLoaded">
+            <div class="col-12">
+              <button class="new-button float-left" ng-click="backToMainPage()">
+                <i class="far fa-arrow-right"></i>
+                بازگشت
+              </button>
+            </div>
+          </div>
+        </div>
+        <div style="overflow-y:auto;overflow-x:hidden">
+          <div class="card cartable-list" ng-if="!pageLoaded && cartableList.Items.length">
+            <div class="row">
+              <div class="col-sm-12 cartable-row" ng-class="{'unread-row': row.Seen}" ng-repeat="row in cartableList.Items track by $index">
+                <div class="modal fade" id="showProccessModal_{{row.RequestId}}">
+                  <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                      <div class="modal-body">
+                        <div class="row col-12 bg-secondary rounded text-white">
+                          <div class="col-3 medium-font text-center">اقدام کننده</div>
+                          <div class="col-3 medium-font text-center">تاریخ ثبت</div>
+                          <div class="col-3 medium-font text-center">وضعیت قبل از عملیات</div>
+                          <div class="col-3 medium-font text-center">وضعیت بعد از عملیات </div>
+                        </div>
+                        <div class="badge d-block small-font text-dark mt-1 mb-1" ng-attr-title="{{!item.IsDirect?'برگشت داده شده به مرحله قبل':''}}"
+                          ng-class="{'c-badge-green':item.IsDirect,'c-badge-red':!item.IsDirect}" ng-repeat="item in proccessData track by $index">
+                          <div class="row col-12">
+                            <div class="col-3 text-center"><span class=""><strong class="medium-font">{{item.Personnel.PoliteName}}</strong> <em
+                                  ng-if="item.BehalfPersonnelId">(از طرف : {{item.BehalfPersonnel.PoliteName}})</em> </span></div>
+                            <div class="col-3 text-center"><span class="ml-4"><strong dir="ltr"
+                                  class="medium-font">{{item.AuditDatePersian}}</strong></span></div>
+                            <div class="col-3 text-center">
+                              <span ng-if="item.PreState!=undefined" class="ml-4"> <strong class="medium-font">{{item.PreState}}</strong></span>
+                              <!--<i ng-if="item.PreState!=undefined" class="far fa-arrow-left big-font font-weight-bold"></i>-->
+                              <!-- <span class="ml-4 mr-4"><strong class="medium-font">{{item.State}}</strong></span>-->
+                            </div>
+                            <div class="col-3 text-center">
+                              <!--  <span ng-if="item.PreState!=undefined" class="ml-4"> <strong class="medium-font">{{item.PreState}}</strong></span>-->
+                              <!--  <i ng-if="item.PreState!=undefined" class="far fa-arrow-left big-font font-weight-bold"></i>-->
+                              <span class="ml-4 mr-4"><strong class="medium-font">{{item.State}}</strong></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="custom-control custom-checkbox  custom-control-inline">
+                    <input type="checkbox" ng-checked="row.selected" ng-click="addToSelectedList(row)" class="custom-control-input"
+                      id="customCheck-{{row.Id}}" name="example1">
+                    <label class="custom-control-label" for="customCheck-{{row.Id}}"></label>
+                  </div>
+                  <i class="far fa-star cartable-icon"></i>
+                  <p class="cartable-title" ng-class="{'pointer':itemToSetCat!='tracking'}" style="width: 70%;" ng-click="setPage(row)">
+                    {{row.Request.Title}} ({{row.Request.RequestNo}})
+                    <span class="badge badge-primary" title="وضعیت درخواست" style="font-size: 1em;">
+                      {{row.State.Title}}
+                    </span>
+                    <span class="badge badge-secondary" title="پرسنل درخواست کننده" style="font-size: 1em;">
+                      {{row.Request.RequesterUser.FirstName}} {{row.Request.RequesterUser.LastName}}
+                    </span>
+                    <span class="badge badge-success" title="در حال حاضر درخواست در دست این پرسنل است" style="font-size: 1em;">
+                      {{row.CurrentPersonnel.PoliteName}}
+                    </span>
+                    <span ng-if="row.OtherPersonnel !==undefined" class="badge badge-info "
+                      title="شما به سبب داشتن سمت جانشینی {{row.OtherPersonnel.Gender === 1?'آقای':'خانم'}}   *{{row.OtherPersonnel.FirstName}} {{row.OtherPersonnel.LastName}}*  امکان دیدن این آیتم را دارید">
+                      <i class="far fa-code-fork" style="font-size: 1.3em;"></i>
+                    </span>
+
+                  </p>
+                  <span class="pointer big-font float-left margin-left-cartable text-warning" title="مشاهده یاداشت های مرتبط"
+                    ng-click="GetNotes(row.RequestId)">
+                    <p class="font-weight-bolder position-absolute text-dark-red" style="top:0;margin-left:0">{{row.NotSeenCount}}</p>
+                    <i class="far fa-sticky-note "></i>
+                  </span>
+                  <span class="pointer big-font float-left margin-left-cartable text-info" title="مشاهده یادداشت های من"
+                    ng-click="GetMyNotes(row.RequestId)"><i class="far fa-book "></i></span>
+                  <span class="pointer big-font float-left margin-left-cartable text-info" title="تغییر وضعیت رکورد به خوانده نشده"
+                    ng-click="setAsUnReadFunc([row])" ng-if="row.Seen"><i class="far fa-envelope-open "></i></span>
+                  <span class="pointer big-font float-left margin-left-cartable text-info" title="تغییر وضعیت رکورد به خوانده شده"
+                    ng-click="setAsReadFunc([row])" ng-if="!row.Seen"><i class="far fa-envelope "></i></span>
+
+                  <!--<i class="far fa-ellipsis-v pointer big-font float-left margin-left-cartable"></i>
+                      <i class="far fa-reply-all text-danger rotate pointer float-left margin-left-cartable"></i>
+                      <i class="far fa-check text-success pointer float-left margin-left-cartable"></i>-->
+                  <!--<input type="file" style="display: none;" id="folder-{{row.Id}}">
+                      <label class="float-left margin-left-cartable pointer" for="folder-{{row.Id}}">
+                          <i class="far fa-paperclip "></i>
+                      </label>-->
+                  <span class="pointer font-weight-bold big-font float-left margin-left-cartable text-info" ng-click="showProccess(row.RequestId)"
+                    title="روند جاری درخواست"><i class="far fa-recycle "></i>
+                  </span>
+
+                  <span class="badge badge-info float-left margin-left-cartable p-1" style="font-size: 0.6em;">
+
+                    {{row.OccurDatePersian}}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div ng-if="!pageLoaded && !cartableList.Items.length" class="card">
+            <p class="d-flex justify-content-center text-danger">
+              لیستی برای نمایش یافت نشد...
+            </p>
+          </div>
+          <div ng-if="pageLoaded" ng-include="pagesItem">
+          </div>
+        </div>
+        <div ng-if="cartableList.Items.length && !pageLoaded" class="card">
+          <div class="row col-12">
+            <div class="col-6">
+              <div class="row">
+                <span ng-click="changePageCartable(cartableList.TotalPages)" style="cursor: pointer;">
+                  <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                  <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <span class="asp-label" ng-click="changePageCartable(cartableList.PageIndex+1)"
+                  style="margin: 6px 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                <input class="form-control text-center" id="pagingD" placeholder="{{cartableList.PageIndex}} از  {{cartableList.TotalPages}}"
+                  style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumberu"
+                  ng-keyup="changePageCartable(pageNumberu);">
+                <span class="asp-label" ng-click="changePageCartable(cartableList.PageIndex -1)"
+                  style="margin: 6px 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                <span ng-click="changePageCartable(1)" style="cursor: pointer;">
+                  <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                  <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="float-left">
+                <div class="mt-1" style="width:200px">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text">
+                        تعداد ردیف
+                      </label>
+                    </div>
+                    <input placeholder="10" type="number" min="1" max="100" class="form-control text-center" ng-keyup="changePageSize(pageSize)"
+                      ng-model="pageSize">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="createTagModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="HeaderForm">
+              ایجاد دسته بندی جدید
+              <span class="cancelIcon" ng-click="cancelCreateTag()"><i class="far fa-close "></i></span>
+            </p>
+            <div class="card">
+              <div class="input-group">
+                <div class="input-group-append">
+                  <label class="input-group-text">
+                    نام دسته بندی
+                  </label>
+                </div>
+                <input class="form-control" ng-model="newTag">
+              </div>
+            </div>
+            <div class="card">
+              <div style="text-align:left">
+                <button class="new-button red" ng-click="cancelCreateTag()">
+                  <i class="far fa-close"></i>
+                  انصراف
+                </button>
+                <button class="new-button green" ng-click="confirmCreateTag(newTag)">
+                  <i class="far fa-check"></i>
+                  تایید
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="editTagModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="HeaderForm">
+              ایجاد دسته بندی جدید
+              <span class="cancelIcon" ng-click="cancelEditTag()"><i class="far fa-close "></i></span>
+            </p>
+            <div class="card">
+              <div class="input-group">
+                <div class="input-group-append">
+                  <label class="input-group-text">
+                    نام دسته بندی
+                  </label>
+                </div>
+                <input class="form-control" ng-value="editTagItem.Tag" ng-model="editTagTitle">
+              </div>
+            </div>
+            <div class="card">
+              <div style="text-align:left">
+                <button class="new-button red" ng-click="cancelEditTag()">
+                  <i class="far fa-close"></i>
+                  انصراف
+                </button>
+                <button class="new-button green" ng-click="confirmEditTag(editTagTitle)">
+                  <i class="far fa-check"></i>
+                  تایید
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="tagDeleteConfirm">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="HeaderForm">
+              تایید حذف
+              <span class="cancelIcon" ng-click="cancelDeleteTag()"><i class="far fa-close "></i></span>
+            </p>
+            <div class="card">
+              <p class="center text-danger asp-label">
+                آیا از حذف این مورد اطمینان دارید؟
+              </p>
+            </div>
+            <div class="card">
+              <div style="text-align: left;">
+                <button class="new-button red" ng-click="cancelDeleteTag()">
+                  <i class="far fa-close"></i>
+                  انصراف
+                </button>
+                <button class="new-button green" ng-click="confirmDeleteTag()">
+                  <i class="far fa-check"></i>
+                  تایید
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="shownotesModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="float-left pointer p-1">
+            <span class="rounded p-2 text-dark-red" title="انصراف" ng-click="leaveNotes()"><i class="far fa-close "></i></span>
+          </div>
+          <div class="card">
+            <ul ng-if="Notes.Items.length">
+
+              <li><input class="form-control small-font mb-1" type="text" ng-model="ParamsToSearch" placeholder="جستجو" value="" /></li>
+
+              <li ng-repeat="note in Notes.Items | filter: ParamsToSearch" class="p-0 m-0 border-0" ng-click="ChangeToSeen(note)">
+                <div class="card" style="border-right:5px solid green">
+                  <label class="small-font p-0 m-0" ng-if="note.UserPersonnel.FirstName.length && note.UserPersonnel.LastName.length">یادداشت توسط :
+                    <strong>{{note.UserPersonnel.FirstName}} - {{note.UserPersonnel.LastName}}</strong></label>
+                  <label class="small-font p-0 m-0" ng-if="!note.UserPersonnel.FirstName.length && !note.UserPersonnel.LastName.length">یادداشت توسط :
+                    <strong>{{note.UserPersonnel.UserName}}</strong></label>
+                  <label class="small-font p-0 m-0" ng-if="!note.Seen"><i class="far fa-asterisk text-dark font-weight-bolder h3"></i></label>
+                  <p class="text-justify col-12 p-1 font-weight-bold" style="color:darkblue;margin-bottom:5px;font-size:12px">{{note.Note}}</p>
+                  <em class="small-font position-absolute text-success" style="left:2px;bottom:-1px"><strong>{{note.NoteDatePersian}}</strong></em>
+                </div>
+              </li>
+            </ul>
+            <ul ng-if="!Notes.Items.length">
+              <li class=" border-0">
+                <p class="text-center">یادداشتی برای نمایش وجود ندارد</p>
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="col-lg-6" style="text-align: right; padding-right: 25px;">
+                <span ng-click="paginngForNotes('last')" class="asp-label" style="cursor: pointer;">
+                  <i class="far fa-chevron-right"></i>
+                  <i class="far fa-chevron-right" style="margin-right: -3px;"></i>
+                </span>
+                <span class="asp-label" ng-click="paginngForNotes(1)" style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i
+                    class="far fa-chevron-right "></i></span>
+                <input class="form-control" id="paging" placeholder="{{Notes.PageIndex}} از  {{Notes.TotalPages}}"
+                  style="width: 33%; display: inline-block; position: relative; top: 0;" ng-model="pageNumber"
+                  ng-keyup="changePaginngForNotes($event,pageNumber)">
+                <span class="asp-label" ng-click="paginngForNotes(-1)" style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i
+                    class="far fa-chevron-left "></i></span>
+                <span ng-click="paginngForNotes('first')" class="asp-label" style="cursor: pointer;">
+                  <i class="far fa-chevron-left" style="margin-left: -3px;"></i>
+                  <i class=" far fa-chevron-left"></i>
+                </span>
+              </div>
+              <div class="col-lg-6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="showMyNotesModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="float-left pointer p-1">
+            <span class="rounded p-2 text-dark-red" title="انصراف" ng-click="leaveMyNotes()"><i class="far fa-close "></i></span>
+          </div>
+          <div class="card">
+            <ul ng-if="MyNotes.length">
+              <li><input class="form-control small-font mb-1" type="text" ng-model="ParamsToSearchMy" placeholder="جستجو" value="" /></li>
+              <li ng-repeat="mynote in MyNotes | filter: ParamsToSearchMy" class="p-0 m-0 border-0">
+
+                <div class="card">
+                  <p class="text-justify col-12 p-1 font-weight-bold" style="color:darkblue;margin-bottom:5px;font-size:12px">{{mynote.Note}}</p>
+                  <em class="small-font position-absolute text-success" style="left:2px;bottom:-1px"><strong>{{mynote.NoteDatePersian}}</strong></em>
+                </div>
+              </li>
+            </ul>
+            <ul ng-if="!MyNotes.length">
+              <li class=" border-0">
+                <p class="text-center">یادداشتی برای نمایش وجود ندارد</p>
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="col-lg-6" style="text-align: right; padding-right: 25px;">
+                <span ng-click="paginngForMyNotes('last')" class="asp-label" style="cursor: pointer;">
+                  <i class="far fa-chevron-right"></i>
+                  <i class="far fa-chevron-right" style="margin-right: -3px;"></i>
+                </span>
+                <span class="asp-label" ng-click="paginngForMyNotes(1)" style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i
+                    class="far fa-chevron-right "></i></span>
+                <input class="form-control" id="paging" placeholder="{{MyNotes.PageIndex}} از  {{MyNotes.TotalPages}}"
+                  style="width: 33%; display: inline-block; position: relative; top: 0;" ng-model="pageNumber"
+                  ng-keyup="changePaginngForMyNotes($event,pageNumber)">
+                <span class="asp-label" ng-click="paginngForMyNotes(-1)" style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i
+                    class="far fa-chevron-left "></i></span>
+                <span ng-click="paginngForMyNotes('first')" class="asp-label" style="cursor: pointer;">
+                  <i class="far fa-chevron-left" style="margin-left: -3px;"></i>
+                  <i class=" far fa-chevron-left"></i>
+                </span>
+              </div>
+              <div class="col-lg-6">
+                <button type="button" class="new-button" ng-click="showMyNode()">افزودن</button>
+                <div class="modal fade" id="showCreateMyNotesModal">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-body">
+                        <p class="HeaderForm">
+                          ایجاد یادداشت شخصی
+                          <span class="cancelIcon" title="انصراف" ng-click="leaveCreateMyNotes()"><i class="far fa-close "></i></span>
+                        </p>
+                        <div class="card">
+                          <input multiple="multiple" style="height:50px !important" type="text" autocomplete="off" class="form-control"
+                            ng-model="createTextMyNote">
+                        </div>
+                        <div class="card">
+                          <div>
+                            <button type="button" class="new-button float-left" ng-click="createMyNode(MyNotes[0].RequestId,createTextMyNote)"><i
+                                class=" far fa-check ml-1 "></i>تأیید</button>
+                            <button type="button" class="red new-button float-left ml-1" ng-click="leaveCreateMyNotes()"><i
+                                class=" far fa-close  ml-1 "></i>انصراف</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

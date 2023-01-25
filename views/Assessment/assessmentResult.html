@@ -1,0 +1,115 @@
+<div class="" ng-if="!checkValidation">
+  <div ng-include="redirectUrlForUnAuth"></div>
+</div>
+<div ng-if="checkValidation">
+  <div ng-if="loadingPage" class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
+    <div class="d-flex justify-content-center m-auto">
+      <i class="spinner-border text-primary" style="width: 50px; height: 50px;"></i>
+    </div>
+    <div class="mt-2">
+      <h3 class="text-center">درحال بارگذاری...</h3>
+    </div>
+  </div>
+  <div ng-if="!loadingPage">
+    <p class="HeaderForm">
+      نتایج ارزشیابی
+    </p>
+    <div>
+      <div>
+        <personnel personnel-data="personnelData" state-select="radio" use-selected-personnel="useSelectedPersonnel()"></personnel>
+      </div>
+      <div class="card">
+        <div class="table-body">
+          <table class="test">
+            <thead>
+              <tr>
+                <th style="width: 3%;">
+                  ردیف
+                </th>
+                <th style="width: 17%;">
+                  <div style="text-align: left;">
+                    امتیاز
+                  </div>
+                  <hr style="margin: 5px; transform: rotate(15deg)">
+                  <div style="text-align: right;">
+                    تصمیمات اداری
+                  </div>
+                </th>
+                <th style="width: 10%;">
+                  عوامل اختصاصی
+                </th>
+                <th style="width: 20%;" colspan="2">
+                  عوامل عمومی مدیریتی با پشتیبان
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-6" style="border-left: 1px solid rgba(0,0,0,0.3);">
+                      عمومی مدیریتی
+                    </div>
+                    <div class="col-sm-6">
+                      عمومی پشتیبان
+                    </div>
+                  </div>
+                </th>
+                <th style="width: 30%;" colspan="3">
+                  عوامل عمومی فرآیندی
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-4" style="border-left: 1px solid rgba(0,0,0,0.3);">
+                      توسعه ای
+                    </div>
+                    <div class="col-sm-4" style="border-left: 1px solid rgba(0,0,0,0.3);">
+                      تشویقات
+                    </div>
+                    <div class="col-sm-4">
+                      رفتاری
+                    </div>
+                  </div>
+                </th>
+                <th style="width: 15%;">
+                  توضیحات
+                </th>
+                <th style="width: 5%;">
+                  پرسنل
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat='data in tableData'>
+                <td style="width: 5%;">
+                  {{$index + 1}}
+                </td>
+                <td style="width: 15%;">
+                  {{data.Title}}
+                </td>
+                <td style="width: 10%;">
+                  {{data.Scores[0]}}
+                </td>
+                <td style="width: 10%;">
+                  {{data.Scores[1]}}
+                </td>
+                <td style="width: 10%;">
+                  {{data.Scores[2]}}
+                </td>
+                <td style="width: 10%;">
+                  {{data.Scores[3]}}
+                </td>
+                <td style="width: 10%;">
+                  {{data.Scores[4]}}
+                </td>
+                <td style="width: 10%;">
+                  {{data.Scores[5]}}
+                </td>
+                <td style="width: 15%;">
+                  {{data.Description}}
+                </td>
+                <td style="width: 5%;">
+                  <i class="far fa-users"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

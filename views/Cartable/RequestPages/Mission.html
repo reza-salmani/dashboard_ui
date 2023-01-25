@@ -1,0 +1,1084 @@
+﻿<div ng-controller="missionRequestCtrl">
+    <p ng-if="hourMistion" class="HeaderForm">
+        درخواست مأموریت ساعتی
+    </p>
+    <p ng-if="dayMistion" class="HeaderForm">
+        درخواست مأموریت روزانه
+    </p>
+    <div class="card" ng-if="!DetailsHourMode && !DetailsDayMode">
+        <div class="col-md-4 col-sm-6">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <label class="input-group-text">
+                        نوع
+                        مأموریت
+                        کاری
+                    </label>
+                </div>
+                <select ng-init="selectMissionType = 2" ng-change="changeType(selectMissionType)" ng-model="selectMissionType"
+                    class="form-control form-select" id="selectMissionType">
+                    <option ng-value="0">لطفاانتخاب نمایید...</option>
+                    <option ng-value="1">
+                        ساعتی
+                    </option>
+                    <option ng-value="2">
+                        روزانه
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!------------------- create day mission ---------------------->
+    <div ng-if="dayMistion" class="" ng-init="maskInput()">
+        <form name="CreateDayForm" class="">
+    
+            <div class="row pl-4 pr-4">
+                <div class="col-lg-10 card">
+                    <div class="col-12 row">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            نوع
+                                            مأموریت
+                                        </label>
+                                    </div>
+                                    <select ng-init="createDayMissionData.dayMissionTypeId = 1" name="NGroupMissionType"
+                                        class="form-control form-select text-center" ng-model="createDayMissionData.dayMissionTypeId">
+                                        <option ng-repeat="item in selectgroupMissionType" ng-value="item.id">
+                                            {{item.name}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        واحد اعزام کننده
+                                    </label>
+                                </div>
+                                <input class="form-control pointer" name="chartTreeIDNameN" autocomplete="off" ng-disabled="SubmitOccured"
+                                    ng-model="createDayMissionData.chartTreeIDName" ng-click="showChartFunc()" />
+                                <span id="selectCaratArrow" ng-click="showChartFunc()" class="dropIcon"><i class="far fa-chevron-down "></i></span>
+                                <span class="pointer position-absolute ml-3 mt-2" style="left:0;font-size: 11px;z-index: 10;"
+                                    ng-if="createDayMissionData.chartTreeID" ng-click="clearChart()"><i class="far fa-times text-danger "></i></span>
+                                <div ng-if="showChart" class="selectItem card p-1">
+                                    <chart state-select="unit" by-date="{{''}}" dataunit="dataunit" use-selected-chart="useSelectedChart(dataunit)">
+                                    </chart>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        مقصد مأموریت
+                                    </label>
+                                </div>
+                                <input class="form-control pointer" name="NSelectZoneType" ng-model="createDayMissionData.locationName" autocomplete="off"
+                                    ng-disabled="SubmitOccured" ng-click="showLocationFunc()" />
+                                <span ng-click="showLocationFunc()" class="dropIcon"><i class="far fa-chevron-down "></i></span>
+                                <span class="pointer position-absolute ml-3 mt-2" style="left:0;font-size: 11px;z-index: 10;"
+                                    ng-if="createDayMissionData.locationID" ng-click="cleanLocation()"><i class="far fa-times text-danger "></i></span>
+                                <div ng-if="showLocation" class="selectItemL">
+                                    <location data="data" use-selected-location="useSelectedLocation(data)"></location>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="col-8" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px text-start">
+                                        موضوع ماموریت
+                                    </label>
+                                </div>
+                                <input type="text" name="missionHN" ng-keyup="AutoCompleteSearchSubjectMission(createDayMissionData.subjectMission)"
+                                    ng-click="AutoCompleteSearchSubjectMission(createDayMissionData.subjectMission)"
+                                    ng-blur="AutoCompleteSearchCreateSubjectMission(createDayMissionData.subjectMission)" class="form-control text-center"
+                                    autocomplete="off" ng-disabled="SubmitOccured" ng-model="createDayMissionData.subjectMission">
+                            </div>
+                            <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompleteSubjectMission}">
+                                <div class="table-body">
+                                    <table class="table table-striped" style="font-size: 10px;">
+                                        <thead>
+                                            <tr>
+                                                <td class="w-90">عنوان</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="item in wordListSubjectMission track by item.id"
+                                                ng-click="selectPredictSubjectMission(item.description)">
+                                                <td class="w-90 text-center p-0 pointer">
+                                                    <p class="mt-2 p-0">{{item.description}}</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="col-sm-6 col-md-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        تاریخ
+                                        شروع
+                                        مأموریت
+                                    </label>
+                                </div>
+                                <input type="text" autocomplete="off" class="form-control date-picker text-center"
+                                    ng-class="{'border-danger': CreateDayForm.NStartDate.$invalid}" placeholder="xxxx/xx/xx"
+                                    ng-model="createDayMissionData.fromDate" id="startDate" required name="NStartDate" ng-disabled="SubmitOccured"
+                                    ng-change="MissionDuration();checkLimitation(createDayMissionData.fromDate)">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        تاریخ
+                                        پایان
+                                        مأموریت
+                                    </label>
+                                </div>
+                                <input type="text" autocomplete="off" class="form-control date-picker text-center"
+                                    ng-class="{'border-danger': CreateDayForm.NEndDate.$invalid}" placeholder="xxxx/xx/xx"
+                                    ng-model="createDayMissionData.toDate" id="endDate" required name="NEndDate" ng-disabled="SubmitOccured"
+                                    ng-change="MissionDuration()">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            مدت مأموریت
+                                        </label>
+                                    </div>
+                                    <input class="form-control text-center" readonly autocomplete="off" type="text"
+                                        ng-model="createDayMissionData.dayCount">
+                                </div>
+                            </div>
+    
+                        </div>
+    
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            شماره
+                                            حکم
+                                        </label>
+                                    </div>
+                                    <input class="form-control text-center" autocomplete="off" type="text" ng-disabled="SubmitOccured"
+                                        ng-class="{'border-danger': CreateDayForm.NHokmNO.$invalid}" ng-model="createDayMissionData.hokmNO"
+                                        name="NHokmNO">
+                                </div>
+                            </div>
+    
+                        </div>
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        تعداد
+                                        روز
+                                        فاقد
+                                        بیتوته
+                                    </label>
+                                </div>
+                                <input id="residenceStatusIsNot" class="text-center form-control" ng-disabled="SubmitOccured" autocomplete="off"
+                                    type="number" min="0" ng-model="createDayMissionData.withoutDayCount">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        تعداد
+                                        روز
+                                        دارای
+                                        بیتوته
+                                    </label>
+                                </div>
+                                <input id="residenceStatusIs" class="text-center form-control" ng-disabled="SubmitOccured" autocomplete="off"
+                                    type="number" min="0" ng-model="createDayMissionData.withDayCount">
+                            </div>
+                        </div>
+                        <div class="col-8" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px text-start">
+                                        محل اقامت
+                                    </label>
+                                </div>
+                                <input type="text" name="missionHN" ng-disabled="SubmitOccured"
+                                    ng-keyup="AutoCompleteSearchResidence(createDayMissionData.residence)"
+                                    ng-click="AutoCompleteSearchResidence(createDayMissionData.residence)"
+                                    ng-blur="AutoCompleteSearchCreateResidence(createDayMissionData.residence)" class="form-control text-center"
+                                    autocomplete="off" ng-model="createDayMissionData.residence">
+                            </div>
+                            <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompleteResidence}">
+                                <div class="table-body">
+                                    <table class="table table-striped" style="font-size: 10px;">
+                                        <thead>
+                                            <tr>
+                                                <td class="w-90">عنوان</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="item in wordListResidence track by item.id"
+                                                ng-click="selectPredictResidence(item.description)">
+                                                <td class="w-90 text-center p-0 pointer">
+                                                    <p class="mt-2 p-0">{{item.description}}</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            نوع وسیله نقلیه
+                                        </label>
+                                    </div>
+                                    <select class="form-control form-select text-center" ng-disabled="SubmitOccured"
+                                        ng-model="createDayMissionData.vehicleType"
+                                        ng-options="item as item.description for item in vehicleTypesList track by item.id">
+                                    </select>
+                                </div>
+                            </div>
+    
+                        </div>
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            تمدید مدت مأموریت
+                                        </label>
+                                    </div>
+                                    <input class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off" min="0" type="number"
+                                        ng-model="createDayMissionData.extendMission">
+                                </div>
+                            </div>
+    
+                        </div>
+    
+    
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            سایر وسایل نقلیه
+                                        </label>
+                                    </div>
+                                    <input class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off" type="text"
+                                        ng-model="createDayMissionData.otherVehicle">
+                                </div>
+                            </div>
+    
+                        </div>
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            سایر مقصدها
+                                        </label>
+                                    </div>
+                                    <input class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off" type="text"
+                                        ng-model="createDayMissionData.otherLocation">
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="col-sm-6 col-md-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="mb-1">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text label-width-100px">
+                                            وسایل موردنیاز
+                                        </label>
+                                    </div>
+                                    <input class="form-control text-center" ng-disabled="SubmitOccured" autocomplete="off" type="text"
+                                        ng-model="createDayMissionData.requiredDevice">
+                                </div>
+                            </div>
+    
+                        </div>
+                        <div class="col-sm-4" ng-if="createDayMissionData.dayMissionTypeId !=4 && createDayMissionData.dayMissionTypeId !=5">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-check" ng-init="createDayMissionData.supplyResidence = false">
+                                        <label class="form-check-label asp-label ml-1" for="SupplyResidence">
+                                            تأمین اقامتگاه
+                                        </label>
+                                        <input type="checkbox" ng-disabled="SubmitOccured" class="form-check-input"
+                                            ng-model="createDayMissionData.supplyResidence" id="SupplyResidence">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-check" ng-init="createDayMissionData.driving = false">
+                                        <label class="form-check-label asp-label ml-1" for="Driving">
+                                            رانندگی
+                                        </label>
+                                        <input type="checkbox" ng-disabled="SubmitOccured" class="form-check-input"
+                                            ng-model="createDayMissionData.driving" id="Driving">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="col-12">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text label-width-100px">
+                                        توضیحات
+                                    </label>
+                                </div>
+                                <input class="form-control" ng-disabled="SubmitOccured" ng-model="createDayMissionData.description" autocomplete="off"
+                                    type="text" multiple="true" id="description" style="min-height: 50px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card col-lg-2" style="height:350px;">
+                    <p class="HeaderForm small-font font-weight-bold">
+                        لیست ترددها در بازه انتخابی
+                    </p>
+                    <div class="d-flex">
+                        <div class="col-6"><span class="big-font">تاریخ</span></div>
+                        <div class="col-6"><span class="big-font">ساعات</span></div>
+                    </div>
+                    <div class="selectSideBox" style="overflow-y:auto;overflow-x:hidden">
+                        <div class="row" ng-repeat="item in SideInfoData">
+                            <div class="col-6"><span class="small-font">{{item.PersianDate}}</span></div>
+                            <div class="col-6"><span class="small-font">{{item.AllTimeRollCall}}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="text-left">
+                    <!--<button type="button" class="new-button red ml-1" ng-click="cancelDayMissionCreate()">
+                            <i class="far fa-close"></i> انصراف
+                        </button>-->
+                    <button ng-if="buttonsArrayShowDay && !finalRequest" ng-repeat="item in buttonsArrayDay track by $index" type="button"
+                        class="new-button ml-1" ng-click="DynamicConfirmsDay(item,createDayMissionData,'create')"
+                        ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                        <i ng-class="{'fa-send':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-check':item.ActionTypeIdentity === 1}"
+                            class="fa"></i>
+                        {{item.ActionTitle}}
+                        <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                            ng-if="loadingUpdateDayM"></div>
+                    </button>
+                    <button ng-if="!buttonsArrayShowDay && !finalRequest" type="button" class="new-button green"
+                        ng-click="requestDay(createDayMissionData)" ng-disabled="IsLimited || CreateDayForm.$invalid">
+                        <i class="far fa-check"></i> ثبت
+                        <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                            ng-if="loadingRequestDayM"></div>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!------------------- details day mission ---------------------->
+    <div ng-if="DetailsDayMode" class="card">
+        <p class="HeaderForm">
+            درخواست مأموریت روزانه
+        </p>
+        <div class="col-12 row">
+            <div class="col-sm-6 col-md-4">
+                <div class="mb-1">
+                    <div class="input-group" ng-init="getTypeOfMission()">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                نوع
+                                مأموریت
+                            </label>
+                        </div>
+                        <!--<input ng-if="dayMissionDetailsData.dayMissionTypeId ===1" type="text" class="form-control" readonly value="فردی" />
+                            <input ng-if="dayMissionDetailsData.dayMissionTypeId ===2" type="text" class="form-control" readonly value="گروهی" />-->
+                        <select name="NGroupMissionType" disabled class="form-control form-select text-center"
+                            ng-model="dayMissionDetailsData.dayMissionTypeId">
+                            <option ng-repeat="item in selectgroupMissionType" ng-value="item.id">
+                                {{
+    item.name
+                                    }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            واحد اعزام کننده
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.chartTreeTitle" />
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            مقصد مأموریت
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.locationTitle" />
+                </div>
+            </div>
+    
+            <div class="col-8">
+                <div class="input-group" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px text-start">
+                            موضوع ماموریت
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].subjectMission" />
+                </div>
+            </div>
+    
+            <div class="col-sm-6 col-md-4">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            تاریخ
+                            شروع
+                            مأموریت
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="convertToShamsi(dayMissionDetailsData.personsMission[0].fromDate)" />
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            تاریخ
+                            پایان
+                            مأموریت
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="convertToShamsi(dayMissionDetailsData.personsMission[0].toDate)" />
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                مدت مأموریت
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].dayCount" />
+                    </div>
+                </div>
+    
+            </div>
+    
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                شماره
+                                حکم
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].hokmNO" />
+                    </div>
+                </div>
+    
+            </div>
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            تعداد
+                            روز
+                            فاقد
+                            بیتوته
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].withoutDayCount" />
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            تعداد
+                            روز
+                            دارای
+                            بیتوته
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].withDayCount" />
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="input-group" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px text-start">
+                            محل اقامت
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].residence" />
+                </div>
+    
+            </div>
+    
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                نوع وسیله نقلیه
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].vehicleTypeName" />
+                    </div>
+                </div>
+    
+            </div>
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                تمدید مدت مأموریت
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].extendMission" />
+                    </div>
+                </div>
+    
+            </div>
+    
+    
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                سایر وسایل نقلیه
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].otherVehicle" />
+                    </div>
+                </div>
+    
+            </div>
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                سایر مقصدها
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].otherLocation" />
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-sm-6 col-md-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="mb-1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text label-width-100px">
+                                وسایل موردنیاز
+                            </label>
+                        </div>
+                        <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.personsMission[0].requiredDevice" />
+                    </div>
+                </div>
+    
+            </div>
+            <div class="col-sm-4" ng-if="dayMissionDetailsData.dayMissionTypeId !=4 && dayMissionDetailsData.dayMissionTypeId !=5">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-check">
+                            <label class="form-check-label asp-label ml-1" for="SupplyResidence">
+                                تأمین اقامتگاه
+                            </label>
+                            <input disabled type="checkbox" class="form-check-input" ng-model="dayMissionDetailsData.personsMission[0].supplyResidence"
+                                id="SupplyResidence">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check">
+                            <label class="form-check-label asp-label ml-1" for="Driving">
+                                رانندگی
+                            </label>
+                            <input disabled type="checkbox" class="form-check-input" ng-model="dayMissionDetailsData.personsMission[0].driving"
+                                id="Driving">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col-12">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text label-width-100px">
+                            توضیحات
+                        </label>
+                    </div>
+                    <input type="text" class="form-control" readonly ng-value="dayMissionDetailsData.description" />
+                </div>
+            </div>
+        </div>
+        <div style="text-align: left;">
+            <button ng-if="buttonsArrayShowDay && finalRequest &&CheckStateDay" ng-repeat="item in buttonsArrayDay track by $index" type="button"
+                class="new-button ml-1" ng-click="DynamicConfirmsDay(item,dayMissionDetailsData,'update')"
+                ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                <i ng-class="{'fa-send':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-check':item.ActionTypeIdentity === 1}"
+                    class="fa"></i>
+                {{item.ActionTitle}}
+                <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                    ng-if="loadingUpdateDayM"></div>
+            </button>
+            <button ng-if="buttonsArrayShowDay && finalRequest && !CheckStateDay" ng-repeat="item in buttonsArrayDay track by $index" type="button"
+                ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}"
+                class="new-button ml-1" ng-click="DynamicConfirmsDay(item,dayMissionDetailsData,'update')">
+                <i ng-class="{'fa-send':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-check':item.ActionTypeIdentity === 1}"
+                    class="fa"></i>
+                {{item.ActionTitle}}
+                <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                    ng-if="loadingUpdateDayM"></div>
+            </button>
+        </div>
+    </div>
+    
+    <!------------------- create hour mission ---------------------->
+    <div ng-if="hourMistion" class="card" ng-init="maskInput()">
+        <form name="CreateForm">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text w_120 text-start">
+                                    موضوع ماموریت
+                                </label>
+                            </div>
+                            <input type="text" name="missionHN" ng-class="{'border-danger': CreateForm.missionHN.$invalid}"
+                                ng-keyup="AutoCompleteSearchSubjectMission(createHourMissionData.subjectMission)"
+                                ng-click="AutoCompleteSearchSubjectMission(createHourMissionData.subjectMission)"
+                                ng-blur="AutoCompleteSearchCreateSubjectMission(createHourMissionData.subjectMission)" class="form-control text-center"
+                                autocomplete="off" ng-disabled="SubmitOccured" ng-model="createHourMissionData.subjectMission">
+                        </div>
+                        <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompleteSubjectMission}">
+                            <div class="table-body">
+                                <table class="table table-striped" style="font-size: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <td class="w-90">عنوان</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="item in wordListSubjectMission track by item.id"
+                                            ng-click="selectPredictSubjectMissionH(item.description)">
+                                            <td class="w-90 text-center p-0 pointer">
+                                                <p class="mt-2 p-0">{{item.description}}</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="input-group" ng-disabled="SubmitOccured">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text w_120 text-start">
+                                    محل مأموریت
+                                </label>
+                            </div>
+                            <input type="text" name="locationHN" ng-class="{'border-danger': CreateForm.locationHN.$invalid}"
+                                ng-keyup="AutoCompleteSearchlocation(createHourMissionData.missionLocation)"
+                                ng-click="AutoCompleteSearchlocation(createHourMissionData.missionLocation)"
+                                ng-blur="AutoCompleteSearchCreatelocation(createHourMissionData.missionLocation)" class="form-control text-center"
+                                autocomplete="off" ng-model="createHourMissionData.missionLocation">
+                        </div>
+                        <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompletelocation}">
+                            <div class="table-body">
+                                <table class="table table-striped" style="font-size: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <td class="w-90">عنوان</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="item in wordListLocation track by item.id" ng-click="selectPredictlocationH(item.description)">
+                                            <td class="w-90 text-center p-0 pointer">
+                                                <p class="mt-2 p-0">{{item.description}}</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text w_120">
+                                        تاریخ
+                                        مأموریت
+                                    </label>
+                                </div>
+                                <input name="NStartHDate" type="text" autocomplete="off" class="form-control date-picker"
+                                    ng-class="{'border-danger': CreateForm.NStartHDate.$invalid}" ng-disabled="SubmitOccured"
+                                    ng-model="createHourMissionData.missionDate" required
+                                    ng-change="showTrafficThisDay();checkLimitation(createHourMissionData.missionDate)" placeholder="xxxx/xx/xx"
+                                    id="startHDate">
+    
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text w_120">
+                                        ساعت
+                                        خروج
+                                    </label>
+                                </div>
+                                <input name="NExitTime" class="form-control time text-center" autocomplete="off" ng-disabled="SubmitOccured"
+                                    ng-class="{'border-danger': !createHourMissionData.fromTime}" data-autoclose="true" data-placement="bottom"
+                                    data-align="top" id="fromTime" placeholder="HH:MM" type="text" ng-model="createHourMissionData.fromTime">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text w_120">
+                                        ساعت
+                                        ورود
+                                    </label>
+                                </div>
+                                <input name="NInterTime" class="form-control time text-center" autocomplete="off" ng-disabled="SubmitOccured"
+                                    data-autoclose="true" data-placement="bottom" data-align="top" id="toTime" placeholder="HH:MM" type="text"
+                                    ng-class="{'border-danger': !createHourMissionData.toTime}" ng-model="createHourMissionData.toTime">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text w-15 px-1">
+                                    توضیحات
+                                </label>
+                            </div>
+                            <input class="form-control" ng-model="createHourMissionData.description" ng-disabled="SubmitOccured" autocomplete="off"
+                                type="text" multiple="true" id="description" style="min-height: 50px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="card" ng-if="trafficHours.item1.length">
+                <div class="table-body">
+                    <table class="test">
+                        <thead>
+                            <tr>
+                                <th class="w-20">
+                                    انتخاب به عنوان
+                                </th>
+                                <th class="w-20">
+                                    ساعت
+                                </th>
+                                <th class="w-20">
+                                    نوع تردد
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="text-left">
+                <!--<button type="button" class=" new-button red" ng-click="cancleMissionRequest()">
+                        <i class="far fa-close">
+                            انصراف
+                        </i>
+                    </button>-->
+                <button ng-if="buttonsArrayShow && !finalRequest" ng-repeat="item in buttonsArray track by $index" type="button" class="new-button ml-1"
+                    ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}"
+                    ng-click="DynamicConfirms(item,createHourMissionData,'create')">
+                    <i ng-class="{'fa-send':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-check':item.ActionTypeIdentity === 1}"
+                        class="fa"></i>
+                    {{item.ActionTitle}}
+                    <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                        ng-if="loadingUpdateHourM"></div>
+    
+                </button>
+                <button ng-if="!buttonsArrayShow && !finalRequest" type="button" class="new-button green" ng-click="request(createHourMissionData)"
+                    ng-disabled="IsLimited || CreateForm.$invalid || !createHourMissionData.fromTime ||
+                                         !createHourMissionData.toTime">
+                    <i class="far fa-check"></i> ثبت
+                    <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                        ng-if="loadingRequestHourM"></div>
+    
+                </button>
+            </div>
+        </form>
+    </div>
+    <!------------------- details of hour mission for manager ---------------------->
+    <div ng-if="DetailsHourMode" class="card">
+        <p class="HeaderForm">
+            درخواست مأموریت ساعتی
+        </p>
+        <form name="CreateForm">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text w_120 text-start">
+                                    موضوع ماموریت
+                                </label>
+                            </div>
+                            <input type="text" class="form-control" readonly ng-model="hourMissionDetailsData.subjectMission">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="input-group" ng-disabled="SubmitOccured">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text w_120 text-start">
+                                    محل مأموریت
+                                </label>
+                            </div>
+                            <input type="text" class="form-control" readonly ng-model="hourMissionDetailsData.missionLocation">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text w_120">
+                                        تاریخ
+                                        مأموریت
+                                    </label>
+                                </div>
+                                <input type="text" class="form-control" readonly ng-value="convertToShamsi(hourMissionDetailsData.missionDate)">
+    
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text w_120">
+                                        ساعت
+                                        خروج
+                                    </label>
+                                </div>
+                                <input type="text" class="form-control" readonly ng-model="hourMissionDetailsData.fromTime">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="mb-1">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text w_120">
+                                        ساعت
+                                        ورود
+                                    </label>
+                                </div>
+                                <input type="text" class="form-control" readonly ng-model="hourMissionDetailsData.toTime">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text w-15 px-1">
+                                    توضیحات
+                                </label>
+                            </div>
+                            <input type="text" class="form-control" ng-model="hourMissionDetailsData.description" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left">
+                <button ng-if="buttonsArrayShow && finalRequest &&CheckState" ng-repeat="item in buttonsArray track by $index" type="button"
+                    class="new-button ml-1" ng-click="DynamicConfirms(item,hourMissionDetailsData,'update')"
+                    ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                    <i ng-class="{'fa-undo':item.ActionTypeIdentity === 3,'fa-check':item.ActionTypeIdentity === 2,'fa-send':item.ActionTypeIdentity === 1}"
+                        class="fa"></i>
+                    {{item.ActionTitle}}
+                </button>
+                <button ng-if="buttonsArrayShow && finalRequest && !CheckState" ng-repeat="item in buttonsArray track by $index" type="button"
+                    class="new-button ml-1" ng-click="DynamicConfirms(item,hourMissionDetailsData,'update')"
+                    ng-class="{'bg-info':item.ActionTypeIdentity === 3,'bg-danger':item.ActionTypeIdentity === 2,'bg-primary':item.ActionTypeIdentity === 1}">
+                    <i ng-class="{'fa-send':item.ActionTypeIdentity === 3,'fa-undo':item.ActionTypeIdentity === 2,'fa-check':item.ActionTypeIdentity === 1}"
+                        class="fa"></i>
+                    {{item.ActionTitle}}
+                </button>
+            </div>
+        </form>
+    </div>
+    <!------------------- select manager to send modal ------------------------->
+    <div class="modal" id="selectManagers">
+        <div class="modal-dialog modal-fullscreen-md-down">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        انتخاب مسئول مربوطه
+                        <span class="cancelIcon" ng-click="cancelManagerSelection()"><i class="far fa-close "></i></span>
+                    </p>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="table-body">
+                                    <table class="test">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 5%;">
+    
+                                                </th>
+                                                <th style="width: 95%;">
+                                                    نام و نام خانوادگی
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="manager in managers.Items">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" ng-click="Addmanagers(manager.Id)"
+                                                            id="select-manager-{{manager.Id}}">
+                                                        <label class="form-check-label asp-label" style="font-size: 10px;"
+                                                            for="select-manager-{{manager.Id}}">
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{manager.FirstName}} {{manager.LastName}}
+                                                </td>
+                                            </tr>
+                                            <tr ng-if="managers.Items[0].HasMoreRow" ng-click="getMore()" class="pointer">
+    
+                                                <td colspan="2">
+                                                    موارد بیشتر...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="row col-12">
+                                    <div class="col-6 text-right">
+                                        <span ng-click="loadPagePersonnelSelected(managers.TotalPages)" style="cursor: pointer;">
+                                            <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                                            <i class="far fa-chevron-right asp-label" style="margin-right: -3px; font-size: 0.7em;"></i>
+                                        </span>
+                                        <span class="asp-label" ng-click="loadPagePersonnelSelected(managers.PageIndex+1)"
+                                            style="margin: 0 5px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                                        <input class="form-control text-center" id="pagingD"
+                                            placeholder="{{managers.PageIndex}} از {{managers.TotalPages}}"
+                                            style="width: 35%; display: inline-block; position: relative; top: 0; font-size: 0.7em;"
+                                            ng-model="pageNumbers" ng-keyup="loadPagePersonnelSelected(pageNumbers);">
+                                        <span class="asp-label" ng-click="loadPagePersonnelSelected(managers.PageIndex-1)"
+                                            style="margin: 0 5px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                                        <span ng-click="loadPagePersonnelSelected(1)" style="cursor: pointer;">
+                                            <i class="far fa-chevron-left asp-label" style="margin-left: -3px; font-size: 0.7em;"></i>
+                                            <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <p class="p-o m-0 mt-1 medium-font">* تعداد کل : <strong>{{managers.TotalRow}}</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-sm-12" style="text-align: left;">
+                                <button class="new-button red" ng-click="cancelManagerSelection()">
+                                    <i class="far fa-close"></i>
+                                    انصراف
+                                </button>
+                                <button ng-if="buttonsArrayShow" class="new-button green" ng-click="confirmSelectManagers()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                                <button ng-if="buttonsArrayShowDay" class="new-button green" ng-click="confirmSelectManagersDay()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------------------- closed list modal ---------------------->
+    <div class="modal " id="showClosedModal">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        لیست محاسبات بسته شده
+                        <span class="cancelIcon" title="بستن" ng-click="closeClosedList()"><i class="far fa-close "></i></span>
+                    </p>
+    
+                    <div class="table-body">
+                        <table class="test">
+                            <thead>
+                                <tr>
+                                    <th class="w-20">نام</th>
+                                    <th class="w-20">کد پرسنلی</th>
+                                    <th class="w-20">تاریخ بستن</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in showClosedList">
+                                    <td class="w-20 text-center">{{item.PersonName}}</td>
+                                    <td class="w-20 text-center">{{item.DossierNo}}</td>
+                                    <td class="w-20 text-center">{{item.RollCallDatePersian}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <div style="text-align: left;">
+                            <button type="button" class="new-button red" ng-click="closeClosedList()">
+                                <i class="far fa-close ml-1"></i>بستن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,312 @@
+<div ng-if="assessment.AllowSpecialPage">
+  <!-- Form Alef-1 -->
+  <div class="card" ng-if="section.form == 1">
+    <ul class="list-group list-group-horizontal">
+      <li id="HR_ASM_A1" class="list-group-item selected-list-group">
+        فرم الف 1
+        <i class="far fa-tasks"></i>
+      </li>
+    </ul>
+  </div>
+  <div ng-if="section.form == 1">
+    <div class="card">
+      <div>
+        <table class="test">
+          <thead class="table-header">
+            <tr>
+              <th style="width: 5%;">
+                <input type="checkbox" ng-if="!assessment.deleteAllowed && checkingExist(assessment.tableData.Items)" id="checkAll" ng-model="sss" ng-checked="checkAllStateFunc(assessment.tableData.Items)" ng-click="addToListAll(assessment.tableData.Items,$event)">
+                <input type="checkbox" ng-if="assessment.deleteAllowed && checkingExist(assessment.tableData1.Items)" id="checkAll" ng-model="sss" ng-checked="checkAllStateFunc1(assessment.tableData1.Items)" ng-click="addToListAll1(assessment.tableData1.Items,$event)">
+              </th>
+              <th style="width: 50%;">
+                اقدامات/ فعالیت ها/ پروژه های مورد انتظار واحد سازمانی
+              </th>
+              <th style="width: 40%;">
+                نتایج کمی مورد انتظار
+              </th>
+              <th ng-if="checkingExist(assessment.tableData1.Items)" style="width: 5%;">
+                #
+              </th>
+            </tr>
+          </thead>
+          <tbody class="table-body" id="tableDataForCheck">
+            <tr ng-if="assessment.tableData.Items.length" ng-repeat="goal in assessment.tableData.Items">
+              <td style="width: 5%;">
+                <input type="checkbox" ng-if="!assessment.checkingWorkflow" ng-checked="checkState(goal)" ng-click="addToList($event,goal)">
+              </td>
+              <td style="width: 50%;">
+                <input type="text" title="{{goal.Title}}" ng-value="goal.Title" ng-model="goal.Title"
+                       style="width: 90%;display: inline-block;font-size:1em !important" class="form-control">
+              </td>
+              <td style="width: 45%;">
+                <input type="text" title="{{goal.QuantitativeResult}}" ng-value="goal.QuantitativeResult"
+                       ng-model="goal.QuantitativeResult"
+                       style="width: 90%;display: inline-block;font-size:1em !important" class="form-control">
+                <!--<i class="far fa-edit" style="opacity: 0;"></i>
+                <i class="far fa-edit" style="opacity: 0;"></i>-->
+                <!-- js code for this func is created but it has to fix data from table to exe -->
+                <!--<i class="far fa-trash pointer" ng-if="!deleteAllowed && checkingWorkflow"
+                ng-click="deleteFromFirstTable(goal,$index)"></i>-->
+              </td>
+            </tr>
+            <tr ng-if="checkingExist(assessment.tableData1.Items)" ng-repeat="goal in assessment.tableData1.Items">
+              <td style="width: 5%;">
+                <input type="checkbox" ng-if="!assessment.checkingWorkflow" ng-checked="checkState1(goal)" ng-click="addToList1($event,goal)">
+              </td>
+              <td style="width: 50%;padding: 5px 0;">
+                <input type="text" title="{{goal.Title}}" ng-value="goal.Title" ng-model="goal.Title"
+                       ng-disabled="!goal.editMode"
+                       style="width: 90%;display: inline-block;font-size:1em !important" class="form-control">
+              </td>
+              <td style="width: 40%;padding: 5px 0;">
+                <input type="text" title="{{goal.QuantitativeResult}}" ng-value="goal.QuantitativeResult"
+                       ng-model="goal.QuantitativeResult" ng-disabled="!goal.editMode"
+                       style="width: 90%;display: inline-block;font-size:1em !important" class="form-control">
+
+              </td>
+              <td ng-if="checkingExist(assessment.tableData1.Items)" style="width: 5%;">
+                <div class="row  text-center">
+                  <span class="mr-1 pointer big-font" ng-if="!goal.editMode && (((assessment.checkingWorkflow && assessment.IsRequester) || (!assessment.checkingWorkflow && assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted))"
+                     ng-click="deleteFormTable(goal)"><i class="far fa-trash "></i></span>
+                  <span class="mr-1 pointer big-font" ng-if="!goal.editMode && !assessment.isFromCartable && (((assessment.checkingWorkflow && !assessment.IsRequester) || (assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted))"
+                     ng-click="changeEditMode(goal)"><i class="far fa-edit "></i></span>
+                  <span class="mr-1 big-font pointer" ng-if="goal.editMode && !assessment.isFromCartable && (((assessment.checkingWorkflow && !assessment.IsRequester) || (assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted))"
+                     ng-click="changeEditMode(goal)"><i class="far fa-close text-danger"></i></span>
+                  <span class="mr-1 big-font pointer" ng-click="editTitle(goal,$index)"
+                     ng-if="goal.editMode && !assessment.isFromCartable && (((assessment.checkingWorkflow && !assessment.IsRequester) || (assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted))"><i class="far fa-check text-success"></i></span>
+                  <!-- edition mode in caartable -->
+                  <span class="mr-1 pointer big-font" ng-if="!goal.editMode && assessment.isFromCartable && ((assessment.checkingWorkflow && !assessment.IsRequester) || (assessment.IsRequester && assessment.Isstarted))"
+                     ng-click="changeEditModeFromCartable(goal)"><i class="far fa-edit "></i></span>
+                  <span class="mr-1 big-font pointer" ng-if="goal.editMode && assessment.isFromCartable"
+                     ng-click="changeEditMode(goal)"><i class="far fa-close text-danger "></i></span>
+                  <span class="mr-1 big-font pointer" ng-click="editTitle(goal,$index)"
+                     ng-if="goal.editMode && assessment.isFromCartable"><i class="far fa-check text-success "></i></span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="col-sm-4" ng-if="checkingExist(assessment.tableData.Items)" style="text-align: right;">
+          <span ng-click="pagingTableData(assessment.tableData.TotalPages)" style="cursor: pointer;">
+            <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+            <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+          </span>
+          <span class="asp-label" ng-click="pagingTableData(assessment.tableData.PageIndex +1)"
+             style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+          <input class="form-control" id="pagingD"
+                 placeholder="{{assessment.tableData.PageIndex}} از  {{assessment.tableData.TotalPages}}"
+                 style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;"
+                 ng-model="assessment.tableDataPageNumber" ng-keyup="pagingTableData(assessment.tableDataPageNumber);">
+          <span class="asp-label" ng-click="pagingTableData(assessment.tableData.PageIndex -1)"
+             style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+          <span ng-click="pagingTableData(1)" style="cursor: pointer;">
+            <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+            <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+          </span>
+        </div>
+        <div class="col-sm-4" ng-if="checkingExist(assessment.tableData1.Items)" style="text-align: right;">
+          <span ng-click="pagingTableData(assessment.tableData1.TotalPages)" style="cursor: pointer;">
+            <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+            <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+          </span>
+          <span class="asp-label" ng-click="pagingTableData(assessment.tableData1.PageIndex+1)"
+             style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+          <input class="form-control" id="pagingD"
+                 placeholder="{{assessment.tableData1.PageIndex}} از  {{assessment.tableData1.TotalPages}}"
+                 style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;"
+                 ng-model="assessment.tableDataPageNumber" ng-keyup="pagingTableData(assessment.tableDataPageNumber);">
+          <span class="asp-label" ng-click="pagingTableData(assessment.tableData1.PageIndex-1)"
+             style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+          <span ng-click="pagingTableData(1)" style="cursor: pointer;">
+            <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+            <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+          </span>
+        </div>
+        <div class="col float-left">
+          <button type="button" class="new-button bg-warning" ng-if="((assessment.checkingWorkflow && assessment.IsRequester) || (!assessment.checkingWorkflow && assessment.IsRequester && assessment.Isstarted))|| (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted)" ng-click="createNewOne()">
+            <i class="far fa-plus"></i>
+            ایجاد مورد جدید
+          </button>
+          <button type="button" class="new-button bg-info" ng-if="((assessment.checkingWorkflow && assessment.IsRequester) || (!assessment.checkingWorkflow && assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted)" ng-click="openFormModal()">
+            <i class="far fa-file"></i>
+            اضافه کردن از لیست
+          </button>
+          <button type="button" class="new-button Red" ng-if="assessment.deleteAllowed&& checkingExist(assessment.tableData1.Items) && ((assessment.checkingWorkflow && assessment.IsRequester) || (!assessment.checkingWorkflow && assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted)" ng-disabled="!checkingExist(assessment.historyOfgoalsToAdd1)" ng-click="deleteAllFormTable()">
+            <i class="far fa-undo"></i>
+            عدم تایید
+            <div style="left:18px;bottom:5px; width:8px;height:8px" class="spinner-border text-warning position-absolute" ng-if="deleteFormLoading"></div>
+          </button>
+          <button type="button" class="new-button green" ng-click="submitingForm()" ng-if="!assessment.deleteAllowed && ((assessment.checkingWorkflow && assessment.IsRequester) || (!assessment.checkingWorkflow && assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted)" ng-disabled="!checkingExist(assessment.historyOfgoalsToAdd)">
+            <i class="far fa-check"></i>
+            تایید
+            <div style="left:18px;bottom:5px; width:8px;height:8px" class="spinner-border text-warning position-absolute" ng-if="submitingFormLoading"></div>
+          </button>
+          <!--<button class="new-button green" ng-click="submitingForm()"
+                  ng-hide="deleteAllowed && tableData1.Items.length !=0 && (goalsToAdd.Values.length == tableData1.Items.length ||  goalsToAdd.Values.length ==0) && !checkingWorkflow">
+              <i class="far fa-check"></i>
+              تایید
+          </button>-->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Alef-2 -->
+  <div class="card" ng-if="checkingExist(assessment.formEntryInfo.RequestId) && section.form == 2">
+    <!-- <div class="card"> -->
+    <ul class="list-group list-group-horizontal">
+      <li id="HR_ASM_A2" class="list-group-item selected-list-group">
+        فرم الف 2
+        <i class="far fa-tasks"></i>
+      </li>
+    </ul>
+  </div>
+  <div ng-if="section.form == 2">
+    <div class="card">
+      <div style="overflow:auto;max-height:300px">
+        <table class="newTableStyle">
+          <thead>
+            <tr>
+              <th ng-style="{'font-size':assessment.isFromCartable?'8px':'11px'}" ng-repeat="tableHead in assessment.secondTableData.Fields.Children">
+                {{tableHead.Title}}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="overflow-y" id="allparent">
+            <tr ng-repeat="goal in assessment.secondTableData.Values[0].Rows">
+              <td ng-repeat="tableBody in assessment.secondTableData.Fields.Children">
+                <span ng-repeat="value in goal.Items" ng-if="value.FieldId == tableBody.Id">
+                  <span class="small-font" ng-style="{'min-width':assessment.isFromCartable?'200px':'400px'}" ng-if="!checkingPermissionForSecond(tableBody.Id)">
+                    {{value.NumericValue}} {{value.StringValue}}
+                  </span>
+                </span>
+                <input id="{{$parent.$parent.$index}}-{{tableBody.Id}}" ng-class="{'sumationInput':tableBody.IsScore}" type="text" class="form-control small-font" ng-style="{width:assessment.isFromCartable?'200px':'400px'}" ng-if="(tableBody.TypeIdentity == 0 || tableBody.TypeIdentity == 1) && checkingPermissionForSecond(tableBody.Id) && assessment.dynamicButtonAllow"
+                       ng-blur="settingValueForSec(tableBody.Id,$parent.$parent.$index,tableBody.TypeIdentity)"
+                       ng-model="value.StringValue" ng-value="getValue(goal.Items,tableBody.Id);" ng-init="inputMasks()">
+                <input id="{{$parent.$parent.$index}}-{{tableBody.Id}}" ng-class="{'sumationInput':tableBody.IsScore}" type="text" style="min-width:50px" class="form-control precentF small-font" ng-if="tableBody.TypeIdentity == 2 && checkingPermissionForSecond(tableBody.Id) && assessment.dynamicButtonAllow"
+                       ng-blur="settingValueForSec(tableBody.Id,$parent.$parent.$index,tableBody.TypeIdentity)" ng-keyup="checkmaxMinInSpecialForm(tableBody,$event)"
+                       ng-model="value.NumericValue" ng-value="getValue(goal.Items,tableBody.Id)" ng-init="inputMasks()">
+                <input id="{{$parent.$parent.$index}}-{{tableBody.Id}}" ng-class="{'sumationInput':tableBody.IsScore}" type="text" style="min-width:50px" class="form-control precentF small-font" ng-if="tableBody.TypeIdentity == 3 && checkingPermissionForSecond(tableBody.Id) && assessment.dynamicButtonAllow"
+                       ng-blur="settingValueForSec(tableBody.Id,$parent.$parent.$index,tableBody.TypeIdentity)"
+                       ng-model="value.NumericValue" ng-value="getValue(goal.Items,tableBody.Id)" ng-init="inputMasks()">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--<div class="card" ng-if="section.form != 2">
+        <div class="row">
+            <div class="col-sm-4" ng-if="assessment.tableData.Items.length && section.form != 2" style="text-align: right;">
+                <span ng-click="loadPage1('last')" style="cursor: pointer;">
+                    <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                    <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <i class="far fa-chevron-right asp-label" ng-click="loadPage1(1)"
+                   style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"></i>
+                <input class="form-control" id="pagingD"
+                       placeholder="{{assessment.tableData.PageIndex}} از  {{assessment.tableData.TotalPages}}"
+                       style="width: 30%;display: inline-block;position: relative;top: 0px;font-size: 0.7em;"
+                       ng-model="pageNumber" ng-keyup="changePage1($event,pageNumber);">
+                <i class="far fa-chevron-left asp-label" ng-click="loadPage1(-1)"
+                   style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"></i>
+                <span ng-click="loadPage1('first')" style="cursor: pointer;">
+                    <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                    <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+            </div>
+            <div class="col-sm-4" ng-if="assessment.tableData1.Items.length && section.form != 2" style="text-align: right;">
+                <span ng-click="loadPage1('last')" style="cursor: pointer;">
+                    <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                    <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <i class="far fa-chevron-right asp-label" ng-click="loadPage1(1)"
+                   style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"></i>
+                <input class="form-control" id="pagingD"
+                       placeholder="{{assessment.tableData1.PageIndex}} از  {{assessment.tableData1.TotalPages}}"
+                       style="width: 30%;display: inline-block;position: relative;top: 0px;font-size: 0.7em;"
+                       ng-model="pageNumber" ng-keyup="changePage1($event,pageNumber);">
+                <i class="far fa-chevron-left asp-label" ng-click="loadPage1(-1)"
+                   style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"></i>
+                <span ng-click="loadPage1('first')" style="cursor: pointer;">
+                    <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                    <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+            </div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4" style="text-align: left;">
+            </div>
+        </div>
+    </div>-->
+  </div>
+
+  <!-- user behalf -->
+  <div class="modal fade" id="showBehafUser">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            از طرف
+            <span class="cancelIcon"
+               ng-click="cancelPreStartWorkFlow()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="table-body">
+                  <table class="test">
+                    <thead>
+                      <tr>
+                        <th style="width: 5%;"></th>
+                        <th style="width: 95%;">
+                          نام و نام خانوادگی
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="person in assessment.behalfPersonnel">
+                        <td>
+                          <input type="radio" ng-model="person" ng-click="confirmPreStartWorkFlow(person)">
+                        </td>
+                        <td>
+                          {{person.PoliteName}}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alef-1 -->
+  <div class="card" ng-if="(!checkingExist(assessment.formEntryInfo.RequestId)) && checkingExist(assessment.tableData1.Items)">
+    <div class="float-left">
+      <button type="button" class="new-button green" ng-click="preStartWorkFlow()">
+        <i class="far fa-play"></i>
+        شروع فرآیند
+        <div style="left:10px;bottom:10px; width:8px;height:8px" class="spinner-border text-warning position-absolute" ng-if="loadingStartWorkFlow"></div>
+      </button>
+    </div>
+  </div>
+  <!-- Alef-2 -->
+  <div class="card" ng-if="section.form == 2 && assessment.dynamicButtonAllow">
+    <div class="float-left">
+      <button type="button" class="new-button green mr-1" ng-click="confirmSecondLevel()">
+        <i class="far fa-check"></i>
+        تایید
+        <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning" ng-if="loadingConfirmSecondLevel"></div>
+
+      </button>
+    </div>
+  </div>
+</div>

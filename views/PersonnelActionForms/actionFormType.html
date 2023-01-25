@@ -1,0 +1,909 @@
+<div class="" ng-if="!actionType.Validation">
+  <div ng-include="actionType.redirectUrlForUnAuth"></div>
+</div>
+<div ng-if="actionType.Validation">
+  <div ng-if="actionType.loadingPage" class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
+    <div class="d-flex justify-content-center m-auto">
+      <i class="spinner-border text-primary" style="width: 50px; height: 50px;"></i>
+    </div>
+    <div class="mt-2">
+      <h3 class="text-center">درحال بارگذاری...</h3>
+    </div>
+  </div>
+  <div ng-if="!actionType.loadingPage">
+    <p class="HeaderForm">
+      نوع حکم
+    </p>
+    <div class="card">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <label class="input-group-text">
+                انتخاب نوع قانون
+              </label>
+            </div>
+            <select class="form-control" ng-model="actionType.employeeTypeId" ng-change="getFirstData(actionType.employeeTypeId)">
+              <option value="{{null}}">
+                لطفا انتخاب نمایید...
+              </option>
+              <option value="{{employeetype.Id}}" ng-repeat="employeetype in actionType.employeeTypes">
+                {{employeetype.Title}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-if="checkingExist(actionType.lawTypeId)">
+      <div ng-if="!actionType.groupView">
+        <div ng-if="!actionType.historyPart">
+          <div class="card " style="margin-bottom:50px">
+            <div class="overflow-y p-0" style="max-height:280px !important">
+              <table class="newTableStyle" style="border-bottom:none !important;border-top:none !important">
+                <thead class="big-font">
+                  <tr>
+                    <th style="width: 30%;">
+                      عنوان
+                    </th>
+                    <th style="width: 15%;">
+                      نوع استخدام
+                    </th>
+                    <th style="width: 30%;">
+                      شرح حکم
+                    </th>
+                    <th style="width: 10%;">
+                      تاریخ شروع
+                    </th>
+                    <th style="width: 15%;">
+                      تاریخ پایان
+                    </th>
+                  </tr>
+                  <tr>
+                    <th style="width: 30%;">
+                      <div class="d-flex" style="position: relative;">
+                        <input class="form-control ml-1" ng-model="actionType.searchIssuance" ng-keyup="setSearchIssuance()">
+                        <span class="cancelIcon" ng-if="checkingExist(actionType.searchIssuance)" ng-click="clearIssuanceSearch()"><i class="far fa-close "></i></span>
+                      </div>
+                    </th>
+                    <th style="width: 15%;">
+
+                    </th>
+                    <th style="width: 30%;">
+
+                    </th>
+                    <th style="width: 10%;">
+
+                    </th>
+                    <th style="width: 15%;">
+
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="big-font font-weight-lighter">
+                  <tr ng-if="actionType.hasData && !actionType.loading" ng-repeat="type in actionType.issuanceType.Items">
+                    <td>
+                      {{type.Title}}
+                    </td>
+                    <td>
+                      {{type.ActionType.EmployeeTypeTitle}}
+                    </td>
+                    <td>
+                      <div title="{{type.ActionType.Brief}}" data-toggle="tooltip"
+                        style="width: 15em;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">
+                        {{type.ActionType.Brief}}
+                      </div>
+                    </td>
+                    <td>
+                      {{type.ActionType.StartDatePersian}}
+                    </td>
+                    <td>
+                      {{type.ActionType.FinishDatePersian}}
+                      <span class="pointer" data-toggle="tooltip" title="مشاهده تاریخچه" ng-if="!checkingExist(type.GroupId)"
+                        ng-click="getHistory(type)" style="float: left;margin: 0 7px 0 3px;"><i class="far fa-chevron-left "></i></span>
+                      <span class="pointer float-left" style="margin: 0 7px 0 3px;" data-toggle="tooltip" title="مشاهده گروه بندی"
+                        ng-click="setGroup(type)" ng-if="checkingExist(type.GroupId)"><i class="far fa-copy "></i></span>
+                      <span class="pointer" ng-if="!checkingExist(type.GroupId)" ng-click="openEdit(type)"
+                        style="float: left;margin: 0 3px;"><i class="far fa-edit "></i></span>
+                      <span class="pointer" ng-if="!checkingExist(type.GroupId)" ng-click="deleteType(type)"
+                        style="float: left;margin: 0 3px;"><i class="far fa-trash "></i></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td ng-if="!actionType.hasData && actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="5">درحال
+                      جستجو...</td>
+                    <td ng-if="!actionType.hasData && !actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="5">داده
+                      ای یافت نشد</td>
+                  </tr>
+                </tbody>
+
+              </table>
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-1 mb-1 border border-info"></div>
+            <div class="row">
+              <div class="col-sm-8" style="text-align: right;">
+                <span ng-click="loadPageI(actionType.issuanceType.TotalPages)" style="cursor: pointer;">
+                  <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                  <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <span class="asp-label" ng-click="loadPageI(actionType.issuanceType.PageIndex + 1)"
+                  style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                <input class="form-control" id="pagingD"
+                  placeholder="{{actionType.issuanceType.PageIndex}} از  {{actionType.issuanceType.TotalPages}}"
+                  style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                  ng-keyup="loadPageI(pageNumber);">
+                <span class="asp-label" ng-click="loadPageI(actionType.issuanceType.PageIndex -1)"
+                  style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                <span ng-click="loadPageI(1)" style="cursor: pointer;">
+                  <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                  <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+              </div>
+              <div class="col-sm-4" style="text-align: left;padding-left: 25px;">
+                <span class="pointer" title="افزودن مورد جدید" ng-click="changeCreateType()"><i class="far fa-plus "></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div ng-if="actionType.historyPart">
+          <p class="HeaderForm" style="text-align: right;">
+            تاریخچه نوع حکم {{actionType.hsitoryType.Title}}
+            <span class="cancelIcon" ng-click="returnToMain()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card" style="margin-bottom:50px">
+            <div class="overflow-y p-0" style="max-height:280px !important">
+              <table class="newTableStyle" style="border-bottom:none !important;border-top:none !important">
+                <thead class="big-font">
+                  <tr>
+                    <th style="width: 40%;">
+                      عنوان
+                    </th>
+                    <th style="width: 35%;">
+                      شرح حکم
+                    </th>
+                    <th style="width: 10%;">
+                      تاریخ شروع
+                    </th>
+                    <th style="width: 15%;">
+                      تاریخ پایان
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="big-font font-weight-lighter">
+                  <tr ng-if="actionType.historyHasData && !actionType.loading" ng-repeat="type in actionType.issuanceTypeHistory.Items">
+                    <td style="width: 40%;">
+                      {{type.Title}}
+                    </td>
+                    <td style="width: 35%;">
+                      <div title="{{type.Brief}}" data-toggle="tooltip"
+                        style="width: 20em;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">
+                        {{type.Brief}}
+                      </div>
+                    </td>
+                    <td style="width: 10%;">
+                      {{type.StartDatePersian}}
+                    </td>
+                    <td style="width: 15%;">
+                      {{type.FinishDatePersian}}
+                      <!-- <i class="far fa-chevron-left pointer" ng-click="getHistory()" style="float: left;margin: 0 7px 0 3px;"></i> -->
+                      <span class="pointer" ng-click="openEditHistory(type)" style="float: left;margin: 0 3px;"><i class="far fa-edit "></i></span>
+                      <span class="pointer" ng-if="$first" ng-click="deleteTypeHistory(type)" style="float: left;margin: 0 3px;"><i class="far fa-trash "></i></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td ng-if="!actionType.historyHasData && actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="4">
+                      درحال جستجو...</td>
+                    <td ng-if="!actionType.historyHasData && !actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="4">
+                      داده ای یافت نشد</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-1 mb-1 border border-info"></div>
+            <div class="row">
+              <div class="col-sm-8" style="text-align: right;">
+                <span ng-click="loadPageHistory(actionType.issuanceTypeHistory.TotalPages)" style="cursor: pointer;">
+                  <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                  <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <span class="asp-label" ng-click="loadPageHistory(actionType.issuanceTypeHistory.PageIndex + 1)"
+                  style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                <input class="form-control" id="pagingD"
+                  placeholder="{{actionType.issuanceTypeHistory.PageIndex}} از  {{actionType.issuanceTypeHistory.TotalPages}}"
+                  style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                  ng-keyup="loadPageHistory(pageNumber);">
+                <span class="asp-label" ng-click="loadPageHistory(actionType.issuanceTypeHistory.PageIndex -1)"
+                  style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                <span ng-click="loadPageHistory(1)" style="cursor: pointer;">
+                  <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                  <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+              </div>
+              <div class="col-sm-4" style="text-align: left;padding-left: 25px;">
+                <span class="pointer" style="margin-left: 10px;" ng-click="returnToMain()"><i class="far fa-undo "></i></span>
+                <span class="pointer" ng-click="changeCreateTypeHistory()"><i class="far fa-plus "></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div ng-if="actionType.groupView">
+        <div class="card " style="margin-bottom:50px" ng-if="!actionType.noGroup && !actionType.historyPart">
+          <div class="overflow-y p-0" style="max-height:280px !important">
+            <table class="newTableStyle" style="border-bottom:none !important;border-top:none !important">
+              <thead class="big-font">
+                <tr>
+                  <th style="width: 30%;">
+                    عنوان
+                  </th>
+                  <th style="width: 15%;">
+                    نوع استخدام
+                  </th>
+                  <th style="width: 30%;">
+                    شرح حکم
+                  </th>
+                  <th style="width: 10%;">
+                    تاریخ شروع
+                  </th>
+                  <th style="width: 15%;">
+                    تاریخ پایان
+                  </th>
+                </tr>
+                <tr>
+                  <th style="width: 30%;">
+                    <div style="position: relative;">
+                      <span class="pointer cancelIcon" ng-click="clearGroupSearch()" ng-if="actionType.groupSearch != ''"><i class="far fa-close"></i></span>
+                      <input class="form-control" ng-model="actionType.groupSearch" ng-keyup="setGroupSearch()">
+                    </div>
+                  </th>
+                  <th style="width: 15%;">
+
+                  </th>
+                  <th style="width: 30%;">
+
+                  </th>
+                  <th style="width: 10%;">
+
+                  </th>
+                  <th style="width: 15%;">
+
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="big-font font-weight-lighter">
+                <tr ng-if="actionType.hasGroupData && !actionType.loading" ng-repeat="type in actionType.tableData.Items">
+                  <td>
+                    {{type.Title}}
+                  </td>
+                  <td>
+                    {{type.EmployeeTypeTitle}}
+                  </td>
+                  <td>
+                    <div title="{{type.Brief}}" data-toggle="tooltip"
+                      style="width: 15em;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">
+                      {{type.Brief}}
+                    </div>
+                  </td>
+                  <td>
+                    {{type.StartDatePersian}}
+                  </td>
+                  <td>
+                    {{type.FinishDatePersian}}
+                    <span class="pointer" title="مشاهده تاریخچه" ng-click="getHistory(type)"
+                      style="float: left;margin: 0 7px 0 3px;"><i class="far fa-chevron-left "></i></span>
+                    <span class="pointer" title="ویرایش" ng-click="openEdit(type)" style="float: left;margin: 0 3px;"><i class="far fa-edit "></i></span>
+                    <span class="pointer" title="حذف" ng-click="deleteType(type)" style="float: left;margin: 0 3px;"><i class="far fa-trash "></i></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td ng-if="!actionType.hasGroupData && actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="5">
+                    درحال جستجو...</td>
+                  <td ng-if="!actionType.hasGroupData && !actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="5">
+                    داده ای یافت نشد</td>
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+          <div class="col-12 d-flex justify-content-center mt-1 mb-1 border border-info"></div>
+          <div class="row">
+            <div class="col-sm-8" style="text-align: right;">
+              <span ng-click="loadPageT(actionType.tableData.TotalPages)" style="cursor: pointer;">
+                <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+              </span>
+              <span class="asp-label" ng-click="loadPageT(actionType.tableData.PageIndex + 1)"
+                style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+              <input class="form-control" id="pagingD" placeholder="{{actionType.tableData.PageIndex}} از  {{actionType.tableData.TotalPages}}"
+                style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                ng-keyup="loadPageT(pageNumber);">
+              <span class="asp-label" ng-click="loadPageT(actionType.tableData.PageIndex -1)"
+                style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+              <span ng-click="loadPageT(1)" style="cursor: pointer;">
+                <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+              </span>
+            </div>
+            <div class="col-sm-4" style="text-align: left;padding-left: 25px;">
+              <span class="big-font pointer" title="بازگشت"
+                    ng-click="returnToPage()"><i class="far fa-undo "></i></span>
+              <span class="big-font pointer" title="افزودن مورد جدید به این گروه" ng-click="changeCreateType()"><i class="far fa-plus "></i></span>
+              <span class="big-font pointer" title="ویرایش گروه" ng-click="editGroup()"><i class="far fa-edit "></i></span>
+              <span class="big-font pointer" title="حذف کلی این گروه" ng-click="deleteGroup()"><i class="far fa-trash "></i></span>
+            </div>
+          </div>
+        </div>
+        <div ng-if="actionType.historyPart">
+          <p class="HeaderForm" style="text-align: right;">
+            تاریخچه نوع حکم : {{actionType.hsitoryType.Title}}
+            <span class="cancelIcon" ng-click="returnToMain()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <div>
+              <table class="newTableStyle">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">
+                      عنوان
+                    </th>
+                    <th style="width: 35%;">
+                      شرح حکم
+                    </th>
+                    <th style="width: 10%;">
+                      تاریخ شروع
+                    </th>
+                    <th style="width: 15%;">
+                      تاریخ پایان
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr ng-if="actionType.historyHasData && !actionType.loading" ng-repeat="type in actionType.issuanceTypeHistory.Items">
+                  <td style="width: 40%;">
+                    {{type.Title}}
+                  </td>
+                  <td style="width: 35%;">
+                    <div title="{{type.Brief}}" data-toggle="tooltip"
+                         style="width: 20em;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">
+                      {{type.Brief}}
+                    </div>
+                  </td>
+                  <td style="width: 10%;">
+                    {{type.StartDatePersian}}
+                  </td>
+                  <td style="width: 15%;">
+                    {{type.FinishDatePersian}}
+                    <!-- <i class="far fa-chevron-left pointer" ng-click="getHistory()" style="float: left;margin: 0 7px 0 3px;"></i> -->
+                    <span class="pointer" ng-click="openEditHistory(type)" style="float: left;margin: 0 3px;"><i class="far fa-edit "></i></span>
+                    <span class="pointer" ng-if="$first" ng-click="deleteTypeHistory(type)" style="float: left;margin: 0 3px;"><i class="far fa-trash "></i></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td ng-if="!actionType.historyHasData && actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="5">
+                    درحال جستجو...</td>
+                  <td ng-if="!actionType.historyHasData && !actionType.loading" class="col-12 text-center text-danger font-weight-bold" colspan="5">
+                    داده ای یافت نشد</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-1 mb-1 border border-info"></div>
+            <div class="row">
+              <div class="col-sm-8" style="text-align: right;">
+                <span ng-click="loadPageHistory(actionType.issuanceTypeHistory.TotalPages)" style="cursor: pointer;">
+                  <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                  <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <span class="asp-label" ng-click="loadPageHistory(actionType.issuanceTypeHistory.PageIndex + 1)"
+                  style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                <input class="form-control" id="pagingD"
+                  placeholder="{{actionType.issuanceTypeHistory.PageIndex}} از  {{actionType.issuanceTypeHistory.TotalPages}}"
+                  style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                  ng-keyup="loadPageHistory(pageNumber);">
+                <span class="asp-label" ng-click="loadPageHistory(actionType.issuanceTypeHistory.PageIndex -1)"
+                  style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                <span ng-click="loadPageHistory(1)" style="cursor: pointer;">
+                  <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                  <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+              </div>
+              <div class="col-sm-4" style="text-align: left;padding-left: 25px;">
+                <span class="pointer" style="margin-left: 10px;"
+                      ng-click="returnToMain()"><i class="far fa-undo "></i></span>
+                <span class="pointer" ng-click="changeCreateTypeHistory()"><i class="far fa-plus"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" ng-if="actionType.noGroup">
+          <p class="asp-label text-danger center">
+            گروه بندی برای این نوع قانون وجود ندارد
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="createModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            ایجاد نوع حکم
+            <span class="cancelIcon" ng-click="cancelCreate()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <div class="row">
+              <div class="col-sm-12 asp-label" style="text-align: right;padding-right: 2.5rem;">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" ng-model="actionType.createTypeItem.IsZero" id="customCheckZero" name="example1">
+                  <label class="custom-control-label" for="customCheckZero">
+                    حکم ریالی صفر
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      عنوان
+                    </label>
+                  </div>
+                  <input class="form-control" ng-model="actionType.createTypeItem.Title">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <c-select data="employeeType" class="label-width-90px" mode="create" max-selectable="0" disabled="false" footer="true"
+                  title="نوع استخدام" ng-model="actionType.createTypeItem.employeeType"></c-select>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ شروع
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" ng-model="actionType.createTypeItem.StartDatePersian" data-inputmask-alias="datetime"
+                    data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ پایان
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" ng-model="actionType.createTypeItem.FinishDatePersian" data-inputmask-alias="datetime"
+                    data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off" placeholder="yyyy/mm/dd">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح حکم
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.createTypeItem.Brief" class="form-control" style="height: 8em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح اصلاحیه
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.createTypeItem.CorrectionBrief" class="form-control" style="height: 8em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      توضیحات
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.createTypeItem.Description" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <button class="new-button red" ng-click="cancelCreate()">
+                <i class="far fa-close"></i>
+                انصراف
+              </button>
+              <button class="new-button green" ng-click="confirmCreateType(actionType.createTypeItem)">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 8px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                  ng-if="loadingCreateType"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="editModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            ویرایش نوع حکم
+            <span class="cancelIcon" ng-click="cancelEdit()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <div class="row">
+              <div class="col-sm-12 asp-label" style="text-align: right;padding-right: 2.5rem;">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" ng-model="actionType.editItem.IsZero" id="customCheckZeroE" name="example1">
+                  <label class="custom-control-label" for="customCheckZeroE">
+                    حکم ریالی صفر
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      عنوان
+                    </label>
+                  </div>
+                  <input class="form-control" ng-model="actionType.editItem.Title">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      نوع استخدام
+                    </label>
+                  </div>
+                  <p class="form-control gray-back" style="text-align: right;">
+                    <span ng-repeat="type in actionType.editEmployeeGroup">
+                      {{type.title}} ,
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ شروع
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off"
+                    placeholder="yyyy/mm/dd" id="typeStartEdit" ng-disabled="true" ng-value="actionType.editItem.StartDatePersian">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ پایان
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off"
+                    placeholder="yyyy/mm/dd" id="typeEndEdit" ng-disabled="true" ng-value="actionType.editItem.FinishDatePersian">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح حکم
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.editItem.Brief" class="form-control" style="height: 5em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح اصلاحیه
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.editItem.CorrectionBrief" class="form-control" style="height: 5em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      توضیحات
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.editItem.Description" class="form-control" style="height: 5em !important;"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <button class="new-button red" ng-click="cancelEdit()">
+                <i class="far fa-close"></i>
+                انصراف
+              </button>
+              <button class="new-button green" ng-click="confirmEditType(actionType.editItem)">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 8px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                  ng-if="loadingEditType"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="deleteModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            حذف نوع حکم
+            <span class="cancelIcon" ng-click="cancelDelete()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <p class="asp-label text-danger center">
+              آیا از حذف این مورد اطمینان دارید؟
+            </p>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <button class="new-button red" ng-click="cancelDelete()">
+                <i class="far fa-close"></i>
+                انصراف
+              </button>
+              <button class="new-button green" ng-click="confirmDelete()">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 8px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                  ng-if="loadingDeleteGroup"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="modal fade" id="createHistoryModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            ایجاد تاریخچه نوع حکم
+            <span class="cancelIcon" ng-click="cancelCreateHistory()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <div class="row">
+              <div class="col-sm-12 asp-label" style="text-align: right;padding-right: 2.5rem;">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" ng-model="actionType.createHistoryTypeItem.IsZero" id="customCheckZeroH"
+                    name="example1">
+                  <label class="custom-control-label" for="customCheckZeroH">
+                    حکم ریالی صفر
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      عنوان
+                    </label>
+                  </div>
+                  <input class="form-control" ng-model="actionType.createHistoryTypeItem.Title">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ شروع
+                    </label>
+                  </div>
+                  <input class="form-control date-picker-s" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off"
+                    placeholder="yyyy/mm/dd" ng-model="actionType.createHistoryTypeItem.StartDatePersian">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ پایان
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd" autocomplete="off"
+                    placeholder="yyyy/mm/dd" ng-model="actionType.createHistoryTypeItem.FinishDatePersian">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح حکم
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.createHistoryTypeItem.Brief" class="form-control" style="height: 8em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح اصلاحیه
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.createHistoryTypeItem.CorrectionBrief" class="form-control" style="height: 8em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      توضیحات
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.createHistoryTypeItem.Description" class="form-control"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <button class="new-button red" ng-click="cancelCreateHistory()">
+                <i class="far fa-close"></i>
+                انصراف
+              </button>
+              <button class="new-button green" ng-click="confirmCreateHistoryType(actionType.createHistoryTypeItem)">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 8px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                  ng-if="loadingHistoryCreate"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="editModalHistory">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            ویرایش تاریخچه نوع حکم
+            <span class="cancelIcon" ng-click="cancelEditHistory()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <div class="row">
+              <div class="col-sm-12 asp-label" style="text-align: right;padding-right: 2.5rem;">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" ng-model="actionType.editItem.IsZero" id="customCheckZeroHE" name="example1">
+                  <label class="custom-control-label" for="customCheckZeroHE">
+                    حکم ریالی صفر
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      عنوان
+                    </label>
+                  </div>
+                  <input class="form-control" ng-model="actionType.editItem.Title">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ شروع
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" ng-disabled="true" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd"
+                    autocomplete="off" placeholder="yyyy/mm/dd" id="typeStartEditH" ng-value="actionType.editItem.StartDatePersian">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      تاریخ پایان
+                    </label>
+                  </div>
+                  <input class="form-control date-picker" ng-disabled="true" data-inputmask-alias="datetime" data-inputmask-inputformat="yyyy/mm/dd"
+                    autocomplete="off" placeholder="yyyy/mm/dd" id="typeEndEditH" ng-value="actionType.editItem.FinishDatePersian">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح حکم
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.editItem.Brief" class="form-control" style="height: 5em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      شرح اصلاحیه
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.editItem.CorrectionBrief" class="form-control" style="height: 5em !important;"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">
+                      توضیحات
+                    </label>
+                  </div>
+                  <textarea ng-model="actionType.editItem.Description" class="form-control" style="height: 5em !important;"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <button class="new-button red" ng-click="cancelEditHistory()">
+                <i class="far fa-close"></i>
+                انصراف
+              </button>
+              <button class="new-button green" ng-click="confirmEditTypeHistory(actionType.editItem)">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 8px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                  ng-if="loadingHistoryEdit"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="deleteModalHistory">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            حذف تاریخچه نوع حکم
+            <span class="cancelIcon" ng-click="cancelDelete()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card">
+            <p class="asp-label text-danger center">
+              آیا از حذف این مورد اطمینان دارید؟
+            </p>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <button class="new-button red" ng-click="cancelDeleteHistory()">
+                <i class="far fa-close"></i>
+                انصراف
+              </button>
+              <button class="new-button green" ng-click="confirmDeleteHistory()">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 8px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning position-absolute"
+                  ng-if="loadingHistoryDelete"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

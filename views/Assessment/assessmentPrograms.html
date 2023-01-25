@@ -1,0 +1,571 @@
+<p class="HeaderForm">
+  دوره ارزیابی پرسنل
+</p>
+<div class="modal fade" id="deleteConfirm">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p class="HeaderForm">
+          تایید حذف
+          <span class="cancelIcon" ng-click="cancelDelete()"><i class="far fa-close"></i></span>
+        </p>
+        <div class="card">
+          <p class="asp-label center text-danger">
+            آیا از حذف این مورد اطمینان دارید ؟
+          </p>
+        </div>
+        <div class="card">
+          <div style="text-align: left;">
+            <button class="new-button red" ng-click="cancelDelete()">
+              <i class="far fa-close"></i>
+              انصراف
+            </button>
+            <button class="new-button green" ng-click="confirmDelete()">
+              <i class="far fa-check"></i>
+              تایید
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="help-container" ng-if="messageStatus">
+  {{messageContent}}
+</div>
+<div class="error-container" ng-if="errorStatus">
+  <span class="cancelIcon" ng-click="closeError()"><i class="far fa-close"></i></span>
+  {{messageContent}}
+</div>
+<div class="card">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="col-sm-12">
+          <div class="row">
+            <div class="col-sm-12" style="padding: 0 5px;" ng-controller="searchCtrl">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" style="min-width: 8em;">
+                    جستجو
+                  </label>
+                </div>
+                <p class="form-control" style="text-align: right;padding: 0;">
+                  <input ng-model="searchParam.q" class="inside-input" ng-keyup="searching()" placeholder="عنوان" type="text">
+                  <input ng-model="searchParam.cd" class="inside-input" ng-keyup="searching()" placeholder="کد" type="text">
+                  <input ng-model="searchParam.uc" class="inside-input" ng-keyup="searching()" placeholder="شناسه یکتا" type="text">
+                </p>
+                <span ng-show="(searchParam.q != null && searchParam.q !='') || (searchParam.cd != null && searchParam.cd !='') || (searchParam.uc != null && searchParam.uc !='')"
+                  ng-click="searchParam.q = '';searchParam.cd = '';searchParam.uc = ''" class="inline-search"
+                  style="z-index: 5;"><i class="far fa-close text-danger"></i></span>
+              </div>
+              <div
+                ng-if="(searchParam.q != null && searchParam.q !='') || (searchParam.cd != null && searchParam.cd !='') || (searchParam.uc != null && searchParam.uc !='')"
+                style="position: absolute;width: 95%;min-height: 16em;background-color: white;border-radius: 5px;border: 1px solid lightgray;right: 2.5%;z-index: 11;">
+                <div ng-if="searchLoading" style="display: flex;align-items: center;justify-content: center;height: 100%;">
+                  <div class="spinner-border text-primary"></div>
+                </div>
+                <div ng-if="!searchLoading" style="height: 97%;">
+                  <div class="card" style="margin: 0;">
+                    <div>
+                      <table class="newTableStyle">
+                        <thead>
+                          <tr>
+                            <th style="width: 45%;">
+                              عنوان
+                            </th>
+                            <th style="width: 20%;">
+                              کد
+                            </th>
+                            <th style="width: 35%;">
+                              شناسه یکتا
+                            </th>
+                          </tr>
+                        </thead>
+
+                      </table>
+                      <div ng-repeat="result in searchResult">
+                        <p ng-if="result.BreadCrumb.length != 0" class="asp-label alert alert-primary"
+                          style="text-align: right;margin: 5px 0;padding: 0 15px;">
+                          <span ng-repeat="bread in result.BreadCrumb">
+                            {{bread.Title}} /
+                          </span>
+                        </p>
+                        <table>
+                          <tbody class="special-tbody">
+                            <tr ng-repeat="tst in result.Items" ng-if="!tst.IsDeleted" ng-click="setTree(result,tst)" style="cursor: pointer;">
+                              <td class="asp-label" style="width: 45%;">
+                                <p title="{{tst.Title}}" style="width: 90%;overflow: hidden !important;text-overflow: ellipsis;margin-bottom: 0;">
+                                  {{tst.Title}}
+                                </p>
+                              </td>
+                              <td class="asp-label" style="text-align: center;width: 20%;">
+                                {{tst.Code}}
+                              </td>
+                              <td class="asp-label" style="text-align: center;width: 35%;">
+                                {{tst.UniqueCode}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card" style="margin: 0;">
+                    <div class="row">
+                      <div class="col-sm-12" style="text-align: right;">
+                        <span ng-click="loadPage('last')" style="cursor: pointer;">
+                          <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                          <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                        </span>
+                        <span class="asp-label" ng-click="loadPage(1)" style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                        <input class="form-control" id="pagingD" placeholder="{{currentPage}} از  {{TotalPages}}"
+                          style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                          ng-keyup="changePage($event,pageNumber);">
+                        <span class="asp-label" ng-click="loadPage(-1)" style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                        <span ng-click="loadPage('first')" style="cursor: pointer;">
+                          <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                          <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="col-sm-1">
+                                    <i class="far fa-sitemap inline-plus yellow" ng-click="showingChart()"
+                                        ng-if="!chartLoading"></i>
+                                </div> -->
+          </div>
+        </div>
+        <div ng-init="getTreeRootNode()" class="card" id="tree-container" style="height: 75vh;overflow: auto;">
+          <div style="text-align: right;">
+            <ul class="ul">
+              <li ng-repeat="treeNode in nodes" ng-if="treeNode.ParentId == null">
+                <div class="li-info asp-label" id="tree-li-{{treeNode.ChartId}}">
+                  <span  ng-if="treeNode.IsOrganization" ng-click="getSubNode(treeNode.ChartId)"><i class="far fa-building"></i></span>
+                  <span  ng-if="!treeNode.IsOrganization && !treeNode.IsPost" ng-click="getSubNode(treeNode.ChartId)"><i class="far fa-users"></i></span>
+                  <span  ng-if="treeNode.IsPost" ng-click="getSubNode(treeNode.ChartId)"><i class="far fa-address-card"></i></span>
+                  <span class="float-left" data-toggle="tooltip" title="تعریف اهداف و وظایف" ng-if="!treeNode.IsPost"
+                    style="margin-top: -4px;" ng-click="openCreateModal(treeNode.ChartId)"><i class="far fa-th-list green-button"></i></span>
+                  <span ng-click="openCreateModal(treeNode.ChartId)" ng-dblclick="getSubNode(treeNode.ChartId)">
+                    {{treeNode.Title}}
+                  </span>
+                </div>
+                <ul id="tree-{{treeNode.ChartId}}"></ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card" ng-if="selectedChart" style="height: 82vh;overflow-y: auto;overflow-x: hidden;">
+        <div class="row">
+          <div class="col-sm-12">
+            <p class="HeaderForm">{{}}</p>
+            <div class="card">
+              <div class="row">
+                <div class="col-sm-12 asp-label" style="text-align: right;">
+                  <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" class="custom-control-input" id="customRadio1" name="example" ng-value="1" ng-click="changeInsert(1)"
+                      ng-model="insertType">
+                    <label class="custom-control-label" for="customRadio1">
+                      ورود اطلاعات با سمت
+                    </label>
+                  </div>
+                  <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" class="custom-control-input" id="customRadio" name="example" ng-value="2" ng-click="changeInsert(2)"
+                      ng-model="insertType">
+                    <label class="custom-control-label" for="customRadio">
+                      ورود اطلاعات با رده پست
+                    </label>
+                  </div>
+                </div>
+                <div class="col-sm-12">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text">
+                        قدامات /فعالیت ها/پروژهای مورد انتظار
+                      </label>
+                    </div>
+                    <input class="form-control" id="goal" type="text" ng-model="createItem.Title">
+                  </div>
+                </div>
+                <div class="col-sm-12" ng-if="insertType == 1">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text">
+                        سمت مورد نظر
+                      </label>
+                    </div>
+                    <p class="form-control" style="text-align: right;">
+                      <span ng-repeat="item in JobItems">
+                        {{item.Title}},
+                      </span>
+                    </p>
+                    <div class="dropdown">
+                      <span  style="position: absolute;left: 5px;top: 0.3em;" data-toggle="dropdown" ng-click="openJob()"><i class="far fa-chevron-down"></i></span>
+                      <!-- <div style="position: absolute;width: 100%;top: 1.7em;height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;"></div> -->
+                      <div class="dropdown-menu" style="top: 4px !important;left: -6px !important;">
+                        <div>
+                          <div class="row" ng-repeat="job in jobType">
+                            <div class="col-sm-2">
+                              <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="customCheck-{{job.Id}}" ng-click="jobTypeChange(job)"
+                                  name="example1">
+                                <label class="custom-control-label" for="customCheck-{{job.Id}}"></label>
+                              </div>
+                            </div>
+                            <div class="col-sm-10 asp-label" style="text-align: right;">
+                              {{job.Title}}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12" ng-if="insertType == 2">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text">
+                        رده پست
+                      </label>
+                    </div>
+                    <p class="form-control" ng-click="changePState()" style="text-align: right;">
+                      <span ng-repeat="data in selectedPostClass">
+                        {{data.Title}},
+                      </span>
+                      <span  style="float: left;margin: 2px  5px;"><i class="far fa-chevron-down"></i></span>
+                    </p>
+                    <div class="post-container dropIcon" style="z-index: 400;" ng-if="postClassState" ng-init="getPost()">
+                      <div class="card">
+                        <div class="overflow-y">
+                          <table class="newTableStyle">
+                            <thead>
+                              <tr>
+                                <th>
+                                  عنوان
+                                </th>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <input class="form-control" ng-model="test" ng-keyup="getSearchPost(test)">
+                                </td>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr ng-repeat="data in postClassData.Items">
+                                <td style="float: right;">
+                                  <div class="custom-control custom-checkbox  custom-control-inline" style="top: -2px;margin-left: 10px;">
+                                    <input type="checkbox" ng-checked="checkingPost(data.Id)" ng-click="setPostClass(data)" class="custom-control-input"
+                                      id="customCheck-{{data.Id}}">
+                                    <label class="custom-control-label" for="customCheck-{{data.Id}}"></label>
+                                  </div>
+                                  <span style="position: relative;top: -11px;">
+                                    {{data.Title}}
+                                  </span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="row">
+                          <div class="col-sm-12" style="text-align: right;">
+                            <span ng-click="loadPagesPost('last')" style="cursor: pointer;">
+                              <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                              <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                            </span>
+                            <span class="asp-label" ng-click="loadPagesPost(1)"
+                              style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                            <input class="form-control" id="pagingD" placeholder="{{postClassData.PageIndex}} از  {{postClassData.TotalPages}}"
+                              style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                              ng-keyup="changePagePost($event,pageNumber);">
+                            <span class="asp-label" ng-click="loadPagesPost(-1)"
+                              style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                            <span ng-click="loadPagesPost('first')" style="cursor: pointer;">
+                              <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                              <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <label class="input-group-text">
+                        نتایج کمی مورد نظر
+                      </label>
+                    </div>
+                    <input class="form-control" type="text" id="result" ng-model="createItem.QuantitativeResult">
+                  </div>
+                </div>
+                <div class="col-sm-12" style="text-align: left;">
+                  <button class="new-button" ng-click="addingToList(createItem)">
+                    <i class="far fa-plus"></i>
+                    اضافه به لیست
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12">
+            <div class="card">
+              <div>
+                <table class="newTableStyle">
+                  <thead>
+                    <tr>
+                      <th style="width: 30%;">
+                        قدامات /فعالیت ها/پروژهای مورد انتظار
+                      </th>
+                      <th style="width: 28%;">
+                        نتایج مورد نظر
+                      </th>
+                      <th style="width: 30%;">
+                        پایه های شغلی
+                      </th>
+                      <th style="width: 12%;">
+                        عملیات
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="data in tableData.Items">
+                      <td style="width: 30%;">
+                        <span title="{{data.Title}}" data-toggle="tooltip"
+                          style="display: inline-block;width: 10em;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+                          {{data.Title}}
+                        </span>
+                      </td>
+                      <td style="width: 28%;">
+                        <span title="{{data.QuantitativeResult}}" data-toggle="tooltip"
+                          style="display: inline-block;width: 8em;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+                          {{data.QuantitativeResult}}
+                        </span>
+                      </td>
+                      <td style="width: 30%;">
+                        <span style="display: inline-block;" ng-repeat="type in data.jobName">
+                          {{type.Title}} ,
+                        </span>
+                  
+                      </td>
+                      <td style="width: 12%;text-align: center;">
+                        <span class="pointer" style="float: left;margin: 0 10px 0 0;" ng-click="sendToDelete(data)"><i class="far fa-close text-danger "></i></span>
+                        <span class="pointer" style="float: left;margin: 0 3px 0 0;" ng-click="openEdit(data)"><i class="far fa-edit "></i></span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12">
+            <div class="card">
+              <div class="row">
+                <div class="col" style="text-align: right;">
+                  <span ng-click="loadPage('last')" style="cursor: pointer;">
+                    <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                    <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                  </span>
+                  <span class="asp-label" ng-click="loadPage(1)" style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                  <input class="form-control" id="pagingD" placeholder="{{tableData.PageIndex}} از  {{tableData.TotalPages}}"
+                    style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                    ng-keyup="changePage($event,pageNumber);">
+                  <span class="asp-label" ng-click="loadPage(-1)" style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                  <span ng-click="loadPage('first')" style="cursor: pointer;">
+                    <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                    <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                  </span>
+                </div>
+                <div class="col"></div>
+              </div>
+              <!-- <div style="text-align: left;">
+                                        <button class="new-button green">
+                                            <i class="far fa-check"></i>
+                                            تایید
+                                        </button>
+                                    </div> -->
+            </div>
+          </div>
+          <div class="modal fade" id="editModal">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <p class="HeaderForm">
+                    ویرایش {{editItem.Title}}
+                    <i class="far fa-close text-danger" style="float:left;margin:0 5px" ng-click="cancelEdit()"></i>
+                  </p>
+                  <div class="card">
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <label class="input-group-text">
+                              قدامات /فعالیت ها/پروژهای مورد انتظار
+                            </label>
+                          </div>
+                          <input class="form-control" id="goal" type="text" ng-model="editItem.Title">
+                        </div>
+                      </div>
+                      <div class="col-sm-12" ng-if="editItem.JobType != null">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <label class="input-group-text">
+                              سمت مورد نظر
+                            </label>
+                          </div>
+                          <p class="form-control" style="text-align: right;">
+                            <span ng-repeat="item in JobItemsEdit">
+                              {{item.Title}},
+                            </span>
+                          </p>
+                          <div class="dropdown">
+                            <i class="far fa-chevron-down" style="position: absolute;left: 5px;top: 0.3em;" data-toggle="dropdown"
+                              ng-click="openJob()"></i>
+                            <!-- <div style="position: absolute;width: 100%;top: 1.7em;height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;"></div> -->
+                            <div class="dropdown-menu" style="top: 4px !important;left: -6px !important;">
+                              <div>
+                                <div class="row" ng-repeat="job in jobType">
+                                  <div class="col-sm-2">
+                                    <div class="custom-control custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="customCheck-edit-{{job.Id}}"
+                                        ng-click="jobTypeChangeEdit(job)" name="example1" ng-checked="testCheck(job.Id,editItem.JobType)">
+                                      <label class="custom-control-label" for="customCheck-edit-{{job.Id}}"></label>
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-10 asp-label" style="text-align: right;">
+                                    {{job.Title}}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-12">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <label class="input-group-text">
+                              نتایج کمی مورد نظر
+                            </label>
+                          </div>
+                          <input class="form-control" type="text" id="result" ng-model="editItem.QuantitativeResult">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card" ng-if="editItem.JobType == null">
+                    <div class="row">
+                      <div class="col-sm-12" style="text-align: right;">
+                        <!-- <div class="custom-control custom-checkbox  custom-control-inline asp-label" style="top: -2px;margin-left: 10px;">
+                                                            <input type="checkbox" ng-model="editSearch.selected" class="custom-control-input" id="customCheck-edit-checked">
+                                                            <label class="custom-control-label" for="customCheck-edit-checked">
+                                                                انتخاب شده
+                                                            </label>
+                                                          </div>
+                                                          <div class="custom-control custom-checkbox  custom-control-inline asp-label"  style="top: -2px;margin-left: 10px;">
+                                                            <input type="checkbox" ng-model="editSearch.unselected" class="custom-control-input" id="customCheck-edit-uncheck">
+                                                            <label class="custom-control-label" for="customCheck-edit-uncheck">
+                                                                انتخاب نشده
+                                                            </label>
+                                                          </div> -->
+                        <div class="table-header">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>
+                                  عنوان
+                                </th>
+                              </tr>
+                              <tr>
+                                <th>
+                                  <input type="text" class="form-control" ng-keyup="searchEditPostData()" ng-model="editSearch.text">
+                                </th>
+                              </tr>
+                            </thead>
+                          </table>
+                        </div>
+                        <div class="table-body">
+                          <table class="test">
+                            <tbody>
+                              <tr ng-repeat="data in EditPostClassData.Items">
+                                <td style="text-align: right;">
+                                  <div class="custom-control custom-checkbox  custom-control-inline" style="margin-left: 10px;">
+                                    <input type="checkbox" ng-click="sedEditCheck(data)" ng-checked="checkEdit(data)" class="custom-control-input"
+                                      id="customCheck-edit-{{data.Id}}">
+                                    <label class="custom-control-label" for="customCheck-edit-{{data.Id}}"></label>
+                                  </div>
+                                  <span style="position: relative;top: -10px;">
+                                    {{data.Title}}
+                                  </span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <div>
+                          <div class="row">
+                            <div class="col" style="text-align: right;">
+                              <span ng-click="loadPagesEP('last')" style="cursor: pointer;">
+                                <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                                <i class="far fa-chevron-right asp-label" style="margin-right: -3px;font-size: 0.7em;"></i>
+                              </span>
+                              <span class="asp-label" ng-click="loadPagesEP(1)"
+                                style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                              <input class="form-control" id="pagingD"
+                                placeholder="{{EditPostClassData.PageIndex}} از  {{EditPostClassData.TotalPages}}"
+                                style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;" ng-model="pageNumber"
+                                ng-keyup="changePagePostEdit($event,pageNumber);">
+                              <span class="asp-label" ng-click="loadPagesEP(-1)"
+                                style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                              <span ng-click="loadPagesEP('first')" style="cursor: pointer;">
+                                <i class="far fa-chevron-left asp-label" style="margin-left: -3px;font-size: 0.7em;"></i>
+                                <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                              </span>
+                            </div>
+                            <div class="col"></div>
+                          </div>
+                          <!-- <div style="text-align: left;">
+                                                                <button class="new-button green">
+                                                                    <i class="far fa-check"></i>
+                                                                    تایید
+                                                                </button>
+                                                            </div> -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div style="text-align: left;">
+                      <button class="new-button red" ng-click="cancelEdit()">
+                        <i class="far fa-close"></i>
+                        انصراف
+                      </button>
+                      <button class="new-button green" ng-click="confirmEdit()">
+                        <i class="far fa-check"></i>
+                        تایید
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>

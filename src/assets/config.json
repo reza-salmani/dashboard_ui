@@ -1,0 +1,18 @@
+{
+  "Tree": [
+    {
+      "Id": 7,
+      "ParentId": null,
+      "Title": "میز خدمت",
+      "RouteValue": "dashboard",
+      "HasAccess": true
+    },
+    {
+      "Id": 734,
+      "ParentId": null,
+      "Title": "کارتابل من*",
+      "RouteValue": "cartable",
+      "HasAccess": true
+    }
+  ]
+}

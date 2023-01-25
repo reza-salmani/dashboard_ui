@@ -1,0 +1,992 @@
+﻿<style>
+  .input-group-prepend, .input-group-text {
+    width: 110px !important
+  }
+</style>
+
+<div class="card collapse" id="demo">
+  <div class="row">
+    <div class="col-md-4 col-sm-6">
+      <!--<div class="input-group">
+          <div class="input-group-prepend">
+              <label class="input-group-text">
+                  چارت سازمانی
+              </label>
+          </div>
+          <p class="form-control pointer" style="text-align: right;" ng-click="changeSelectPostStatus()">
+              {{searchItems.treeName}}
+              <i class="far fa-chevron-down float-left" style="font-size: 16px;"></i>
+              <i class="far fa-close text-danger float-left" style="font-size: 16px;margin-left: 10px;"
+                 ng-if="searchItems.tri != null" ng-click="clearChart()"></i>
+          </p>
+          <div ng-if="selectPostStatus" class="top-Ab">
+              <div ng-controller="organizationSelectController" ng-init="getRootData()">
+                  <div class="chartHolder card" ng-include="'../Content/modules/chartTree.html'"></div>
+              </div>
+          </div>
+      </div>-->
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text lable-Width">
+            چارت سازمانی
+          </label>
+        </div>
+        <p class="form-control pointer" style="text-align: right;" ng-click="changeSelectPostStatus()">
+          {{searchItems.treeName}}
+          <i class="far fa-chevron-down float-left" style="font-size: 16px;"></i>
+          <span class="float-left" style="font-size: 16px;margin-left: 10px;"
+             ng-if="searchItems.tri != null" ng-click="clearChart()"><i class="far fa-close text-danger "></i></span>
+        </p>
+        <div ng-if="selectPostStatus" class="selectItem card p-1">
+          <chart state-select="All" by-sdate="{{getChartBySDate}}" by-fdate="{{getChartByFDate}}" dataunit="dataunit" use-selected-chart="useSelectedChart(dataunit)"></chart>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            نام
+          </label>
+        </div>
+        <input class="form-control" type="text" ng-model="searchItems.name">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.name != ''" ng-click="searchItems.name = '';"><i class="far fa-close text-danger "></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            نام خانوادگی
+          </label>
+        </div>
+        <input class="form-control" type="text" ng-model="searchItems.family">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.family != ''" ng-click="searchItems.family = '';"><i class="far fa-close text-danger "></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            نام پدر
+          </label>
+        </div>
+        <input class="form-control" type="text" ng-model="searchItems.fatherName">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.fatherName != ''" ng-click="searchItems.fatherName = '';"><i class="far fa-close text-danger "></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            کد ملی
+          </label>
+        </div>
+        <input type="text" class="form-control" ng-model="searchItems.nationalCode">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.nationalCode != ''" ng-click="searchItems.nationalCode = '';"><i class="far fa-close text-danger "></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="row">
+        <div class="col-sm-4 asp-label">
+          جنسیت
+        </div>
+        <div class="col-sm-8" style="text-align: right;">
+          <input type="radio" ng-model="searchItems.sex" name="marige" value="null">
+          <span class="asp-label">
+            هردو
+          </span>
+          <input type="radio" ng-model="searchItems.sex" name="marige" value="1">
+          <span class="asp-label">
+            مرد
+          </span>
+          <input type="radio" ng-model="searchItems.sex" name="marige" value="2">
+          <span class="asp-label">
+            زن
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            وضعیت تاهل
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span ng-repeat="mValue in searchItems.marrige">
+            {{mValue.Title}},
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="openMarige()"><i class="far fa-chevron-down"></i></span>
+          <div class="dropdown-menu" style="position: absolute;width: inherit;top: 1.7em;height: auto;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;">
+            <!--<div class="dropdown-menu" style="top: 4px !important;left: -6px !important;">-->
+            <div ng-repeat="marige in marigeStatus">
+
+              <div class="custom-control custom-checkbox text-right mr-2">
+                <input type="checkbox" ng-click="MarigeStateChange(marige)"
+                       class="custom-control-input" id="check-m-{{marige.Id}}" name="example1">
+                <label class="custom-control-label small-font" style="width:50px" for="check-m-{{marige.Id}}">{{marige.Title}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            سن از
+          </label>
+        </div>
+        <input type="text" class="form-control" ng-model="searchItems.ageFrom">
+        <span  style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.ageFrom != ''" ng-click="searchItems.ageFrom = '';"><i class="far fa-close text-danger"></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            تا
+          </label>
+        </div>
+        <input type="text" class="form-control" ng-model="searchItems.ageUntil">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.ageUntil != ''" ng-click="searchItems.ageUntil = '';"><i class="far fa-close text-danger"></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            تعداد فرزند از
+          </label>
+        </div>
+        <input type="text" class="form-control" ng-model="searchItems.childrenCountFrom">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.childrenCountFrom != ''"
+           ng-click="searchItems.childrenCountFrom = '';"><i class="far fa-close text-danger"></i></span>
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            تا
+          </label>
+        </div>
+        <input type="text" class="form-control" ng-model="searchItems.childrenCountUntil">
+        <span style="position: absolute;left: 5%;top: 0.3em;"
+           ng-show="searchItems.childrenCountUntil != ''"
+           ng-click="searchItems.childrenCountUntil = '';"><i class="far fa-close text-danger"></i></span>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6"></div>
+    <hr>
+    <!-- <div class="col-sm-3">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text">
+                    شماره مستخدم
+                </label>
+            </div>
+            <input class="form-control" type="text" ng-model="searchItems.personnelCode">
+            <i class="far fa-close text-danger" style="position: absolute;left: 5%;top: 0.3em;"
+                ng-show="searchItems.personnelCode != ''" ng-click="searchItems.personnelCode = '';"></i>
+        </div>
+    </div> -->
+    <!-- <div class="col-sm-3">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text">
+                    کد پرسنلی
+                </label>
+            </div>
+            <input class="form-control" type="text" ng-model="searchItems.employeeCode">
+            <i class="far fa-close text-danger" style="position: absolute;left: 5%;top: 0.3em;"
+                ng-show="searchItems.employeeCode != ''" ng-click="searchItems.employeeCode = '';"></i>
+        </div>
+    </div> -->
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            تاریخ استخدام از
+          </label>
+        </div>
+        <input class="form-control date-picker" id="from" ng-model="searchItems.employmentFrom">
+      </div>
+    </div>
+    <div class="col-md-4  col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            تا
+          </label>
+        </div>
+        <input class="form-control date-picker" id="until" ng-model="searchItems.employmentUntil">
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            وضعیت خدمتی
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="eValue in searchItems.employeeStatus">
+            {{eValue.Title}}
+            <span class="pointer" ng-click="removeEmployee($index,eValue.Id)"><i class="far fa-close"></i></span>
+          </span>
+          <i class="far fa-chevron-down pointer"
+             ng-click="stateSituation? stateSituation = false : stateSituation = true;getStateArray()"
+             style="float:left;margin:0 -7px;font-size: 16px;"></i>
+        </p>
+        <div ng-if="stateSituation"
+             style="position: absolute;width: 100%;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+          <div class="card">
+            <input class="form-control" ng-model="searchItem" ng-keyup="searchState(searchItem)">
+            <div>
+              <table class="newTableStyle">
+                <thead>
+                  <tr>
+                    <th style="width: 15%;">
+
+                    </th>
+                    <th style="width: 85%;">
+                      عنوان
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="state in stateArray.Items">
+                    <td style="width: 15%;padding-right:5px!important">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" ng-checked="checkingState(state)" ng-click="eStateChange(state)" class="custom-control-input" id="check-e-{{state.Id}}"
+                          name="example1">
+                        <label class="custom-control-label" for="check-e-{{state.Id}}"></label>
+                      </div>
+                    </td>
+                    <td style="width: 85%;">
+                      {{state.Title}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="col-sm-10" style="text-align: right;">
+                <span ng-click="loadPageS('last')" style="cursor: pointer;">
+                  <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                  <i class="far fa-chevron-right asp-label"
+                     style="margin-right: -3px;font-size: 0.7em;"></i>
+                </span>
+                <span class="asp-label" ng-click="loadPageS(1)"
+                   style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                <input class="form-control" id="pagingL"
+                       placeholder="{{stateArray.PageIndex}} از  {{stateArray.TotalPages}}"
+                       style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;"
+                       ng-model="pageNumber" ng-keyup="changePageS($event,pageNumber);">
+                <span class="asp-label" ng-click="loadPageS(-1)"
+                   style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                <span ng-click="loadPageS('first')" style="cursor: pointer;">
+                  <i class="far fa-chevron-left asp-label"
+                     style="margin-left: -3px;font-size: 0.7em;"></i>
+                  <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            نوع استخدامی
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="eValue in searchItems.serviceStatus">
+            {{eValue.Title}}
+            <span class="pointer" ng-click="removeService($index,eValue.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="getInitEmployees()"><i class="far fa-chevron-down" ></i></span>
+          <div class="dropdown-menu"
+               style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <input class="form-control" ng-model="serviceFilter">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div>
+                    <table class="newTableStyle">
+                      <thead>
+                        <tr>
+                          <th style="width: 15%;"></th>
+                          <th style="width: 85%;">
+                            عنوان
+                          </th>
+                        </tr>
+                      </thead>
+                        <tbody>
+                          <tr ng-repeat="marige in employeeType | filter:serviceFilter">
+                            <td style="width: 15%;padding-right:5px!important">
+                              <div class="custom-control custom-checkbox" style="display: inline-block;margin-top: -38px;">
+                                <input type="checkbox" ng-click="serviceStateChange(marige)" class="custom-control-input" id="check-s-service-{{marige.Id}}" name="example1">
+                                <label class="custom-control-label" for="check-s-service-{{marige.Id}}"></label>
+                              </div>
+                            </td>
+                            <td style="width: 85%;">
+                              {{marige.Title}}
+                            </td>
+                          </tr>
+                        </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            پایه شغلی
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="jValue in searchItems.jobType">
+            {{jValue.Title}}
+            <span class="pointer" ng-click="removeJob($index,jValue.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="openJob()"><i class="far fa-chevron-down"></i></span>
+          <!-- <div style="position: absolute;width: 100%;top: 1.7em;height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;"></div> -->
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <div>
+                <table class="newTableStyle">
+                  <thead>
+                    <tr>
+                      <th style="width: 15%;"></th>
+                      <th style="width: 85%;">
+                        عنوان
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="job in jobStatus">
+                      <td style="width: 15%;padding-right:5px!important">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input" id="customCheck-work-{{job.Id}}" ng-click="jobStateChange(job)" name="example1">
+                          <label class="custom-control-label" for="customCheck-work-{{job.Id}}"></label>
+                        </div>
+                      </td>
+                      <td style="width: 85%;">
+                        {{job.Title}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            وضعیت ایثارگری
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="wValue in searchItems.warStatus">
+            {{wValue.Title}}
+            <span class="pointer" ng-click="removeWar($index,wValue.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="openWar()"><i class="far fa-chevron-down"></i></span>
+          <!-- <div style="position: absolute;width: 100%;top: 1.7em;height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;"></div> -->
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <input class="form-control" ng-model="warFilter.Title">
+              <div>
+                <table class="newTableStyle">
+                  <thead>
+                    <tr>
+                      <th style="width: 15%;"></th>
+                      <th style="width: 85%;">
+                        عنوان
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="war in warStatus|filter:warFilter">
+                      <td style="width: 15%;padding-right:5px!important">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" ng-click="warStateChange(war)" class="custom-control-input" id="check-w-war-{{war.Id}}" name="example1">
+                          <label class="custom-control-label" for="check-w-war-{{war.Id}}"></label>
+                        </div>
+                      </td>
+                      <td style="width:85%">
+                        {{war.Title}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            رابطه وضعیت ایثار گری
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" ng-repeat="relted in searchItems.relative" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;">
+            {{relted.Title}}
+            <span class="pointer" ng-click="removeRelated($index)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span class="pointer" style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="getRelated()"><i class="far fa-chevron-down "></i></span>
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div>
+              <table class="newTableStyle">
+                <thead>
+                  <tr>
+                    <th style="width: 15%;"></th>
+                    <th style="width: 85%;">
+                      نوع رابطه
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="relative in relatives">
+                    <td style="width: 15%;padding-right:5px!important">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" ng-checked="checkingRelative(relative)"
+                               ng-click="eRelativeChange(relative)" class="custom-control-input"
+                               id="relative-{{relative.Id}}" name="example1">
+                        <label class="custom-control-label"
+                               for="relative-{{relative.Id}}"></label>
+                      </div>
+                    </td>
+                    <td style="width:85%">
+                      {{relative.Title}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            رده پست
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="eValue in searchItems.postTypes">
+            {{eValue.Title}}
+            <span class="pointer" ng-click="removePost($index,eValue.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="getPostClasses()"><i class="far fa-chevron-down"></i></span>
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <input class="form-control" ng-model="postSearch" ng-keyup="searchPost(postSearch)">
+              <table class="newTableStyle">
+                <thead>
+                <th style="width: 15%;"></th>
+                <th style="width: 85%;">
+                  عنوان
+                </th>
+                </thead>
+                <tbody>
+                  <tr style="border: 1px solid lightgray !important;"
+                      ng-repeat="post in postClassesArray.Items">
+                    <td style="width: 15%;padding-right:5px!important">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" ng-checked="checkingPost(post)"
+                               ng-click="ePostChange(post)" class="custom-control-input"
+                               id="check-post-{{post.Id}}" name="example1">
+                        <label class="custom-control-label"
+                               for="check-post-{{post.Id}}"></label>
+                      </div>
+                    </td>
+                    <td style="width: 85%;">
+                      {{post.Title}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="row">
+                <div class="col-sm-10" style="text-align: right;">
+                  <span ng-click="loadPagePost('last')" style="cursor: pointer;">
+                    <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                    <i class="far fa-chevron-right asp-label"
+                       style="margin-right: -3px;font-size: 0.7em;"></i>
+                  </span>
+                  <span class="asp-label" ng-click="loadPagePost(1)"
+                     style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                  <input class="form-control" id="pagingPost"
+                         placeholder="{{postClassesArray.PageIndex}} از  {{postClassesArray.TotalPages}}"
+                         style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;"
+                         ng-model="pageNumber" ng-keyup="changePagePost($event,pageNumber);">
+                  <span class="asp-label" ng-click="loadPagePost(-1)"
+                     style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                  <span ng-click="loadPagePost('first')" style="cursor: pointer;">
+                    <i class="far fa-chevron-left asp-label"
+                       style="margin-left: -3px;font-size: 0.7em;"></i>
+                    <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            رسته و رشته شغلی
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="postcat in searchItems.postcat">
+            {{postcat.Title}}
+            <span class="pointer" ng-click="removePostCat($index,postcat.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="getJobBranch()"><i class="far fa-chevron-down"></i></span>
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <input class="form-control" ng-model="postcatSearch"
+                     ng-keyup="searchPostCat(postSearch)">
+              <table class="newTableStyle">
+                <thead>
+                <th style="width: 15%;"></th>
+                <th style="width: 85%;">
+                  عنوان
+                </th>
+                </thead>
+                <tbody>
+                  <tr style="border: 1px solid lightgray !important;"
+                      ng-repeat="post in postClassesCatArray.Items">
+                    <td style="width: 15%;padding-right:5px!important">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" ng-checked="checkingPostCat(post)"
+                               ng-click="ePostcatChange(post)" class="custom-control-input"
+                               id="check-postcat-{{post.Id}}" name="example1">
+                        <label class="custom-control-label"
+                               for="check-postcat-{{post.Id}}"></label>
+                      </div>
+                    </td>
+                    <td style="width: 85%;">
+                      {{post.Title}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="row">
+                <div class="col-sm-10" style="text-align: right;">
+                  <span ng-click="loadPagePostCat('last')" style="cursor: pointer;">
+                    <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                    <i class="far fa-chevron-right asp-label"
+                       style="margin-right: -3px;font-size: 0.7em;"></i>
+                  </span>
+                  <span class="asp-label" ng-click="loadPagePostCat(1)"
+                     style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                  <input class="form-control" id="pagingCat"
+                         placeholder="{{postClassesCatArray.PageIndex}} از  {{postClassesCatArray.TotalPages}}"
+                         style="width: 30%;display: inline-block;position: relative;top: 0;font-size: 0.7em;"
+                         ng-model="pageNumber" ng-keyup="changePagePostCat($event,pageNumber);">
+                  <span class="asp-label" ng-click="loadPagePostCat(-1)"
+                     style="margin: 0 10px;cursor: pointer;font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                  <span ng-click="loadPagePostCat('first')" style="cursor: pointer;">
+                    <i class="far fa-chevron-left asp-label"
+                       style="margin-left: -3px;font-size: 0.7em;"></i>
+                    <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            رتبه
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="eValue in searchItems.order">
+            {{eValue.Title}}
+            <span class="pointer" ng-click="removeOrder($index,eValue.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="getOrder()"><i class="far fa-chevron-down"></i></span>
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <table class="newTableStyle">
+                <thead>
+                <th style="width: 15%;"></th>
+                <th style="width: 85%;">
+                  عنوان
+                </th>
+                </thead>
+                <tbody>
+                  <tr style="border: 1px solid lightgray !important;"
+                      ng-repeat="order in ordersArray">
+                    <td style="width: 15%;padding-right:5px!important">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" ng-checked="checkingOrder(order)"
+                               ng-click="orderChange(order)" class="custom-control-input"
+                               id="check-order-{{order.Id}}" name="example1">
+                        <label class="custom-control-label"
+                               for="check-order-{{order.Id}}"></label>
+                      </div>
+                    </td>
+                    <td style="width: 85%;">
+                      {{order.Title}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 col-sm-6">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <label class="input-group-text">
+            طبقه
+          </label>
+        </div>
+        <p class="form-control" style="text-align: right;">
+          <span class="alert alert-success" style="margin: 0 2.5px;padding: 0 5px;display: inline-block;"
+                ng-repeat="eValue in searchItems.store">
+            {{eValue.Title}}
+            <span class="pointer" ng-click="removeStore($index,eValue.Id)"><i class="far fa-close "></i></span>
+          </span>
+        </p>
+        <div class="dropdown">
+          <span  style="position: absolute;left: 5px;top: 0.3em;"
+             data-toggle="dropdown" ng-click="getStore()"><i class="far fa-chevron-down"></i></span>
+          <div class="dropdown-menu" style="position: absolute;width: 300px;top: 1.7em;min-height: 7em;background-color: white;border-radius: 5px;border: 1px solid lightgray;z-index: 2;padding: 5px;">
+            <div class="card">
+              <div style="max-height: 20vh;">
+                <table class="newTableStyle">
+                  <thead>
+                  <th style="width: 15%;"></th>
+                  <th style="width: 85%;">
+                    عنوان
+                  </th>
+                  </thead>
+                  <tbody>
+                    <tr style="border: 1px solid lightgray !important;"
+                        ng-repeat="order in storeArray">
+                      <td style="width: 15%;padding-right:5px!important">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" ng-checked="checkingStore(order)"
+                                 ng-click="storeChange(order)" class="custom-control-input"
+                                 id="check-stroreArray-{{order.Id}}" name="example1">
+                          <label class="custom-control-label"
+                                 for="check-stroreArray-{{order.Id}}"></label>
+                        </div>
+                      </td>
+                      <td style="width: 85%;">
+                        {{order.Title}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="row">
+    <div class="input-group col-md-4">
+      <div class="input-group-prepend">
+        <label class="input-group-text">
+          دوره ارزشیابی
+        </label>
+      </div>
+      <select class="form-control" ng-init="searchItems.PriodDate =''" ng-model="searchItems.PriodDate" ng-change="changePriod(searchItems.PriodDate)">
+        <option ng-value="''">لطفا انتخاب نمایید...</option>
+        <option ng-repeat="item in PriodItems track by item.Id" ng-value="item.Id">{{item.Title}}</option>
+      </select>
+    </div>
+    <div class="input-group col-md-4">
+      <div class="input-group-prepend">
+        <label class="input-group-text">
+          وضعیت
+        </label>
+      </div>
+      <select class="form-control" ng-init="searchItems.state =''" ng-model="searchItems.state" ng-change="changeState(searchItems.state)">
+        <option ng-value="''">لطفا انتخاب نمایید...</option>
+        <option ng-repeat="state in stateItems track by state.Id" ng-value="state.Id">{{state.Title}}</option>
+      </select>
+    </div>
+    <div class="input-group col-md-4">
+      <div class="input-group-prepend">
+        <label class="input-group-text">
+          لیست فرم های ارزشیابی
+        </label>
+      </div>
+      <select class="form-control" ng-init="searchItems.ListItem =''" ng-model="searchItems.ListItem" ng-change="changeListItemState(searchItems.ListItem)">
+        <option ng-value="''">لطفا انتخاب نمایید...</option>
+        <option ng-repeat="item in ListItems track by item.Id" ng-value="item.Id">{{item.Title}}</option>
+      </select>
+    </div>
+    <div class="input-group col-md-4">
+      <div class="checkbox checkbox-inline" ng-repeat="item in hasValueState track by item.Id">
+        <input type="radio" name="item" ng-checked="searchItems.HasValues === item.Id" id="{{item.Id}}">
+        <label class="small-font" for="{{item.Id}}">{{item.Title}}</label>
+      </div>
+    </div>
+
+    <div class="col-8">
+      <div class="new-button float-left pr-3 pl-3 pt-1 pb-1 ml-1" title="جستجو" ng-click="getDataTable()">
+        <i class="far fa-search"> </i>
+        جستجو
+        <div style="margin-right:5px;bottom:5px; width:8px;height:8px" class="spinner-border text-warning position-absolute" ng-if="loadingSearch"></div>
+      </div>
+      <div class="new-button green float-left pr-3 pl-3 pt-1 pb-1 ml-1" data-toggle="collapse" data-target="#demo" onclick="return false">
+        <i class="far fa-search"></i>
+        پیشرفته
+      </div>
+    </div>
+  </div>
+
+</div>
+<div>
+  <div class="card">
+    <div>
+      <table class="newTableStyle" id="parentTable">
+        <thead>
+          <tr>
+            <th style="width:5%">
+              <div class="d-flex justify-content-around m-auto">
+                <div class="row custom-checkbox custom-control custom-checkbox" title="انتخاب تمامی موارد">
+                  <input class="custom-control-input" type="checkbox" name="checkAlls" id="alls" ng-click="setAlls($event)">
+                  <label class="custom-control-label" for="alls" ></label>
+                </div>
+                <div class="row custom-checkbox custom-control custom-checkbox" title="انتخاب این صفحه">
+                  <input class="custom-control-input" type="checkbox" name="checkThisPage" id="thisPage" ng-click="setThisPage($event,priods.Items)">
+                  <label class="custom-control-label" for="thisPage" ></label>
+                </div>
+              </div>
+
+            </th>
+            <th style="width:5%">شماره فرم</th>
+            <th style="width:30%">ارزشیابی شونده</th>
+            <th style="width:10%">تاریخ شروع</th>
+            <th style="width:40%">وضعیت</th>
+            <th style="width:40%">امتیاز ارزشیابی</th>
+            <th style="width:10%">چاپ فرم</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="priod in CheckAllItem?priods:priods.Items">
+            <td>
+              <div ng-if="priod.HasAnyValue" class="row custom-checkbox custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" name="check" id="{{priod.Id}}" ng-checked="checkItemState(priod.Id)" ng-click="checkItem($event,priod.Id)">
+                <label class="custom-control-label" for="{{priod.Id}}"></label>
+              </div>
+            </td>
+            <td>
+              {{priod.Form.Code}}
+            </td>
+            <td>
+              {{priod.FirstName}} {{priod.LastName}}
+            </td>
+            <td>
+              {{priod.StartDatePersian}}
+            </td>
+            <td>
+              {{priod.MainState}}
+            </td>
+            <td>
+              {{priod.TotalCalculatedScoreValue}}
+            </td>
+            <td>
+              <span ng-if="priod.HasAnyValue" class="pointer" title="چاپ فرم" ng-click="ShowPrintFormModal('single',priod)"><i class="far fa-print "></i></span>
+              <strong class="small-font" ng-if="!priod.HasAnyValue">عدم امکان چاپ</strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <div class="col-md-4 height-center" style="text-align: right;">
+        <span ng-click="loadPage('last')" style="cursor: pointer;">
+          <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+          <i class="far fa-chevron-right asp-label"
+             style="margin-right: -3px; font-size: 0.7em;"></i>
+        </span>
+        <span class="asp-label" ng-click="loadPage(1)"
+           style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+        <input class="form-control" id="paging"
+               placeholder="{{CheckAllItem?1:priods.PageIndex}} از  {{CheckAllItem?1:priods.TotalPages}}"
+               style="width: 30%; display: inline-block; position: relative; top: 0; font-size: 0.7em;"
+               ng-model="pageNumber" ng-keyup="changePageModal($event,pageNumber);">
+        <span class="asp-label" ng-click="loadPage(-1)"
+           style="margin: 0 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+        <span ng-click="loadPage('first')" style="cursor: pointer;">
+          <i class="far fa-chevron-left asp-label"
+             style="margin-left: -3px; font-size: 0.7em;"></i>
+          <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+        </span>
+      </div>
+      <div class="col-md-4 medium-font">تعداد کل: <strong>{{CheckAllItem?priods.length:priods.TotalRow}}</strong></div>
+      <div class="col-md-4 text-left">
+        <button type="button" class="new-button green" ng-disabled="!selectedItems.length" ng-click="ShowGridExcle(CheckAllItem?priods:priods.Items)">
+          <i class="far fa-file-excel"></i>
+          خروجی اکسل از جدول
+          <div style="width:8px;height:8px" class="spinner-border text-warning" ng-if="loadingGridExcel"></div>
+        </button>
+        <button type="button" class="new-button" ng-disabled="!selectedItems.length" ng-click="ShowPrintFormModal('Multi')">
+          <i class="far fa-check"></i>
+          پرینت
+          <div style=" width:8px;height:8px" class="spinner-border text-warning" ng-if="loadingMultiPrint"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="PrintModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-body">
+          <p class="HeaderForm">
+            انتخاب نوع فایل و فرمت چاپی
+            <span class="cancelIcon" ng-click="cancelPrint()"><i class="far fa-close "></i></span>
+          </p>
+          <div class="card" id="parentCkeck">
+            <!--<div class="row">
+                <div class="checkbox checkbox-inline col-md-2">
+                    <input type="checkbox" checked="checked" name="type" id="&pf=1">
+                    <label class="small-font" for="&pf=1">به تفکیک فرم</label>
+                </div>
+                <div class="checkbox checkbox-inline col-md-2">
+                    <input type="checkbox" name="type" id="&af=1">
+                    <label class="small-font" for="&af=1">تمامی فرم ها</label>
+                </div>
+                <div class="checkbox checkbox-inline col-md-2">
+                    <input type="checkbox" name="type" id="&pp=1">
+                    <label class="small-font" for="&pp=1">به ازای هر پرسنل</label>
+                </div>
+                <div class="checkbox checkbox-inline col-md-2">
+                    <input type="checkbox" name="type" id="&ap=1">
+                    <label class="small-font" for="&ap=1">کل پرسنل </label>
+                </div>
+                <div class="checkbox checkbox-inline col-md-2">
+                    <input type="checkbox" name="type" id="&aio=true">
+                    <label class="small-font" for="&aio=1">کلی</label>
+                </div>
+
+            </div>
+            <div class="col-11 m-auto border d-flex justify-content-center mb-1 mt-1"></div>-->
+            <div class="row mt-1">
+              <div class="checkbox checkbox-inline col-md-2" ng-repeat="item in reportType">
+                <input type="radio" name="item" ng-checked="item.type =='pdf'" id="{{item.type}}">
+                <label class="small-font" for="{{item.type}}">
+                  <span ng-show="item.type =='pdf'" class="pointer" title="فایل pdf" style="font-size: 1.7em;color: #DC1D00 !important;"><i class="far fa-file-pdf "></i></span>
+                  <span ng-show="item.type =='docx'" class="pointer" tile="فایل word" style="font-size: 1.7em; color: #00a4ef !important;"><i class="far fa-file-word "></i></span>
+                  <span ng-show="item.type =='xlsx'" class="pointer" title="فایل Excel" style="font-size: 1.7em; color: #7fba00 !important; "><i class="far fa-file-excel "></i></span>
+                  <!--<i ng-show="item.type =='zip'" class="far fa-file-zipper pointer" title="فایل zip" style="font-size: 1.7em;color: darkgreen !important;"></i>-->
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="text-align: left;">
+              <i class="new-button red pr-3 pl-3 pt-1 pb-1 ml-1" style="font-style:unset"
+                 ng-click="cancelPrint()">
+                <i class="far fa-close"></i>
+                انصراف
+              </i>
+              <i class="new-button green pr-3 pl-3 pt-1 pb-1 ml-1"
+                 ng-click="confirmPrint()">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="margin-right:5px;bottom:7px; width:8px;height:8px" class="spinner-border text-warning position-absolute" ng-if="loadingPrint"></div>
+              </i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card" ng-show="selectedPersonnel.Id != undefined && !priods.Items.length">
+  <strong class="text-center text-danger"><em>فرمی برای نمایش وجود ندارد...😢</em></strong>
+</div>

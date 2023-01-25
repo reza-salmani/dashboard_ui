@@ -1,0 +1,167 @@
+﻿<div ng-controller="trafficRequestCtrl">
+    <div class="card" ng-init="maskInput()">
+        <form name="CreateDayForm" class="">
+            <div class="col-12 row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text">
+                                روز
+                            </label>
+                        </div>
+                        <input name="fDate" autocomplete="off" class="form-control" type="text" ng-value="convertToShamsi(rollCall.rollCallDate)"
+                            id="rollCallDate" ng-readonly="updateState" ng-required="!updateState" ng-class="{'date-picker':!updateState}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text">
+                                ساعت
+                            </label>
+                        </div>
+                        <input data-autoclose="true" data-placement="bottom" data-align="top" autocomplete="off" class="form-control time" type="text"
+                            ng-model="rollCall.rollCallTime" ng-class="{'border-danger': !rollCall.rollCallTime}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text">
+                                توضیحات
+                            </label>
+                        </div>
+                        <input class="form-control" autocomplete="off" type="text" ng-model="rollCall.description" ng-readonly="updateState">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <!--<button type="button" class="new-button red ml-1" ng-click="cancelDayMissionCreate()">
+                        <i class="far fa-close"></i> انصراف
+                    </button>-->
+                    <button ng-if="buttonsArrayShowTraffic && finalRequest" ng-disabled="!rollCall.rollCallTime"
+                        ng-class="{'red':item.ActorTypeId ===2,'green':item.ActorTypeId === null}"
+                        ng-repeat="item in buttonsArrayTraffic track by $index" type="button" class="new-button ml-1 float-left"
+                        ng-click="DynamicConfirmsTraffic(item,rollCall)">
+                        <i ng-class="{'fa-undo':item.ActorTypeId ===2,'fa-check':item.ActorTypeId === null,'fa-send':item.ActorTypeId !=null && item.ActorTypeId !=2}"
+                            class="fa"></i>
+                        {{item.ActionTitle}}
+                        <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                            ng-if="loadingUpdateTraffic"></div>
+                    </button>
+                    <button ng-if="!buttonsArrayShowTraffic && !finalRequest" type="button" class="new-button green" ng-click="request(rollCall)"
+                        ng-disabled="rollCall.$invalid">
+                        <i class="far fa-check"></i> ثبت
+                        <div class="spinner-border text-warning position-absolute" style="width: 8px; height: 8px;margin-right: 8px;margin-top: 12px"
+                            ng-if="loadingRequestTraffic"></div>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!------------------- select manager to send modal ------------------------->
+    <div class="modal" id="selectManagers">
+        <div class="modal-dialog modal-fullscreen-md-down">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        انتخاب مسئول مربوطه
+                        <span class="cancelIcon" ng-click="cancelManagerSelection()"><i class="far fa-close "></i></span>
+                    </p>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="table-body">
+                                    <table class="test">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 5%;">
+
+                                                </th>
+                                                <th style="width: 95%;">
+                                                    نام و نام خانوادگی
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="manager in managers.Items">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" ng-click="Addmanagers(manager.Id)"
+                                                            id="select-manager-{{manager.Id}}">
+                                                        <label class="form-check-label asp-label" style="font-size: 10px;"
+                                                            for="select-manager-{{manager.Id}}">
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{manager.FirstName}} {{manager.LastName}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-sm-12" style="text-align: left;">
+                                <button class="new-button red" ng-click="cancelManagerSelection()">
+                                    <i class="far fa-close"></i>
+                                    انصراف
+                                </button>
+                                <button ng-if="buttonsArrayShow" class="new-button green" ng-click="confirmSelectManagers()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                                <button ng-if="buttonsArrayShowDay" class="new-button green" ng-click="confirmSelectManagersDay()">
+                                    <i class="far fa-check"></i>
+                                    تایید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!------------------- closed list modal ---------------------->
+    <div class="modal " id="showClosedModal">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="HeaderForm">
+                        لیست محاسبات بسته شده
+                        <span class="cancelIcon" title="بستن" ng-click="closeClosedList()"><i class="far fa-close "></i></span>
+                    </p>
+
+                    <div class="table-body">
+                        <table class="test">
+                            <thead>
+                                <tr>
+                                    <th class="w-20">نام</th>
+                                    <th class="w-20">کد پرسنلی</th>
+                                    <th class="w-20">تاریخ بستن</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="item in showClosedList">
+                                    <td class="w-20 text-center">{{item.PersonName}}</td>
+                                    <td class="w-20 text-center">{{item.DossierNo}}</td>
+                                    <td class="w-20 text-center">{{item.RollCallDatePersian}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <div style="text-align: left;">
+                            <button type="button" class="new-button red" ng-click="closeClosedList()">
+                                <i class="far fa-close ml-1"></i>بستن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

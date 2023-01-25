@@ -1,0 +1,1 @@
+var app = angular.module("humanResource", ['ui.router', 'ngDraggable', 'ngOidc','ngFileSaver']);

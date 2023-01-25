@@ -1,0 +1,24 @@
+{
+  "name": "human_resource_iu",
+  "description": "this project created by R.Salmani at 2023-01-02 / 12-10-1401. this project contains angularjs,bootstrap,fontaweasome,...",
+  "main": "index.js",
+  "authors": [
+    "R.Salmani"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "angularjs",
+    "bootstrap",
+    "fontaweasome"
+  ],
+  "homepage": "/",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {}
+}

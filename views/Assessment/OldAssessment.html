@@ -1,0 +1,386 @@
+﻿<p class="HeaderForm">
+    شناسنامه ارزشیابی عملکرد مدیران و کارمندان رسمی و پیمانی و کارکنان قراردادی
+</p>
+<personnel ng-if="setTrue" personnel-data="personnelData" state-select="check" use-selected-personnel="useSelectedPersonnel()"></personnel>
+<div class="card">
+    <div class="row">
+        <div class="input-group col-md-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text">
+                    سال ارزشیابی
+                </label>
+            </div>
+            <input class="form-control" type="text" ng-model="filterYearModel" ng-keyup="filterYear(filterYearModel)">
+        </div>
+    </div>
+</div>
+<div>
+    <div class="card">
+        <div>
+            <table class="newTableStyle" id="parentTable">
+                <thead>
+                    <tr>
+                        <th style="width:5% !important">
+                            <div class="row custom-checkbox custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" name="checkAlls" title="همه صفحه" id="alls"
+                                    ng-click="setAlls($event,Shenasname.Items)">
+                                <label class="custom-control-label" for="alls"></label>
+                            </div>
+                        </th>
+                        <th>ارزشیابی شونده</th>
+                        <th>دوره ارزشیابی</th>
+                        <th>شماره فرم</th>
+                        <th>عنوان فرم</th>
+                        <th style="width:5%">گزینه ها</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="Shenasnamec in Shenasname.Items">
+                        <td>
+                            <div class="row custom-checkbox custom-control custom-checkbox">
+                                <input class="custom-control-input" type="checkbox" ng-click="addItemToSelectList(Shenasnamec)"
+                                    ng-checked="checkState(Shenasnamec)" name="check" id="{{Shenasnamec.Id}}">
+                                <label class="custom-control-label" for="{{Shenasnamec.Id}}"></label>
+                            </div>
+                        </td>
+                        <td>
+                            {{Shenasnamec.Personnel.PoliteName}}
+                        </td>
+                        <td>
+                            {{Shenasnamec.PeriodPersianYear}}
+                        </td>
+                        <td>
+                            {{Shenasnamec.Form.Code}}
+                        </td>
+                        <td>
+                            {{Shenasnamec.Form.Title}}
+                        </td>
+                        <td>
+                            <div class="d-flex m-auto">
+                                <span class="ml-1 pointer" title="مشاهده شناسنامه" ng-click="ShowShenasnameModal(Shenasnamec)"><i class="far fa-eye "></i></span>
+                                <span class="ml-1 pointer" title="حذف شناسنامه" ng-click="removeShenasnameModal(Shenasnamec)"><i class="far fa-trash "></i></span>
+                                <span class="pointer" title="پرینت شناسنامه" ng-click="singlePrint(Shenasnamec)"><i class="far fa-print "></i></span>
+                                <i style="left:2px;bottom:12px; width:10px;height:10px" class="spinner-border text-success position-absolute"
+                                    ng-if="Shenasnamec.loadingPrint"></i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-if="!Shenasname.Items.length">
+                        <td ng-if="loading" colspan="6"> در حال جستجو...</td>
+                        <td ng-if="!loading" colspan="6">داده ای برای نمایش وجود ندارد...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card p-0">
+        <div class="row col-12">
+            <div class="row col-lg-6">
+                <span ng-click="loadSPage(Shenasname.TotalPages)" style="cursor: pointer;">
+                    <i class="far fa-chevron-right" style="font-size: 0.7em;"></i>
+                    <i class="far fa-chevron-right asp-label" style="margin-right: -3px; font-size: 0.7em;"></i>
+                </span>
+                <span class="asp-label" ng-click="loadSPage(Shenasname.PageIndex +1)"
+                    style="margin: 6px 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-right "></i></span>
+                <input class="form-control text-center" id="paging" placeholder="{{Shenasname.PageIndex}} از  {{Shenasname.TotalPages}}"
+                    style="width: 150px; display: inline-block; position: relative; top: 0; font-size: 0.7em;" ng-model="pageN"
+                    ng-keyup="loadSPage(pageN);">
+                <span class="asp-label" ng-click="loadSPage(Shenasname.PageIndex-1)"
+                    style="margin: 6px 10px; cursor: pointer; font-size: 0.7em;"><i class="far fa-chevron-left "></i></span>
+                <span ng-click="loadSPage(1)" style="cursor: pointer;">
+                    <i class="far fa-chevron-left asp-label" style="margin-left: -3px; font-size: 0.7em;"></i>
+                    <i class=" far fa-chevron-left asp-label" style="font-size: 0.7em;"></i>
+                </span>
+            </div>
+            <div class="col-lg-6">
+                <button ng-disabled="personnelInfo.length!=1" type="button" class="new-button float-left" ng-click="CreateShenasnameModal()">
+                    <i class="far fa-plus"></i>
+                    افزودن رکورد جدید
+                </button>
+                <button ng-disabled="personnelInfo.length<1" type="button" class="new-button green ml-1 float-left" ng-click="multiPrint()">
+                    <i class="far fa-plus"></i>
+                    پرینت کلی
+                    <i style="left:2px;bottom:12px; width:10px;height:10px" class="spinner-border text-success" ng-if="loadingMultiPrint"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ShenasnameModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="HeaderForm">
+                    شناسنامه ارزشیابی <span class="font-weight-bold">{{personnelInfo[0].PoliteName}}</span>
+                    <span class="cancelIcon" title="بستن" ng-click="closeShenasnameModal()"><i class="far fa-close "></i></span>
+                </p>
+                <div class="card">
+                    <div class="">
+                        <table class="newTableStyle medium-font">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        سال ارزشیابی
+                                        <!-- <i class="far fa-plus new-button" title="افزودن رکورد جدید" ng-click="addNewRecord()"></i>-->
+                                    </th>
+                                    <!--<th>
+                                            بخش
+                                            <div class="d-inline-flex">
+                                                <div class="border border-info pl-3 pr-3 p-1">ستاد</div>
+                                                <div class="border border-info pl-3 pr-3 p-1">استان</div>
+                                                <div class="border border-info pl-3 pr-3 p-1">شهرستان</div>
+                                            </div>
+                                        </th>-->
+                                    <th>شماره فرم</th>
+                                    <th>
+
+                                        <p class="p-0 m-0">امتیازات عوامل ارزشیابی عملکرد</p>
+                                        <div class="d-inline-flex col-12">
+                                            <div class="border border-info p-1 w-25">امتیاز عوامل اختصاصی</div>
+                                            <div class="border border-info p-1 w-25">امتیاز مدیریتی</div>
+                                            <div class="border border-info p-1 w-25">امتیاز پشتیبانی</div>
+                                            <div class="border border-info p-1 w-50">
+                                                امتیاز عوامل عمومی فرایند
+                                                <div class="d-inline-flex col-12">
+                                                    <div class="border border-info pl-3 pr-3 p-1">توسعه ای</div>
+                                                    <div class="border border-info pl-3 pr-3 p-1">تشویقات</div>
+                                                    <div class="border border-info pl-3 pr-3 p-1">رفتاری</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th>جمع امتیاز</th>
+                                    <!-- <th>امتیاز استاندار/فرماندار</th>-->
+                                    <th>جمع امتیاز کل ارزشیابی<em class="text-danger">*</em></th>
+                                    <!--<th>تصمیم یا تصمیمات اتخاذ شده<em class="text-danger">**</em></th>-->
+                                    <th>گزینه ها</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" readonly ng-model="edit.PeriodPersianYear" ng-keyup="findFormItem(edit.PeriodPersianYear)"
+                                            class="form-control numeric text-center medium-font" /></td>
+                                    <td><input type="number" readonly ng-model="edit.FormId" class="form-control numeric text-center medium-font" />
+                                    </td>
+                                    <td>
+                                        <div class="d-inline-flex col-12 mt-c">
+                                            <div class="pr-1 pl-1 w-25 pt-1">
+                                                <input type="number" ng-readonly="!editOrNot|| ! editMode(edit.Values.Exclusive.SumScoreValue)"
+                                                    ng-keyup="notFillRetailItem(edit.Values.Exclusive.SumScoreValue)"
+                                                    ng-model="edit.Values.Exclusive.SumScoreValue"
+                                                    class="form-control numeric text-center medium-font" />
+                                            </div>
+                                            <div class="pr-1 pl-1 w-25 pt-1">
+                                                <input type="number" ng-readonly="!editOrNot|| ! editMode(edit.Values.Management.SumScoreValue)"
+                                                    ng-keyup="notFillRetailItem(edit.Values.Management.SumScoreValue)"
+                                                    ng-model="edit.Values.Management.SumScoreValue"
+                                                    class="form-control numeric text-center medium-font" />
+                                            </div>
+                                            <div class="pr-1 pl-1 w-25 pt-1">
+                                                <input type="number" ng-readonly="!editOrNot|| !editMode(edit.Values.Support.SumScoreValue)"
+                                                    ng-keyup="notFillRetailItem(edit.Values.Support.SumScoreValue)"
+                                                    ng-model="edit.Values.Support.SumScoreValue"
+                                                    class="form-control numeric text-center medium-font" />
+                                            </div>
+                                            <div class="pr-1 pl-1 w-50">
+                                                <div class="d-inline-flex col-12">
+                                                    <div class="pr-1 pl-1">
+                                                        <input type="number" ng-readonly="!editOrNot|| !editMode(edit.Values.Develop.SumScoreValue)"
+                                                            ng-keyup="notFillRetailItem(edit.Values.Develop.SumScoreValue)"
+                                                            ng-model="edit.Values.Develop.SumScoreValue"
+                                                            class="form-control numeric text-center medium-font" />
+                                                    </div>
+                                                    <div class="pr-1 pl-1">
+                                                        <input type="number"
+                                                            ng-readonly="!editOrNot || !editMode(edit.Values.Encouragement.SumScoreValue)"
+                                                            ng-keyup="notFillRetailItem(edit.Values.Encouragement.SumScoreValue)"
+                                                            ng-model="edit.Values.Encouragement.SumScoreValue"
+                                                            class="form-control numeric text-center medium-font" />
+                                                    </div>
+                                                    <div class="pr-1 pl-1">
+                                                        <input type="number"
+                                                            ng-readonly="!editOrNot || ! editMode(edit.Values.Behavior.SumScoreValue)"
+                                                            ng-keyup="notFillRetailItem(edit.Values.Behavior.SumScoreValue)"
+                                                            ng-model="edit.Values.Behavior.SumScoreValue"
+                                                            class="form-control numeric text-center medium-font" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><input type="number" ng-readonly="!editOrNot|| ! editMode(edit.FormScoreValue)"
+                                            ng-keyup="notFillSumItem(edit.FormScoreValue)" ng-model="edit.FormScoreValue"
+                                            class="form-control numeric text-center medium-font" /></td>
+                                    <td><input type="number" ng-readonly="!editOrNot || ! editMode(edit.TotalScoreValue)"
+                                            ng-model="edit.TotalScoreValue" class="form-control numeric text-center medium-font" /></td>
+                                    <td>
+                                        <div class="d-flex justify-content-center m-auto">
+                                            <span ng-if="!editOrNot" class="pointer big-font" title="ویرایش" ng-click="editRow()"><i class="far fa-edit "></i></span>
+                                            <span ng-if="editOrNot" class="pointer big-font" title="تایید"
+                                                ng-click="confirmExistRecord(edit)"><i class="far fa-check"></i></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="">
+                            <button type="button" class="new-button green float-left" ng-disabled="!disableCheckEdit(edit) || editOrNot"
+                                ng-click="ConfirmUpdateShenasname(edit)">
+                                <i class="far fa-check"></i>
+                                تایید
+                            </button>
+                            <button type="button" class="new-button red ml-1 float-left" ng-click="closeShenasnameModal()">
+                                <i class="far fa-close"></i>
+                                انصراف
+                            </button>
+                        </div>
+                        <!--<div class="float-right text-right p-0 m-0">
+                                <strong class="small-font">*امتياز مربوط به مديران كل استاني و رؤساي ادارات شهرستاني پس از اعمال دو سوم فرم شماره </strong>
+                            </div>-->
+                        <!--<div class="col-12 text-right p-0 m-0">
+                                <strong class="small-font">**تصميمات اداري: گذراندن دوره هاي آموزشي، انتصاب به پستهاي بالاتر ، بازخريدي و برخورداري از فرصت هاي آموزشي كوت </strong>
+                            </div>-->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="CreateShenasnameModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="HeaderForm">
+                    افزودن امتیاز ارزشیابی برای : <span class="font-weight-bold">{{personnelInfo[0].PoliteName}}</span>
+                    <span class="cancelIcon" title="بستن" ng-click="CancelShenasname()"><i class="far fa-close "></i></span>
+                </p>
+                <div class="card">
+                    <div class="">
+                        <table class="newTableStyle medium-font">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        سال ارزشیابی
+                                        <!-- <i class="far fa-plus new-button" title="افزودن رکورد جدید" ng-click="addNewRecord()"></i>-->
+                                    </th>
+                                    <!--<th>
+                                            بخش
+                                            <div class="d-inline-flex">
+                                                <div class="border border-info pl-3 pr-3 p-1">ستاد</div>
+                                                <div class="border border-info pl-3 pr-3 p-1">استان</div>
+                                                <div class="border border-info pl-3 pr-3 p-1">شهرستان</div>
+                                            </div>
+                                        </th>-->
+                                    <th>شماره فرم</th>
+                                    <th>
+
+                                        <p class="p-0 m-0">امتیازات عوامل ارزشیابی عملکرد</p>
+                                        <div class="d-inline-flex col-12">
+                                            <div class="border border-info p-1 w-25">امتیاز عوامل اختصاصی</div>
+                                            <div class="border border-info p-1 w-25">امتیاز مدیریتی</div>
+                                            <div class="border border-info p-1 w-25">امتیاز پشتیبانی</div>
+                                            <div class="border border-info p-1 w-50">
+                                                امتیاز عوامل عمومی فرایند
+                                                <div class="d-inline-flex col-12">
+                                                    <div class="border border-info pl-3 pr-3 p-1">توسعه ای</div>
+                                                    <div class="border border-info pl-3 pr-3 p-1">تشویقات</div>
+                                                    <div class="border border-info pl-3 pr-3 p-1">رفتاری</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th>جمع امتیاز</th>
+                                    <!-- <th>امتیاز استاندار/فرماندار</th>-->
+                                    <th>جمع امتیاز کل ارزشیابی<em class="text-danger">*</em></th>
+                                    <!--<th>تصمیم یا تصمیمات اتخاذ شده<em class="text-danger">**</em></th>-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" ng-model="create.PeriodPersianYear" ng-keyup="findFormItem(create.PeriodPersianYear)"
+                                            class="form-control numeric text-center medium-font" /></td>
+                                    <td>
+                                        <select class="form-control" style="width:150px" ng-init="create.FormId =''"
+                                            ng-repeat="item in availableForms track by item.Id" ng-model="create.FormId"
+                                            ng-change="checkReadOnly(create.FormId)">
+                                            <option ng-value="''">لطفا انتخاب نمایید...</option>
+                                            <option ng-value="item.Id">{{item.Title}}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div class="d-inline-flex col-12 mt-c">
+                                            <div class="pr-1 pl-1 w-25 pt-1">
+                                                <input type="text" ng-readonly="readOnlyState||notFillSumItemState"
+                                                    ng-keyup="notFillRetailItem(create.Exclusive)" ng-model="create.Exclusive"
+                                                    class="form-control numeric text-center medium-font" />
+                                            </div>
+                                            <div class="pr-1 pl-1 w-25 pt-1">
+                                                <input type="text" ng-readonly="readOnlyState||notFillSumItemState"
+                                                    ng-keyup="notFillRetailItem(create.Management)" ng-model="create.Management"
+                                                    class="form-control numeric text-center medium-font" />
+                                            </div>
+                                            <div class="pr-1 pl-1 w-25 pt-1">
+                                                <input type="text" ng-readonly="readOnlyState||notFillSumItemState"
+                                                    ng-keyup="notFillRetailItem(create.Support)" ng-model="create.Support"
+                                                    class="form-control numeric text-center medium-font" />
+                                            </div>
+                                            <div class="pr-1 pl-1 w-50">
+                                                <div class="d-inline-flex col-12">
+                                                    <div class="pr-1 pl-1">
+                                                        <input type="text" ng-readonly="readOnlyState||notFillSumItemState"
+                                                            ng-keyup="notFillRetailItem(create.Develop)" ng-model="create.Develop"
+                                                            class="form-control numeric text-center medium-font" />
+                                                    </div>
+                                                    <div class="pr-1 pl-1">
+                                                        <input type="text" ng-readonly="readOnlyState||notFillSumItemState"
+                                                            ng-keyup="notFillRetailItem(create.Encouragement)" ng-model="create.Encouragement"
+                                                            class="form-control numeric text-center medium-font" />
+                                                    </div>
+                                                    <div class="pr-1 pl-1">
+                                                        <input type="text" ng-readonly="readOnlyState ||notFillSumItemState"
+                                                            ng-keyup="notFillRetailItem(create.Behavior)" ng-model="create.Behavior"
+                                                            class="form-control numeric text-center medium-font" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><input type="text" ng-readonly="readOnlyState || notFillRetailItemState"
+                                            ng-keyup="notFillSumItem(create.FormScoreValue)" ng-model="create.FormScoreValue"
+                                            class="form-control numeric text-center medium-font" /></td>
+                                    <td><input type="text" ng-readonly="!readOnlyState" ng-model="create.TotalScoreValue"
+                                            class="form-control numeric text-center medium-font" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="">
+                            <button type="button" class="new-button green float-left" ng-disabled="!disableCheck(create)"
+                                ng-click="ConfirmShenasname(create)">
+                                <i class="far fa-check"></i>
+                                تایید
+                            </button>
+                            <button type="button" class="new-button red ml-1 float-left" ng-click="CancelShenasname()">
+                                <i class="far fa-close"></i>
+                                انصراف
+                            </button>
+                        </div>
+                        <!--<div class="float-right text-right p-0 m-0">
+                                <strong class="small-font">*امتياز مربوط به مديران كل استاني و رؤساي ادارات شهرستاني پس از اعمال دو سوم فرم شماره </strong>
+                            </div>-->
+                        <!--<div class="col-12 text-right p-0 m-0">
+                                <strong class="small-font">**تصميمات اداري: گذراندن دوره هاي آموزشي، انتصاب به پستهاي بالاتر ، بازخريدي و برخورداري از فرصت هاي آموزشي كوت </strong>
+                            </div>-->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

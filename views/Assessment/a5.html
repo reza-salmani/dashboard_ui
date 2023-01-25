@@ -1,0 +1,26 @@
+<div ng-if="checkingExist(assessment.adviceTableData.Categories[0].Values) && assessment.AllowAdvicePage" ng-style="assessment.isFromCartable?assessment.PublicStyle:''">
+    <div class="card" >
+        <div class="input-group" style="margin: 0.25em 0;" ng-repeat="items in assessment.adviceTableData.Categories[0].Values">
+            <div class="input-group-prepend">
+                <label class="input-group-text">
+                    {{items.Field.Title}}
+                </label>
+            </div>
+            <textarea style="height: 4em !important;" ng-model="items.StringValue" class="form-control"></textarea>
+        </div>
+    </div>
+    <div class="card" ng-if="assessment.dynamicButtonAllow">
+        <div style="text-align: left;">
+            <button class="new-button green" ng-click="confirmAdvice()">
+                <i class="far fa-check"></i>
+                تایید
+                <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning" ng-if="loadingAdvice"></div>
+            </button>
+            <!--<button class="new-button mr-1" ng-class="{'bg-danger':button.ActionTypeIdentity === 3,'bg-info':button.ActionTypeIdentity === 2,'bg-primary':button.ActionTypeIdentity === 1}" ng-repeat="button in buttonsArray" ng-click="dynamicButton(button)">
+                {{button.ActionTitle}}
+                <div style="left: 10px; bottom: 10px; width: 8px; height: 8px" class="spinner-border text-warning" ng-if="button.loadingDynamicButton"></div>
+
+            </button>-->
+        </div>
+    </div>
+</div>
