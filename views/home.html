@@ -1,6 +1,6 @@
 <form id="homeForm" ng-controller="mainController">
   <div class="header">
-    <div class="row mx-1">
+    <div>
       <!-- top-right navbar -->
       <div class="col-10 my-0">
         <div class="row text-right">
@@ -62,42 +62,6 @@
               <i class="far fa-bars pointer showNavigatPanel" style="font-size: 1.5rem;"></i>
             </div>
           </div>
-          <!-- message btn -->
-          <!-- <div class="col-1 position-relative">
-            <div class="centered-element" style="z-index: 1000 !important;">
-              <div style="margin-top: 8px;" ng-click="hiddenMessage()">
-                <i class="far fa-envelope h3 pointer"></i>
-              </div>
-              <div class="message-box hidden mt-1" id="message">
-                <div class="big-font text-right mr-2" ng-click="hiddenMessage()">
-                  <i class="far fa-close big-font pointer"></i>
-                </div>
-                <p class="text-center">
-                  لیست سررسید تضمینات
-                </p>
-              </div>
-            </div>
-          </div> -->
-          <!-- search btn -->
-          <div class="col-5 position-relative">
-            <div class="centered-element personnelINfoStyle">
-              <div class="form-container d-flex" id="search-input">
-                <input class="form-control big-font" ng-blur="removeSearch()" ng-keyup="lookUp($event)" ng-model="filter.Title" type="text">
-                <div ng-click="filter.Title = ''" ng-if="searchAllow && (filter.Title != null && filter.Title != '')">
-                  <i class="far fa-close position-absolute pointer left-2 " style="font-size: 1.2rem;margin-top: 8px;"></i>
-                </div>
-                <div class="search-result" ng-if="searchAllow && (filter.Title != null && filter.Title != '')">
-                  <li ng-repeat="page in filterPages" ng-click="gotoPage(page)" ng-attr-title="{{!page.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-class="[{'disabledNavBarItem':!page.HasAccess}]" class="filtered pointer" id="search-page-{{page.Id}}">
-                    {{page.Title}}
-                  </li>
-                </div>
-                <div class="pointer" ng-click="searchInputWidthToggler()">
-                  <i class="far fa-search ml-1" style="font-size: 1.2rem;margin-top: 8px;"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- logo image -->
       <div class="col-2">
@@ -111,98 +75,13 @@
         <div class="container-fluid">
           <div class="row col-12 color-panel" ng-if="loaded">
             <div class="col" style="margin-top: 5px;">
-              <p id="most-visited" class="selective-p" ng-click="fixVisited()" ng-mouseenter="changeToVisited()">
-                <i class="far fa-eye" style="margin: 0 0 0 10px"></i>
-                پربازدیدترین ها
-              </p>
-              <p ng-if="!system.RouteValue.includes('cartable')" ng-repeat="system in panelBarItems track by $index" class="selective-p" id="p-{{system.Id}}"
-                ng-mouseenter="showSecondLevelPanel(system)" ng-click="fixSecondLevel(system)">
+              <p  ng-repeat="system in panelBarItems track by $index" class="selective-p" id="p-{{system.Id}}" ng-class="[{'disabledNavBarItem':!system.HasAccess}]" ng-attr-title="{{!system.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(system)">
                 <i class="far fa-home" style="margin: 0 0 0 10px"></i>
                 {{system.Title}}
               </p>
-              <p ng-if="system.RouteValue.includes('cartable')" ng-mouseenter="hideSecondLevelPanel(system)" ng-repeat="system in panelBarItems track by $index" class="selective-p" id="p-{{system.Id}}" ng-class="[{'disabledNavBarItem':!system.HasAccess}]" ng-attr-title="{{!system.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(system)">
-                <i class="far fa-home" style="margin: 0 0 0 10px"></i>
-                {{system.Title}}
-              </p>
-            </div>
-            <div class="pointer" ng-click="showHelp()">
-              <i class="far fa-info icon-color px-2" style="margin-top: 5px;"></i>
-            </div>
-            <div class="pointer" ng-click="cancelFixed()">
-              <i class="far fa-lock pointer icon-color px-2" style="margin-top: 5px;" ng-if="fixLevel"></i>
-            </div>
-            <div class="pointer">
-              <i class="far fa-unlock pointer icon-color  px-2" ng-if="!fixLevel" style="margin-top: 5px;"></i>
             </div>
           </div>
         </div>
-      </div>
-      <div class="dropdown-divider"></div>
-      <div class="navigate-second-level hidden">
-        <p ng-if="loading" class="text-center" style="margin-top: 5em; font-size: 3em;">
-          <i class="far fa-spinner rotate"></i>
-        </p>
-        <ul class="ul-animation" ng-if="!loading && animate && !nonVisited">
-          <li class="my-1" ng-repeat="system in currentMostVisited.systems">
-            <p ng-style="style">
-              {{system.Title}}
-            </p>
-            <div>
-              <ul>
-                <li class="my-1" ng-repeat="page in system.Children | limitTo:numLimit| orderBy : 'count'">
-                  <span class="pointer" ng-class="[{'disabledNavBarItem':!page.HasAccess}]" ng-attr-title="{{!page.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(page)">{{page.Title}}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
-        <ul ng-if="!loading && animate && nonVisited" class="text-right ul-animation list-unstyled">
-          <li ng-repeat="subSystem in currentSystem.Children">
-            <p ng-style="style" ng-if="subSystem.Children.length">
-              {{subSystem.Title}}
-            </p>
-            <span class="pointer" ng-class="[{'disabledNavBarItem':!subSystem.HasAccess}]" ng-attr-title="{{!subSystem.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(subSystem)" ng-if="!subSystem.Children.length">{{subSystem.Title}}
-            </span>
-            <div ng-if="subSystem.Children.length">
-              <ul class="ul-animation list-unstyled">
-                <li class="my-1" ng-repeat="menu in subSystem.Children" style="position: relative">
-                  <p ng-if="menu.Children.length" ng-click="showingInnerPanel(menu,1)">
-                    {{menu.Title}}
-                    <i class="far fa-angle-left first-icon icon-padding" id="icon-{{menu.Id}}"></i>
-                  </p>
-                  <span class="pointer" ng-class="[{'disabledNavBarItem':!menu.HasAccess}]" ng-attr-title="{{!menu.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(menu)" ng-if="!menu.Children.length">{{menu.Title}}
-                  </span>
-                  <!-- <div class="outter-panel"></div> -->
-                  <div ng-if="menu.Children.length" class="inner-panel hidden" id="inner-{{menu.Id}}">
-                    <ul class="ul-animation list-unstyled">
-                      <li class="my-1" ng-repeat="submenu in menu.Children" style="position: relative" ng-if="submenu.ParentId == menu.Id">
-                        <p ng-if="submenu.Children.length" ng-click="showingInnerPanel(submenu,2)">
-                          {{submenu.Title}}
-                          <i class="far fa-angle-left second-icon icon-padding" id="icon-{{submenu.Id}}"></i>
-                        </p>
-                        <span class="pointer" ng-class="[{'disabledNavBarItem':!submenu.HasAccess}]" ng-attr-title="{{!submenu.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(submenu)" ng-if="!submenu.Children.length">{{submenu.Title}}
-                        </span>
-                        <div class="inner-panel second hidden" id="inner-{{submenu.Id}}">
-                          <ul class="ul-animation list-unstyled">
-                            <li ng-repeat="submenu1 in submenu.Children" style="position: relative" ng-if="submenu1.ParentId == submenu.Id">
-                              <p>
-                                {{submenu1.Title}}
-                                <i class="far fa-angle-left icon-padding"></i>
-                              </p>
-                              <span class="pointer" ng-class="[{'disabledNavBarItem':!submenu1.HasAccess}]" ng-attr-title="{{!submenu1.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(submenu1)" ng-if="!submenu1.Children.length">{{submenu1.Title}}
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
       </div>
     </div>
   </div>
@@ -228,21 +107,5 @@
     <div class="width-90 overflow-y h-100p">
       <div id="bigPart" ui-view></div>
     </div>
-  </div>
-  <div id="help-container" class="help-container hidden">
-    <p class="text-justify medium-font">
-      <i class="far fa-lock"></i>
-      این علامت نشان دهنده قفل بودن تغییر سیستم با حرکت موس میباشد برای تغییر سیستم بر روی نام آن کلیک
-      کنید
-    </p>
-    <p class="text-justify medium-font">
-      <i class="far fa-unlock"></i>
-      این علامت نشان دهنده باز بودن تغییر سیستم با حرکت موس میباشد
-    </p>
-    <p class="text-justify medium-font">
-      برای تغییر حالت از <i class="far fa-lock"></i> به حالت <i class="far fa-unlock"></i> و یا بالعکس
-      بر روی
-      نام سیستم کلیک کنید
-    </p>
   </div>
 </form>
