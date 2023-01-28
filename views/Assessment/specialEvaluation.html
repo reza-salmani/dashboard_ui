@@ -11,8 +11,8 @@
   <div ng-if="section.form == 1">
     <div class="card">
       <div>
-        <table class="test">
-          <thead class="table-header">
+        <table class="defaultTableStyle">
+          <thead>
             <tr>
               <th style="width: 5%;">
                 <input type="checkbox" ng-if="!assessment.deleteAllowed && checkingExist(assessment.tableData.Items)" id="checkAll" ng-model="sss" ng-checked="checkAllStateFunc(assessment.tableData.Items)" ng-click="addToListAll(assessment.tableData.Items,$event)">
@@ -29,7 +29,7 @@
               </th>
             </tr>
           </thead>
-          <tbody class="table-body" id="tableDataForCheck">
+          <tbody id="tableDataForCheck">
             <tr ng-if="assessment.tableData.Items.length" ng-repeat="goal in assessment.tableData.Items">
               <td style="width: 5%;">
                 <input type="checkbox" ng-if="!assessment.checkingWorkflow" ng-checked="checkState(goal)" ng-click="addToList($event,goal)">
@@ -65,7 +65,7 @@
 
               </td>
               <td ng-if="checkingExist(assessment.tableData1.Items)" style="width: 5%;">
-                <div class="row  text-center">
+                <div class=" d-flex text-center">
                   <span class="mr-1 pointer big-font" ng-if="!goal.editMode && (((assessment.checkingWorkflow && assessment.IsRequester) || (!assessment.checkingWorkflow && assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted))"
                      ng-click="deleteFormTable(goal)"><i class="far fa-trash "></i></span>
                   <span class="mr-1 pointer big-font" ng-if="!goal.editMode && !assessment.isFromCartable && (((assessment.checkingWorkflow && !assessment.IsRequester) || (assessment.IsRequester && assessment.Isstarted)) || (!assessment.checkingWorkflow && !assessment.IsRequester && !assessment.Isstarted))"
@@ -169,7 +169,7 @@
   <div ng-if="section.form == 2">
     <div class="card">
       <div style="overflow:auto;max-height:300px">
-        <table class="newTableStyle">
+        <table class="defaultTableStyle">
           <thead>
             <tr>
               <th ng-style="{'font-size':assessment.isFromCartable?'8px':'11px'}" ng-repeat="tableHead in assessment.secondTableData.Fields.Children">
@@ -258,8 +258,8 @@
           <div class="card">
             <div class="row">
               <div class="col-sm-12">
-                <div class="table-body">
-                  <table class="test">
+                <div>
+                  <table class="defaultTableStyle">
                     <thead>
                       <tr>
                         <th style="width: 5%;"></th>

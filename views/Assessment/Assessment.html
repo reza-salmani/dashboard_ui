@@ -3,7 +3,7 @@
     <div ng-include="assessment.redirectUrlForUnAuth"></div>
 </div>
 <div ng-if="assessment.checkValidation" ng-style="assessment.isFromCartable?'':assessment.directStyle">
-    <div ng-if="assessment.loadingFailed && !assessment.loadingPage" class="d-flex m-auto p-2 rounded w-50 bg-warning text-black font-weight-bold">
+    <div ng-if="assessment.loadingFailed && !assessment.loadingPage" class="d-flex m-auto p-2 rounded w-50 text-black font-weight-bold">
         <h3 class="text-center">صفحه مورد نظر به درستی بارگذاری نشده است. لطفا مجدد تلاش نمایید!</h3>
     </div>
     <div ng-if="assessment.loadingPage && !assessment.loadingFailed" class="m-auto p-2 rounded w-50 text-primary font-weight-bold">
@@ -119,7 +119,9 @@
         <!-- dynamicaly created section of asessment priods -->
         <div id="accordion" ng-if="assessment.headerInfo.Allowed">
             <div class="card" ng-repeat="section in evaluation" id="accord-{{section.Id}}">
-                <div class="card-header accordion-toggle" style="cursor: pointer;" href="#demo-{{section.Id}}" data-toggle="collapse">
+                <div class="card-header accordion-toggle accordionHover" style="cursor: pointer;"
+                     href="#demo-{{section.Id}}"
+                     data-toggle="collapse">
                     <p class="text-right asp-label"><strong ng-if="section.Id ==1">8: عوامل ارزشیابی</strong></p>
                     <p ng-if="section.Id !=3" class="asp-label" style="width: 85%; display: inline-block; text-align: right; margin: 5px;">
                         {{section.Title}}
@@ -138,13 +140,13 @@
                 </div>
                 <div class="card-body collapse" ng-class="{'show':section.selected}" style="padding: 0;" data-parent="#accordion"
                     id="demo-{{section.Id}}">
-                    <div class="container-fluid " style="padding: 0;" ng-style="">
+                    <div class="container-fluid" style="padding: 0;">
                         <div ng-include="section.page"></div>
                     </div>
                 </div>
             </div>
             <div class="card position-sticky" style="bottom:0;margin-bottom:50px !important"
-                ng-if="assessment.dynamicButtonAllow && assessment.isFromCartable">
+                ng-if="assessment.dynamicButtonAllow">
                 <div class="float-left">
                     <button type="button" class="new-button mr-1"
                         ng-class="{'bg-danger':button.ActionTypeIdentity === 3,'bg-info':button.ActionTypeIdentity === 2,'bg-primary':button.ActionTypeIdentity === 1}"
@@ -256,8 +258,8 @@
                             <span class="cancelIcon" ng-click="cancelList()"><i class="far fa-close "></i></span>
                         </p>
                         <div class="card">
-                            <div class="table-header">
-                                <table>
+                            <div>
+                                <table class="newTableStyle">
                                     <thead>
                                         <tr>
                                             <th></th>
@@ -269,26 +271,22 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                </table>
-                            </div>
-                            <div class="table-body">
-                                <table class="test">
                                     <tbody>
-                                        <tr ng-repeat="goal in assessment.tableDataList.Items">
-                                            <td>
-                                                <input type="checkbox" ng-model="sss" name="li-{{goal.Id}}" ng-checked="checkListTableSelected(goal)"
-                                                    ng-click="addToListPrePed($event,goal)">
-                                            </td>
-                                            <td style="width: 50%;">
-                                                <input type="text" title="{{goal.Title}}" ng-value="goal.Title" ng-disabled="!goal.editMode"
-                                                    style="width: 90%; display: inline-block; font-size: 1em !important" class="form-control">
-                                            </td>
-                                            <td style="width: 45%;">
-                                                <input type="text" title="{{goal.QuantitativeResult}}" ng-value="goal.QuantitativeResult"
-                                                    ng-disabled="!goal.editMode" style="width: 90%; display: inline-block; font-size: 1em !important"
-                                                    class="form-control">
-                                            </td>
-                                        </tr>
+                                    <tr ng-repeat="goal in assessment.tableDataList.Items">
+                                        <td>
+                                            <input type="checkbox" ng-model="sss" name="li-{{goal.Id}}" ng-checked="checkListTableSelected(goal)"
+                                                   ng-click="addToListPrePed($event,goal)">
+                                        </td>
+                                        <td style="width: 50%;">
+                                            <input type="text" title="{{goal.Title}}" ng-value="goal.Title" ng-disabled="!goal.editMode"
+                                                   style="width: 90%; display: inline-block; font-size: 1em !important" class="form-control">
+                                        </td>
+                                        <td style="width: 45%;">
+                                            <input type="text" title="{{goal.QuantitativeResult}}" ng-value="goal.QuantitativeResult"
+                                                   ng-disabled="!goal.editMode" style="width: 90%; display: inline-block; font-size: 1em !important"
+                                                   class="form-control">
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -347,8 +345,8 @@
                         <div class="card">
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="table-body">
-                                        <table class="test">
+                                    <div>
+                                        <table class="newTableStyle">
                                             <thead>
                                                 <tr>
                                                     <th style="width: 5%;"></th>

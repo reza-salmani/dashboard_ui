@@ -1,232 +1,239 @@
 ﻿function SelectController($scope, RequestApis, $compile, $timeout) {
-  var $ctrl = this;
-  //======================= check Url =======================
+    var $ctrl = this;
+    //======================= check Url =======================
 
-  $scope.selected = false;
-  $scope.pageSizes = 10;
-  $scope.pageNumber = 1;
-  $ctrl.returnedData = {};
-  $ctrl.$onInit = function () { 
-    if (localStorage.getItem('pageSizeGloab')) {
-      $scope.pageSizes = Number(localStorage.getItem('pageSizeGloab'));
-      $scope.returnDataFunc('pageSize', $scope.pageSizes);
-    }
-    if (localStorage.getItem(`pageNumGloab${$ctrl.selectedId}`)) {
-      $scope.pageNumber = Number(localStorage.getItem(`pageNumGloab${$ctrl.selectedId}`));
-      $scope.returnDataFunc('pageNumber', $scope.pageNumber);
-    }
-    $scope.selectItem = [];
-    if ($ctrl.returnedData.item != undefined) {
-      if ($ctrl.returnedData.item.length) {
-        $scope.selectItem = $ctrl.returnedData.item;
-      }
-    }
-  }
-  $scope.$watch(`$ctrl.getData.data`, function () {
-    if ($ctrl.getData !== undefined && $ctrl.getData.data !== undefined && $ctrl.getData.data.length)
-      $scope.dataItems = [...$ctrl.getData.data];
-  })
-  $scope.$watch(`$ctrl.getData.BreadCrumbs.Items`, function () {
-    if ($ctrl.getData != undefined && $ctrl.getData.BreadCrumbs != undefined) {
-      $scope.breadCrumbsItems = $ctrl.getData.BreadCrumbs.Items;
-    }
-  })
-  $scope.$watch('selected', function () {
-    if ($scope.selected) {
-      let position = document.getElementById(`header_${$ctrl.selectedId}`).getBoundingClientRect();
-      $timeout(function () {
-        let itemPosition = document.getElementById(`items_${$ctrl.selectedId}`).getBoundingClientRect();
-        if (position.width < 250) {
-          document.getElementById(`items_${$ctrl.selectedId}`).style.width = "250px"
-        } else {
-          document.getElementById(`items_${$ctrl.selectedId}`).style.width = position.width + "px"
-        }
-        //if ((window.innerWidth - position.right) < itemPosition.width) {
-        //  document.getElementById(`items_${$ctrl.selectedId}`).style.right = `${window.innerWidth - (position.right)}px`
-        //} else {
-        //  document.getElementById(`items_${$ctrl.selectedId}`).style.left = `${position.left}px`
-        //}
-        //if ((window.innerHeight - (position.top + position.height)) < itemPosition.height) {
-        //  document.getElementById(`items_${$ctrl.selectedId}`).style.top = `${position.top - (position.height + itemPosition.height)}px`
-        //}
-        //else {
-        //  document.getElementById(`items_${$ctrl.selectedId}`).style.top = `${position.top + position.height}px`
-        //}
-        document.getElementById(`items_${$ctrl.selectedId}`).style.opacity = "1";
-        document.getElementById(`items_${$ctrl.selectedId}`).style.transition = "opacity 0.2s ease-in-out"
-      }, 1)
-    }
-  })
-
-  $scope.mouseOver = function () {
-    $scope.selected = true;
-    $scope.timeout = 150;
-  }
-  $scope.leaveMouse = function () {
-    $timeout(function () {
-      $scope.selected = false;
-    }, $scope.timeout != undefined ? $scope.timeout : 150)
-  }
-  $scope.searchItem = function (param, item) {
-    let search = '';
-    if (!$ctrl.footer) {
-      if (item != undefined && item != '') {
-        if (item.length) {
-          search = item;
-        }
-        $scope.dataItems = $scope.dataItems.filter(x => x[param.latin].toString().includes(search))
-      } else {
-        $scope.dataItems = [...$ctrl.getData.data];
-      }
-    } else {
-      if (item !== undefined && item.toString().length !== 0)
-        search = item;
-      $scope.returnDataFunc('search', { param: param, search: search });
-    }
-  }
-  $scope.loadPage = function (item) {
-    if (Number(item) <= $ctrl.getData.TotalPages && $ctrl.getData.TotalPages >= $ctrl.getData.PageIndex && Number(item) > 0) {
-      localStorage.setItem(`pageNumGloab${$ctrl.selectedId}`, item);
-      if ($ctrl.maxSelectable !== 1) {
-        document.getElementById('ThisPageData').checked = false;
-      }
-      $scope.returnDataFunc('pageNumber', Number(item));
-    }
-  }
-  $scope.checkState = function (item) {
-    let result = false;
-    if ($scope.selected && $scope.selectItem != undefined) {
-      if ($scope.selectItem.some(x => x.Id === item)) {
-        result = true;
-      }
-    }
-    return result;
-  }
-  $scope.calcState = function (item) {
-    let result = false;
-    if (item != undefined) {
-      result = !item;
-    }
-    return result;
-  }
-  $scope.showState = function () {
-    if (!$ctrl.disabled) {
-      $scope.selected = !$scope.selected;
-      $scope.checkState();
-    }
-  }
-
-  $scope.closeList = function () {
     $scope.selected = false;
-  }
-  $scope.removeItem = function (item) {
-    if ($scope.selectItem.length) {
-      $scope.selectItem = $scope.selectItem.filter(x => x.Id != item.Id);
-      $scope.returnDataFunc('selected', $scope.selectItem);
-    }
-  }
-  $scope.setThisPageData = function (event, item) {
-    if (event.target.checked) {
-      Object.values(item).forEach(x => {
-        if (!$scope.selectItem.some(y => y.Id === x.Id)) {
-          $scope.selectItem.push(x);
-          $scope.checkState(x.Id)
+    $scope.pageSizes = 10;
+    $scope.pageNumber = 1;
+    $ctrl.returnedData = {};
+    $ctrl.$onInit = function () {
+        if ($ctrl.getData.identifier === undefined)
+            $ctrl.getData.identifier = "Id";
+        if (localStorage.getItem('pageSizeGloab')) {
+            $scope.pageSizes = Number(localStorage.getItem('pageSizeGloab'));
+            $scope.returnDataFunc('pageSize', $scope.pageSizes);
         }
-      })
-    } else {
-      if (item.length) {
-        Object.values(item).forEach(y => {
-          $scope.selectItem = $scope.selectItem.filter(x => x.Id != y.Id);
-          $scope.checkState(y.Id)
-        })
-      }
-    }
-    $scope.returnDataFunc('selectedThisPage', $scope.selectItem);
-  }
-  $scope.checkClass = function () {
-    let classes1 = '';
-    let classes = '';
-    if (!$ctrl.disabled) {
-      classes += 'pointer';
-    } else {
-      classes += 'notPointer';
-      $scope.selectItem = [];
-    }
-    if ($ctrl.required && !$scope.selectItem.length) {
-      classes1 += 'border border-danger';
-    } else {
-      classes1 += '';
-    }
-    classes += classes1;
-    return classes
-  }
-  $scope.setData = function (event, item) {
-    let input = event.target.querySelector('input');
-    if (event.target.nodeName !== "TR") {
-      input = event.target.parentNode.querySelector('input');
-    }
-    if ($ctrl.maxSelectable !== 1) {
-      if (input.checked === true) {
-        if ($scope.selectItem.length < $ctrl.maxSelectable || $ctrl.maxSelectable === 0) {
-          if (!$scope.selectItem.some(x => x[$scope.data.parameter[0].latin] === item[$scope.data.parameter[0].latin]))
-            $scope.selectItem.push(item);
+        if (localStorage.getItem(`pageNumGloab${$ctrl.selectedId}`)) {
+            $scope.pageNumber = Number(localStorage.getItem(`pageNumGloab${$ctrl.selectedId}`));
+            $scope.returnDataFunc('pageNumber', $scope.pageNumber);
         }
-      } else {
+        $scope.selectItem = [];
+        if ($ctrl.returnedData.item != undefined) {
+            if ($ctrl.returnedData.item.length) {
+                $scope.selectItem = $ctrl.returnedData.item;
+            }
+        }
+    }
+    $scope.$watch(`$ctrl.getData.data`, function () {
+        if ($ctrl.getData !== undefined && $ctrl.getData.data !== undefined && $ctrl.getData.data.length)
+            $scope.dataItems = [...$ctrl.getData.data];
+    })
+    $scope.$watch(`$ctrl.getData.BreadCrumbs.Items`, function () {
+        if ($ctrl.getData != undefined && $ctrl.getData.BreadCrumbs != undefined) {
+            $scope.breadCrumbsItems = $ctrl.getData.BreadCrumbs.Items;
+        }
+    })
+    $scope.$watch('selected', function () {
+        if ($scope.selected) {
+            let position = document.getElementById(`header_${$ctrl.selectedId}`).getBoundingClientRect();
+            $timeout(function () {
+                let itemPosition = document.getElementById(`items_${$ctrl.selectedId}`).getBoundingClientRect();
+                if (position.width < 250) {
+                    document.getElementById(`items_${$ctrl.selectedId}`).style.width = "250px"
+                } else {
+                    document.getElementById(`items_${$ctrl.selectedId}`).style.width = position.width + "px"
+                }
+                //if ((window.innerWidth - position.right) < itemPosition.width) {
+                //  document.getElementById(`items_${$ctrl.selectedId}`).style.right = `${window.innerWidth - (position.right)}px`
+                //} else {
+                //  document.getElementById(`items_${$ctrl.selectedId}`).style.left = `${position.left}px`
+                //}
+                //if ((window.innerHeight - (position.top + position.height)) < itemPosition.height) {
+                //  document.getElementById(`items_${$ctrl.selectedId}`).style.top = `${position.top - (position.height + itemPosition.height)}px`
+                //}
+                //else {
+                //  document.getElementById(`items_${$ctrl.selectedId}`).style.top = `${position.top + position.height}px`
+                //}
+                document.getElementById(`items_${$ctrl.selectedId}`).style.opacity = "1";
+                document.getElementById(`items_${$ctrl.selectedId}`).style.transition = "opacity 0.2s ease-in-out"
+            }, 1)
+        }
+    })
+
+    $scope.mouseOver = function () {
+        $scope.selected = true;
+        $scope.timeout = 150;
+    }
+    $scope.leaveMouse = function () {
+        $timeout(function () {
+            $scope.selected = false;
+        }, $scope.timeout != undefined ? $scope.timeout : 150)
+    }
+    $scope.searchItem = function (param, item) {
+        let search = '';
+        if (!$ctrl.footer) {
+            if (item != undefined && item != '') {
+                if (item.length) {
+                    search = item;
+                }
+                $scope.dataItems = $scope.dataItems.filter(x => x[param.latin].toString().includes(search))
+            } else {
+                $scope.dataItems = [...$ctrl.getData.data];
+            }
+        } else {
+            if (item !== undefined && item.toString().length !== 0)
+                search = item;
+            $scope.returnDataFunc('search', {param: param, search: search});
+        }
+    }
+    $scope.loadPage = function (item) {
+        if (Number(item) <= $ctrl.getData.TotalPages && $ctrl.getData.TotalPages >= $ctrl.getData.PageIndex && Number(item) > 0) {
+            localStorage.setItem(`pageNumGloab${$ctrl.selectedId}`, item);
+            if ($ctrl.maxSelectable !== 1) {
+                document.getElementById('ThisPageData').checked = false;
+            }
+            $scope.returnDataFunc('pageNumber', Number(item));
+        }
+    }
+    $scope.checkState = function (item) {
+
+        console.log("**********************************")
+        console.log(item)
+        console.log($scope.selectItem)
+        let result = false;
+        if ($scope.selected && $scope.selectItem != undefined) {
+            if ($scope.selectItem.some(x => x[$ctrl.getData.identifier] === item[$ctrl.getData.identifier])) {
+                result = true;
+            }
+        }
+        return result;
+    }
+    $scope.calcState = function (item) {
+        let result = false;
+        if (item != undefined) {
+            result = !item;
+        }
+        return result;
+    }
+    $scope.showState = function () {
+        if (!$ctrl.disabled) {
+            $scope.selected = !$scope.selected;
+            $scope.checkState($scope.selectItem);
+        }
+    }
+
+    $scope.closeList = function () {
+        $scope.selected = false;
+    }
+    $scope.removeItem = function (item) {
         if ($scope.selectItem.length) {
-          $scope.selectItem = $scope.selectItem.filter(x => x[$scope.data.parameter[0].latin] === item[$scope.data.parameter[0].latin]);
+            $scope.selectItem = $scope.selectItem.filter(x => x[$ctrl.getData.identifier] != item[$ctrl.getData.identifier]);
+            $scope.returnDataFunc('selected', $scope.selectItem);
         }
-      }
-    } else {
-      $scope.selectItem = [];
-      $scope.selectItem.push(item);
-      $scope.selected = false;
     }
-    $scope.returnDataFunc('selected', $scope.selectItem);
-  }
-  $scope.btnSelection = function (btn) {
-    $scope.returnDataFunc('btn',btn);
-  }
-  $scope.goToBreadCrumbItems = function (item) {
-    $scope.returnDataFunc('breadCrumb', item);
-  }
-  $scope.returnDataFunc = function (type, item) {
-    $ctrl.returnedData.item = item;
-    $ctrl.returnedData.type = type;
-    $ctrl.returnFunc($ctrl.returnedData);
-  }
-  //======================== settings ======================
-  $scope.showModalSetting = function () {
-    document.getElementById('settingModal').classList.remove('hidden');
-    document.getElementById('settingModal').classList.add('show');
-  }
-  $scope.cancelSetting = function () {
-    document.getElementById('settingModal').classList.remove('show');
-    document.getElementById('settingModal').classList.add('hidden');
-  }
-  $scope.setting = function (item) {
-    if (item.length) {
-      localStorage.setItem("pageSizeGloab", Number(item));
-      $scope.returnDataFunc('pageSize', Number(item));
-      $scope.cancelSetting();
-      $scope.settings = "";
+    $scope.setThisPageData = function (event, item) {
+        if (event.target.checked) {
+            Object.values(item).forEach(x => {
+                if (!$scope.selectItem.some(y => y[$ctrl.getData.identifier] === x[$ctrl.getData.identifier])) {
+                    $scope.selectItem.push(x);
+                    $scope.checkState(x[$ctrl.getData.identifier])
+                }
+            })
+        } else {
+            if (item.length) {
+                Object.values(item).forEach(y => {
+                    $scope.selectItem = $scope.selectItem.filter(x => x[$ctrl.getData.identifier] != y[$ctrl.getData.identifier]);
+                    $scope.checkState(y[$ctrl.getData.identifier])
+                })
+            }
+        }
+        $scope.returnDataFunc('selectedThisPage', $scope.selectItem);
     }
-  }
+    $scope.checkClass = function () {
+        let classes1 = '';
+        let classes = '';
+        if (!$ctrl.disabled) {
+            classes += 'pointer';
+        } else {
+            classes += 'notPointer';
+            $scope.selectItem = [];
+        }
+        if ($ctrl.required && !$scope.selectItem.length) {
+            classes1 += 'border border-danger';
+        } else {
+            classes1 += '';
+        }
+        classes += classes1;
+        return classes
+    }
+    $scope.setData = function (event, item) {
+        let input = event.target.querySelector('input');
+        if (event.target.nodeName !== "TR") {
+            input = event.target.parentNode.querySelector('input');
+        }
+        if ($ctrl.maxSelectable !== 1) {
+            if (input.checked === true) {
+                if ($scope.selectItem.length < $ctrl.maxSelectable || $ctrl.maxSelectable === 0) {
+                    if (!$scope.selectItem.some(x => x[$ctrl.getData.identifier] === item[$ctrl.getData.identifier]))
+                        $scope.selectItem.push(item);
+                }
+            } else {
+                if ($scope.selectItem.length) {
+                    $scope.selectItem = $scope.selectItem.filter(x => x[$ctrl.getData.identifier] !== item[$ctrl.getData.identifier]);
+                }
+            }
+        } else {
+            $scope.selectItem = [];
+            $scope.selectItem.push(item);
+            $scope.selected = false;
+        }
+        $scope.returnDataFunc('selected', $scope.selectItem);
+    }
+    $scope.btnSelection = function (btn) {
+        $scope.returnDataFunc('btn', btn);
+    }
+    $scope.goToBreadCrumbItems = function (item) {
+        $scope.returnDataFunc('breadCrumb', item);
+    }
+    $scope.returnDataFunc = function (type, item) {
+        $ctrl.returnedData.item = item;
+        $ctrl.returnedData.type = type;
+        $ctrl.returnFunc($ctrl.returnedData);
+    }
+    //======================== settings ======================
+    $scope.showModalSetting = function () {
+        document.getElementById('settingModal').classList.remove('hidden');
+        document.getElementById('settingModal').classList.add('show');
+    }
+    $scope.cancelSetting = function () {
+        document.getElementById('settingModal').classList.remove('show');
+        document.getElementById('settingModal').classList.add('hidden');
+    }
+    $scope.setting = function (item) {
+        if (item.length) {
+            localStorage.setItem("pageSizeGloab", Number(item));
+            $scope.returnDataFunc('pageSize', Number(item));
+            $scope.cancelSetting();
+            $scope.settings = "";
+        }
+    }
 }
+
 // ===================================================== create component ================================================
 app.component("customSelect", {
-  bindings: {
-    returnFunc: "&",
-    returnedData: "=",
-    selectedId: "@",
-    disabled: "<",
-    required: "<",
-    footer: "<",
-    getData: "<",
-    class: "@",
-    maxSelectable: "<",
-  },
-  controller: SelectController,
-  template: `<style>
+    bindings: {
+        returnFunc: "&",
+        returnedData: "=",
+        selectedId: "@",
+        disabled: "<",
+        required: "<",
+        footer: "<",
+        getData: "<",
+        class: "@",
+        maxSelectable: "<",
+    },
+    controller: SelectController,
+    template: `<style>
     .extra-small-font {
         font-size: 8px !important;
     }
@@ -406,8 +413,8 @@ app.component("customSelect", {
                         {{$ctrl.getData.PageIndex !==undefined ?($ctrl.getData.PageIndex-1)*pageSizes + $index+1 :$index+1}}
                     </td>
                     <td class="text-center">
-                        <input ng-if="$ctrl.maxSelectable===1" ng-checked="checkState(dataList.Id)" type="radio" id="{{dataList.Id}}" value="{{dataList.Id}}">
-                        <input class="p-0 m-0" ng-if="$ctrl.maxSelectable!==1" ng-checked="checkState(dataList.Id)" id="{{dataList.Id}}" type="checkbox" value="{{dataList.Id}}">
+                        <input ng-if="$ctrl.maxSelectable===1" ng-checked="checkState(dataList)" type="radio" id="{{dataList[$ctrl.getData.identifier]}}" value="{{dataList[$ctrl.getData.identifier]}}">
+                        <input class="p-0 m-0" ng-if="$ctrl.maxSelectable!==1" ng-checked="checkState(dataList)" id="{{dataList[$ctrl.getData.identifier]}}" type="checkbox" value="{{dataList[$ctrl.getData.identifier]}}">
                     </td>
                     <td ng-repeat="param in $ctrl.getData.parameter track by $index" class="text-center" ng-click="$ctrl.getData.BreadCrumbs !== undefined && dataList[$ctrl.getData.BreadCrumbs.param] ?goToBreadCrumbItems(dataList):''">
                         {{dataList[param.latin]}}

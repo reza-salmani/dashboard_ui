@@ -3,9 +3,9 @@
     <public data="assessment.publicTableData.Categories[0].Children" item="assessment.publicTableData.Items"></public>
 
     <div class="card" ng-if="checkingExist(assessment.publicTableData.NoCategoryFields) ">
-        <table class="">
+        <table class="defaultTableStyle">
             <thead>
-                <tr class="">
+                <tr>
                     <th></th>
                     <th>حداکثر</th>
                     <th>حداقل</th>
@@ -14,13 +14,17 @@
                 </tr>
             </thead>
             <tbody id="NonCategrory">
-                <tr class="asp-label" ng-repeat="p in assessment.publicTableData.NoCategoryFields track by $index">
+                <tr class="" ng-repeat="p in assessment.publicTableData.NoCategoryFields track by $index">
                     <td class="pr-1">{{p.Title}}</td>
                     <td class="text-center">{{p.MaxValue}}</td>
                     <td class="text-center">{{p.MinValue}}</td>
                     <td class="text-center">
                         <div>
-                            <input dir="ltr" ng-readonly="!assessment.dynamicButtonAllow" ng-class="{'sumationInput':p.IsScore}" ng-init="inputMasks()" autocomplete="off" data="{{assessment.publicTableData.NoCategoryValues[$index]}}" class='form-control text-center numeric directive-input' ng-keyup='checkmaxMinInNon(assessment.publicTableData.NoCategoryValues[$index]);sumationPublic()' id='test-{{p.Id}}' ng-model='assessment.publicTableData.NoCategoryValues[$index].ScoreValue' type='text'>
+                            <input dir="ltr" ng-readonly="!assessment.dynamicButtonAllow"
+                                   ng-class="{'sumationInput':p.IsScore}" ng-init="inputMasks()" autocomplete="off"
+                                   data="{{assessment.publicTableData.NoCategoryValues[$index]}}"
+                                   class='form-control text-center numeric small-font directive-input'
+                                   ng-keyup='checkmaxMinInNon(assessment.publicTableData.NoCategoryValues[$index]);sumationPublic()' id='test-{{p.Id}}' ng-model='assessment.publicTableData.NoCategoryValues[$index].ScoreValue' type='text'>
                         </div>
                     </td>
                     <td class="text-center">

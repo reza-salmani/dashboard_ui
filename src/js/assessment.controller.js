@@ -1,4 +1,4 @@
-app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $timeout, RequestApis, global) {
+app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stateParams, $timeout, RequestApis, global) {
     //======================= variables =======================
     $scope.assessment = {};
     $scope.assessment.personnelInfo = {};
@@ -49,7 +49,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
     $scope.assessment.IsRequester = false;
     $scope.assessment.checkingWorkflow = false;
     $scope.assessment.deleteAllowed = false;
-    $scope.assessment.paginationItemsForTableData1_2 = '';
+    $scope.assessment.paginationItemsForTableData1_2 = `&ps=100&pn=1`;
     $scope.assessment.paginationItemsForNewListOfProgramTableData = '';
     $scope.assessment.pageNumberForListTable = '';
     $scope.assessment.directStyle = {
@@ -57,38 +57,43 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         'overflow-x': 'hidden',
         'height': '90vh',
         'margin-bottom': '10vh'
-
     };
     $scope.assessment.PublicStyle = {
         'overflow-y': 'auto',
         'overflow-x': 'hidden',
-        'height': '30vh',
-
     };
     $scope.evaluation = [
         {
             Title: "الف - عوامل اختصاصی:",
             Id: "1",
-            page: '../../views/Assessment/specialEvaluation.html',
-            selected: true,
+            page: '../../views/Assessment/specialEvaluation.html?v=' + Date.now(),
+            selected: false,
             form: 1
         },
         {
             Title: " ب - عوامل عمومی:",
             Id: "2",
-            page: '../../views/Assessment/publicEvaluation.html',
+            page: '../../views/Assessment/publicEvaluation.html?v=' + Date.now(),
             selected: false,
             form: 1
         },
         {
             Title: " 10 - نقاط قوت و ضعف ارزشیابی شونده و توصیه های مقام مافوق با توجه به نتیجه ارزشیابی",
             Id: "3",
-            page: '../../views/Assessment/a5.html',
+            page: '../../views/Assessment/a5.html?v=' + Date.now(),
             selected: false,
             form: 1
         }
     ];
     $templateCache.remove($state.current.templateUrl);
+    $scope.reloadPage = function () {
+        const currentState = $state.current.name;
+        $templateCache.remove($state.current.templateUrl);
+        $state.go('initPage');
+        $timeout(function () {
+            $state.go(currentState);
+        }, 200);
+    };
     //======================= input masks =====================
     $scope.inputMasks = function () {
         $(".precent").inputmask('integer', {min: 0, max: 100});
@@ -115,12 +120,11 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
     $scope.checkAuth = function () {
         RequestApis.HR(`securities/HR/view/HR_ASSESSMENT`, 'Get', '', '', '', function (response) {
             if (response.status != 200) {
-                // $scope.assessment.redirectUrlForUnAuth = '../../views/PermissionWarning.html';
-                // $scope.assessment.checkValidation = false;
+                $scope.assessment.redirectUrlForUnAuth = '../../views/PermissionWarning.html';
+                $scope.assessment.checkValidation = false;
             } else {
                 $scope.getUrlInfo();
             }
-            $scope.getUrlInfo();
         });
     };
     $scope.checkAuth();
@@ -130,63 +134,86 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
     };
     //======================= get url info ====================
     $scope.getUrlInfo = function () {
-        // global.urlInfo(function (data) {
-        //     if (global.checkExist(data.urlParams)) {
-        //         $scope.assessment.isFromCartable = true;
-        //         $scope.assessment.urlParamsInfo = {
-        //             FormEntryId: data.urlParams.formEntryId,
-        //             PeriodId: data.urlParams.periodId,
-        //             PersonnelId: data.urlParams.personnelId,
-        //             RequestId: data.urlParams.requestId,
-        //             stateBox: data.urlParams.stateBox,
-        //             UserId: data.urlParams.userId,
-        //             behalfId: data.urlParams.behalfId
-        //         };
-        //     }
-        //     if (!global.checkExist(data.personnelInfo.NationalCode)) {
-        //         RequestApis.HR(`personnel/${data.personnelInfo.Id}/info`, 'get', '', '', '', function (response) {
-        //             $scope.assessment.personnelInfo = response.data;
-        //             $scope.assessment.UserId = data.UserId;
-        //             $scope.getPersonnelInfo(data.personnelInfo.Id);
-        //         });
-        //     } else {
-        //         $scope.assessment.personnelInfo = data.personnelInfo;
-        //         $scope.assessment.UserId = data.UserId;
-        //         $scope.getPersonnelInfo(data.personnelInfo.Id);
-        //     }
-        // });
-        $scope.getPersonnelInfo(24);
+        global.currentUser(function (data) {
+            if ($scope.$parent.requestAssessment) {
+                $scope.assessment.isFromCartable = false;
+                $scope.getPersonnelInfo(data.personnelInfo.Id);
+            } else {
+                $scope.assessment.isFromCartable = true;
+                $scope.assessment.urlParamsInfo = {
+                    FormEntryId: $scope.$parent.urlParams.formEntryId,
+                    PeriodId: $scope.$parent.urlParams.periodId,
+                    PersonnelId: $scope.$parent.urlParams.personnelId,
+                    RequestId: $scope.$parent.urlParams.requestId,
+                    stateBox: $scope.$parent.urlParams.stateBox,
+                    UserId: $scope.$parent.urlParams.userId,
+                    behalfId: $scope.$parent.urlParams.behalfId
+                };
+                $scope.getPersonnelInfo($scope.$parent.urlParams.personnelId);
+            }
+        });
     };
     //======================= get header infos ================
     $scope.getPersonnelInfo = function (id) {
         $scope.assessment.loadingPage = true;
-        RequestApis.HR(`periods/active`, 'get', '', '', '', function (responseParent) {
-            $scope.assessment.priodsInfo = responseParent.data;
-            if (responseParent.data.IsActive) {
-                RequestApis.HR(`assessments/personnel/${id}/period/${responseParent.data.Id}/formentries`, 'get', '', '', '', function (response) {
-                    if (response.status === 200 && global.checkExist(response.data[0])) {
-                        if (!global.checkExist(response.data[0].RequestId)) {
-                            $scope.loadPageForFirstTime($scope.assessment.priodsInfo.Id);
-                        } else {
-                            $scope.startDateFromFormEntriesApi = moment(response.data[0].StartDate).format('jYYYY/jMM/jDD');
-                            RequestApis.HR(`assessments/${id}/programs/any?frm=${response.data[0].FormId}&prd=${response.data[0].PeriodId}`, 'get', '', '', '', function (responseSub) {
-                                if (responseSub.status === 404) {
-                                    if (response.status === 200 && global.checkExist(response.data[0])) {
-                                        $scope.loadPageNotForFirstTime(response.data[0].Id);
-                                    } else {
-                                        $scope.loadPageForFirstTime($scope.assessment.priodsInfo.Id);
-                                    }
+        RequestApis.HR(`personnel/${id}/info`, 'get', '', '', '', function (response) {
+            $scope.assessment.personnelInfo = response.data;
+            if (!$scope.assessment.isFromCartable) {
+                RequestApis.HR(`periods/active`, 'get', '', '', '', function (responseParent) {
+                    $scope.assessment.priodsInfo = responseParent.data;
+                    if (responseParent.data.IsActive) {
+                        RequestApis.HR(`assessments/personnel/${id}/period/${responseParent.data.Id}/formentries`, 'get', '', '', '', function (response) {
+                            if (response.status === 200 && global.checkExist(response.data[0])) {
+                                if (!global.checkExist(response.data[0].RequestId)) {
+                                    $scope.loadPageForFirstTime($scope.assessment.priodsInfo.Id);
                                 } else {
-                                    $scope.loadPageNotForFirstTime(response.data[0].Id);
+                                    $scope.startDateFromFormEntriesApi = moment(response.data[0].StartDate).format('jYYYY/jMM/jDD');
+                                    RequestApis.HR(`assessments/${id}/programs/any?frm=${response.data[0].FormId}&prd=${response.data[0].PeriodId}`, 'get', '', '', '', function (responseSub) {
+                                        if (responseSub.status === 404) {
+                                            if (response.status === 200 && global.checkExist(response.data[0])) {
+                                                $scope.loadPageNotForFirstTime(response.data[0].Id);
+                                            } else {
+                                                $scope.loadPageForFirstTime($scope.assessment.priodsInfo.Id);
+                                            }
+                                        } else {
+                                            $scope.loadPageNotForFirstTime(response.data[0].Id);
+                                        }
+                                    });
                                 }
-                            });
-                        }
+                            } else {
+                                $scope.loadPageForFirstTime($scope.assessment.priodsInfo.Id);
+                            }
+                        });
                     } else {
-                        $scope.loadPageForFirstTime($scope.assessment.priodsInfo.Id);
+                        global.Toast('error', 'دوره ی ارزشیابی برای شما تعریف نشده است');
                     }
                 });
             } else {
-                global.Toast('error', 'دوره ی ارزشیابی برای شما تعریف نشده است');
+                RequestApis.HR(`periods`, 'get', '', '', '', function (responsePeriod) {
+                    $scope.assessment.priodsInfo = responsePeriod.data.Items.find(x=>x.Id===$scope.assessment.urlParamsInfo.PeriodId);
+                    RequestApis.HR(`assessments/personnel/${id}/period/${$scope.assessment.urlParamsInfo.PeriodId}/formentries`, 'get', '', '', '', function (response) {
+                        if (response.status === 200 && global.checkExist(response.data[0])) {
+                            if (!global.checkExist(response.data[0].RequestId)) {
+                                $scope.loadPageForFirstTime($scope.assessment.urlParamsInfo.PeriodId);
+                            } else {
+                                $scope.startDateFromFormEntriesApi = moment(response.data[0].StartDate).format('jYYYY/jMM/jDD');
+                                RequestApis.HR(`assessments/${id}/programs/any?frm=${response.data[0].FormId}&prd=${response.data[0].PeriodId}`, 'get', '', '', '', function (responseSub) {
+                                    if (responseSub.status === 404) {
+                                        if (response.status === 200 && global.checkExist(response.data[0])) {
+                                            $scope.loadPageNotForFirstTime(response.data[0].Id);
+                                        } else {
+                                            $scope.loadPageForFirstTime($scope.assessment.urlParamsInfo.PeriodId);
+                                        }
+                                    } else {
+                                        $scope.loadPageNotForFirstTime(response.data[0].Id);
+                                    }
+                                });
+                            }
+                        } else {
+                            $scope.loadPageForFirstTime($scope.assessment.urlParamsInfo.PeriodId);
+                        }
+                    });
+                });
             }
         });
     };
@@ -207,16 +234,19 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                     $scope.assessment.formInfo = responseParent.data[0];
                     RequestApis.HR(`assessments/${$scope.assessment.personnelInfo.Id}/programs/any?frm=${$scope.assessment.formInfo.Id}&prd=${id}`, 'get', '', '', '', function (responseMiddle) {
                         $scope.assessment.anyApiInfo = responseMiddle;
-                        RequestApis.HR(`assessments/${$scope.assessment.personnelInfo.Id}/formentry?frm=${$scope.assessment.formInfo.Id}&prd=${id}`, 'get', '', '', '', function (responseChild) {
-
-                            $scope.assessment.formEntryInfo = responseChild.data;
-                            if (!global.checkExist($scope.assessment.formEntryInfo.RequestId)) {
-                                $scope.getworkflowLevels(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
-                            } else {
-                                $scope.assessment.checkingWorkflow = true;
-                                $scope.getWorkFlowCurrentLevel(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
-                            }
-                        });
+                        if (responseMiddle.status === 200) {
+                            RequestApis.HR(`assessments/${$scope.assessment.personnelInfo.Id}/formentry?frm=${$scope.assessment.formInfo.Id}&prd=${id}`, 'get', '', '', '', function (responseChild) {
+                                $scope.assessment.formEntryInfo = responseChild.data;
+                                if (!global.checkExist($scope.assessment.formEntryInfo.RequestId)) {
+                                    $scope.getworkflowLevels(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
+                                } else {
+                                    $scope.assessment.checkingWorkflow = true;
+                                    $scope.getWorkFlowCurrentLevel(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
+                                }
+                            });
+                        } else {
+                            $scope.getworkflowLevels(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
+                        }
                     });
                 });
             }
@@ -275,18 +305,22 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                 RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/nonexclusive/score`, 'Get', '', '', '', function (response) {
                     $scope.assessment.SumScorePublicSection = response.data;
                 });
+                RequestApis.HR(`workflows/state/${$scope.assessment.workflowInfo[0].StateId}/actions`, 'get', '', '', '', function (subResponse) {
+                    if (subResponse.status == 200) {
+                        $scope.assessment.buttonsArray = subResponse.data;
+                    } else {
+                        $scope.assessment.buttonsArray = [];
+                    }
+                });
                 Object.values($scope.assessment.workflowInfo[0].SecurityForms).forEach(securityForm => {
-
                     if (securityForm.Codes[0] === "HR_ASMT_ADVISE") {
                         $scope.assessment.AllowAdvicePage = true;
                     }
                     if (securityForm.Codes[0] === "HR_ASMT_A1" || securityForm.Codes[0] === "HR_ASMT_A2") {
                         $scope.assessment.AllowSpecialPage = true;
-
                     }
                     if (securityForm.Codes[0] === "HR_ASMT_PUBLIC") {
                         $scope.assessment.AllowPublicPage = true;
-
                     }
                     if ($scope.assessment.isFromCartable) {
                         pathForAllwApi = "workflows/request/" + $scope.assessment.urlParamsInfo.RequestId + "/form/" + securityForm.Id + "/allow";
@@ -311,25 +345,15 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                         }
                         RequestApis.HR(`securities/form/${securityForm.Id}`, 'get', '', '', '', function (response) {
                             $scope.assessment.securityFormInfo = response.data;
-                            //if (global.checkExist(response.data)) {
-                            //  $scope.assessment.checkingWorkflow = true;
-                            //}
-                            RequestApis.HR(`workflows/state/${$scope.assessment.workflowInfo[0].StateId}/actions`, 'get', '', '', '', function (subResponse) {
-                                if (subResponse.status == 200) {
-                                    $scope.assessment.buttonsArray = subResponse.data;
-                                } else {
-                                    $scope.assessment.buttonsArray = [];
-                                }
-                                if (securityForm.Codes[0] == "HR_ASMT_A1") {
-                                    $scope.getFirstSpecialData(item);
-                                } else if (securityForm.Codes[0] == "HR_ASMT_A2") {
-                                    $scope.getSecondSpecialTable(item);
-                                } else if (securityForm.Codes[0] == "HR_ASMT_PUBLIC") {
-                                    $scope.getPublicTables(item);
-                                } else if (securityForm.Codes[0] == "HR_ASMT_ADVISE") {
-                                    $scope.getAdvicePart(item);
-                                }
-                            });
+                            if (securityForm.Codes[0] == "HR_ASMT_A1") {
+                                $scope.getFirstSpecialData(item);
+                            } else if (securityForm.Codes[0] == "HR_ASMT_A2") {
+                                $scope.getSecondSpecialTable(item);
+                            } else if (securityForm.Codes[0] == "HR_ASMT_PUBLIC") {
+                                $scope.getPublicTables(item);
+                            } else if (securityForm.Codes[0] == "HR_ASMT_ADVISE") {
+                                $scope.getAdvicePart(item);
+                            }
                         });
                     });
                 });
@@ -512,9 +536,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
             RequestApis.HR(`assessments/workflow/request/${response.data.Id}/simple/move`, 'Patch', '', '', itemtosend, function (response) {
                 RequestApis.HR(`cartables/request/${$scope.assessment.workflowInfo[0].RequestId}/unseen`, 'Post', '', '', {}, function (response) {
                     if (!$scope.assessment.isFromCartable) {
-                        window.location.href = `${global.CheckAppNameFromUrl()}/GlobalValue/cartable.html?data=outbox`;
+                        $scope.reloadPage();
                     } else {
-                        window.parent.location.href = `${global.CheckAppNameFromUrl()}/GlobalValue/cartable.html?data=outbox`;
+                        $scope.reloadPage();
                     }
                     global.messaging(response);
                 });
@@ -625,11 +649,14 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
 
             //the number 6 witch is here is constant for finding type-identity, as mr.azimi said on Monday,April 18,2022
             RequestApis.HR(`assessments/field/6?prd=${$scope.assessment.priodsInfo.Id}&frm=${$scope.assessment.formInfo.Id}`, 'get', '', '', '', function (field) {
-                $scope.assessment.fieldInfo = field.data;
-                RequestApis.HR(`assessments/field/${$scope.assessment.fieldInfo.Id}/children`, 'get', '', '', '', function (children) {
+                $scope.assessment.fieldOneInfo = field.data;
+                RequestApis.HR(`assessments/field/${$scope.assessment.fieldOneInfo.Id}/children`, 'get', '', '', '', function (children) {
                     if (global.checkExist(children.data)) {
                         $scope.assessment.children = children.data;
                         RequestApis.HR(priodFirstApiPath, 'get', '', '', '', function (subchildren) {
+                            if (subchildren.status === 200){
+                                $scope.evaluation.find(x=>x.Id==="1").selected = true;
+                            }
                             $scope.assessment.tableData = subchildren.data;
                             $scope.assessment.AllowSpecialPage = true;
                             $scope.assessment.loadingTable = false;
@@ -645,7 +672,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                                         FormId: $scope.assessment.formInfo.Id,
                                     },
                                     FormEntryId: null,
-                                    ParentFieldId: $scope.assessment.fieldInfo.Id,
+                                    ParentFieldId: $scope.assessment.fieldOneInfo.Id,
                                     FirstFieldId: $scope.assessment.children[0].Id,
                                     SecondFieldId: $scope.assessment.children[1].Id,
                                     Values: []
@@ -661,7 +688,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                                         StartDate: $scope.assessment.priodsInfo.StartDatePersian,
                                         ServiceId: $scope.assessment.headerInfo.PersonnelServiceId,
                                     },
-                                    ParentFieldId: $scope.assessment.fieldInfo.Id,
+                                    ParentFieldId: $scope.assessment.fieldOneInfo.Id,
                                     FirstFieldId: $scope.assessment.children[0].Id,
                                     SecondFieldId: $scope.assessment.children[1].Id,
                                     Values: []
@@ -679,8 +706,8 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
             $scope.assessment.deleteAllowed = true;
             // this number 6 here is constant for getting alef-1 mr.azimi said in 20-04-2022
             RequestApis.HR(`assessments/field/6?prd=${$scope.assessment.priodsInfo.Id}&frm=${$scope.assessment.formInfo.Id}`, 'get', '', '', '', function (field) {
-                $scope.assessment.fieldInfo = field.data;
-                RequestApis.HR(`assessments/field/${$scope.assessment.fieldInfo.Id}/children`, 'get', '', '', '', function (children) {
+                $scope.assessment.fieldOneInfo = field.data;
+                RequestApis.HR(`assessments/field/${$scope.assessment.fieldOneInfo.Id}/children`, 'get', '', '', '', function (children) {
                     if (global.checkExist(children.data)) {
                         $scope.assessment.children = children.data;
                         let flds = '';
@@ -690,7 +717,10 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                         if (flds.indexOf(",") === 0) {
                             flds = flds.substring(1);
                         }
-                        RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/programs/first?pfld=${$scope.assessment.fieldInfo.Id}&psn=${$scope.assessment.headerInfo.PersonnelId}&flds=${flds}${$scope.assessment.paginationItemsForTableData1_2}`, 'get', '', '', '', function (subchildren) {
+                        RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/programs/first?pfld=${$scope.assessment.fieldOneInfo.Id}&psn=${$scope.assessment.headerInfo.PersonnelId}&flds=${flds}${$scope.assessment.paginationItemsForTableData1_2}`, 'get', '', '', '', function (subchildren) {
+                            if (subchildren.status === 200){
+                                $scope.evaluation.find(x=>x.Id==="1").selected = true;
+                            }
                             $scope.assessment.tableData1 = subchildren.data;
                             $scope.assessment.AllowSpecialPage = true;
                             $scope.assessment.loadingTable = false;
@@ -711,7 +741,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                                 PersonnelId: $scope.assessment.headerInfo.PersonnelId,
                                 ChartTreeId: $scope.assessment.headerInfo.TreeId,
                                 ServiceId: $scope.assessment.headerInfo.PersonnelServiceId,
-                                ParentFieldId: $scope.assessment.fieldInfo.Id,
+                                ParentFieldId: $scope.assessment.fieldOneInfo.Id,
                                 FirstFieldId: $scope.assessment.children[0].Id,
                                 SecondFieldId: $scope.assessment.children[1].Id,
                                 Values: []
@@ -733,7 +763,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                                 PersonnelId: $scope.assessment.headerInfo.PersonnelId,
                                 ChartTreeId: $scope.assessment.headerInfo.TreeId,
                                 ServiceId: $scope.assessment.headerInfo.PersonnelServiceId,
-                                ParentFieldId: $scope.assessment.fieldInfo.Id,
+                                ParentFieldId: $scope.assessment.fieldOneInfo.Id,
                                 FirstFieldId: $scope.assessment.children[0].Id,
                                 SecondFieldId: $scope.assessment.children[1].Id,
                                 Values: []
@@ -756,8 +786,11 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         $scope.changeTableViewS(2);
         // this number 7 here is constant for getting alef-2 mr.azimi said in 20-04-2022
         RequestApis.HR(`assessments/field/7?prd=${$scope.assessment.priodsInfo.Id}&frm=${$scope.assessment.formInfo.Id}`, 'get', '', '', '', function (field) {
-            $scope.assessment.fieldInfo = field.data;
-            RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/programs/second?pfld=${$scope.assessment.fieldInfo.CategoryId}`, 'get', '', '', '', function (response) {
+            $scope.assessment.fieldTwoInfo = field.data;
+            RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/programs/second?pfld=${$scope.assessment.fieldTwoInfo.CategoryId}`, 'get', '', '', '', function (response) {
+                if (response.status === 200){
+                    $("#demo-1").collapse("show");
+                }
                 $scope.assessment.secondTableData = response.data;
                 $scope.assessment.AllowSpecialPage = true;
                 let i = 0;
@@ -931,7 +964,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         } else {
             var path = "assessments/programs/first?secfid=" + $scope.assessment.currentLevel.Id;
         }
-        RequestApis.HR(path, 'Delete','','', $scope.assessment.dataToDelete, function (response) {
+        RequestApis.HR(path, 'Delete', '', '', $scope.assessment.dataToDelete, function (response) {
             if (response.status === 204) {
                 $scope.cancelDelete();
             }
@@ -940,8 +973,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
     };
     $scope.cancelDelete = function () {
         $scope.assessment.dataToDelete = [];
-        $scope.refreshSpecialForm();
         $("#deleteConfirm").modal('hide');
+        $timeout(function (){$scope.refreshSpecialForm();
+        },1000);
     };
     $scope.changeEditMode = function (goal) {
         if (goal.editMode) {
@@ -978,7 +1012,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         $scope.assessment.paginationItemsForTableData1_2 = '';
         if (global.checkExist($scope.assessment.tableData.Items)) {
             if ($scope.assessment.tableData.TotalPages >= Number(page) && $scope.assessment.tableData.TotalPages >= $scope.assessment.tableData.PageIndex && Number(page) > 0) {
-                $scope.assessment.paginationItemsForTableData1_2 += `&ps=10&pn=${Number(page)}`;
+                $scope.assessment.paginationItemsForTableData1_2 += `&ps=100&pn=${Number(page)}`;
                 //$scope.refreshSpecialForm();
                 $scope.getFirstSpecialData(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
 
@@ -986,7 +1020,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         }
         if (global.checkExist($scope.assessment.tableData1.Items)) {
             if ($scope.assessment.tableData1.TotalPages >= Number(page) && $scope.assessment.tableData1.TotalPages >= $scope.assessment.tableData1.PageIndex && Number(page) > 0) {
-                $scope.assessment.paginationItemsForTableData1_2 += `&ps=10&pn=${Number(page)}`;
+                $scope.assessment.paginationItemsForTableData1_2 += `&ps=100&pn=${Number(page)}`;
                 //$scope.refreshSpecialForm();
                 $scope.getFirstSpecialData(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
             }
@@ -997,10 +1031,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         $("#createNewOne").modal();
     };
     $scope.cancelCreate = function () {
-        $("#createNewOne").modal("hide");
         $scope.assessment.createNewOneForProgram = {};
         $scope.createNewOneForProgramLoading = false;
-        $scope.refreshSpecialForm();
+        $("#createNewOne").modal("hide");
     };
     $scope.confirmCreateNew = function (item) {
         $scope.createNewOneForProgramLoading = true;
@@ -1043,6 +1076,8 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
             RequestApis.HR(`assessments/program`, 'Post', '', '', dataToSend, function (response) {
                 if (response.status === 200) {
                     $scope.cancelCreate();
+                    $timeout(function (){$scope.refreshSpecialForm();
+                    },1000);
                 }
                 global.messaging(response);
             });
@@ -1122,7 +1157,8 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         RequestApis.HR(path, 'Post', '', '', $scope.assessment.tableDataAdd1, function (response) {
             if (response.status === 200) {
                 $("#list").modal("hide");
-                $scope.refreshSpecialForm();
+                $timeout(function (){$scope.refreshSpecialForm();
+                },1000);
             }
             global.messaging(response);
             $scope.AddProgramFromListLoading = false;
@@ -1258,7 +1294,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                     Header: $scope.assessment.secondTableData.Values[0].Header,
                     Values: itemToPost
                 };
-                RequestApis.HR(`assessments/programs/second/${$scope.assessment.fieldInfo.Id}?secfid=${sec.data.Id}`, 'Post', '', '', itemToSend, function (response) {
+                RequestApis.HR(`assessments/programs/second/${$scope.assessment.fieldTwoInfo.Id}?secfid=${sec.data.Id}`, 'Post', '', '', itemToSend, function (response) {
                     if (response.status == 200) {
                         if (global.checkExist(itemToEdit)) {
                             var itemToPatch = {
@@ -1330,7 +1366,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         $scope.assessment.historyOfgoalsToAdd = [];
         $scope.assessment.historyOfgoalsToAdd1 = [];
         $scope.assessment.historyOfTableDataAdd1 = [];
-        $scope.assessment.paginationItemsForTableData1_2 = `&ps=10&pn=1`;
+        $scope.assessment.paginationItemsForTableData1_2 = `&ps=100&pn=1`;
         $scope.assessment.AllowSpecialPage = false;
         $scope.assessment.AllowAdvicePage = false;
         $scope.assessment.AllowPublicPage = false;
@@ -1363,7 +1399,6 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
     //======================== public section ============================
     $scope.getPublicTables = function () {
         $scope.assessment.loadingTable = false;
-        $("#demo-2").collapse("show");
         let itemToPost = [];
         let publicSecutityId = $scope.assessment.workflowInfo[0].SecurityForms.find(x => x.Codes[0] === "HR_ASMT_PUBLIC");
         let StateFieldsId = $scope.assessment.workflowInfo[0].StateFields.filter(x => x.SecurityFormId === publicSecutityId.Id);
@@ -1371,6 +1406,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
             itemToPost.push(x.FieldId);
         });
         RequestApis.HR(`assessments/categories/${$scope.assessment.formEntryInfo.Id}`, 'Post', '', '', itemToPost, function (response) {
+            if (response.status === 200){
+                $("#demo-2").collapse("show");
+            }
             $scope.assessment.publicTableData = response.data;
             $timeout(function () {
                 Object.values($scope.assessment.workflowInfo[0].StateFields).forEach(workFlow => {
@@ -1383,7 +1421,6 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
                     }
                 });
             }, 1000);
-            global.messaging(response);
             //setTimeout(function () {
             //    for (var i = 0; i < $scope.currentWorkFlowLevel[0].StateFields.length; i++) {
             //        if (($scope.currentWorkFlowLevel[0].StateFields[i].Permission & 2) != 2 && ($scope.currentWorkFlowLevel[0].StateFields[i].Permission & 8) != 8) {
@@ -1509,24 +1546,27 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
     };
     //================================== Advice Section ================================
     $scope.getAdvicePart = function () {
-        $("#demo-3").collapse("show");
         let itemToPost = [];
         let ADVISESecutityId = $scope.assessment.workflowInfo[0].SecurityForms.find(x => x.Codes[0] === "HR_ASMT_ADVISE");
         let StateFieldsId = $scope.assessment.workflowInfo[0].StateFields.filter(x => x.SecurityFormId === ADVISESecutityId.Id);
         Object.values(StateFieldsId).forEach(x => {
             itemToPost.push(x.FieldId);
         });
+        // console.log(ADVISESecutityId)
+        // console.log(StateFieldsId)
+        // console.log(itemToPost)
         RequestApis.HR(`assessments/categories/${$scope.assessment.formEntryInfo.Id}`, 'Post', '', '', itemToPost, function (response) {
+            if (response.status === 200){
+                $("#demo-3").collapse("show");
+            }
             $scope.assessment.adviceTableData = response.data;
             $timeout(function () {
                 for (var i = 0; i < $scope.assessment.workflowInfo[0].StateFields.length; i++) {
-
                     if (($scope.assessment.workflowInfo[0].StateFields[i].Permission & 2) != 2 && ($scope.assessment.workflowInfo[0].StateFields[i].Permission & 2) != 8) {
                         $("#test-" + $scope.assessment.workflowInfo[0].StateFields[i].FieldId).attr("disabled", "true");
                     }
                 }
             }, 1000);
-            global.messaging(response);
             $scope.assessment.loadingPage = false;
             $scope.assessment.AllowAdvicePage = true;
         });
@@ -1600,7 +1640,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $time
         $scope.getUrlInfo();
     };
 });
-app.controller('PrintEvaluationPriodCtrl', function ($scope, $templateCache, $state, RequestApis, global,FileSaver,Blob) {
+app.controller('PrintEvaluationPriodCtrl', function ($scope, $templateCache, $state, RequestApis, global, FileSaver, Blob) {
     $templateCache.remove($state.current.templateUrl);
     //======================= check authorization =============
     $scope.checkValidation = true;
@@ -2377,7 +2417,7 @@ app.controller('PrintEvaluationPriodCtrl', function ($scope, $templateCache, $st
         $scope.fileName = 'گزارش در تاریخ - ' + new Date().toLocaleDateString();
         if ($scope.typeState == "Multi") {
             if ($scope.selectedItems.length) {
-                RequestApis.HR('assessments/report/' + radioSelected + '?q=' + $scope.fileName + checkSelected, 'POST', '', "arraybuffer",$scope.selectedItems, function (response) {
+                RequestApis.HR('assessments/report/' + radioSelected + '?q=' + $scope.fileName + checkSelected, 'POST', '', "arraybuffer", $scope.selectedItems, function (response) {
                     if (response.status === 200) {
                         var suffix = '';
                         if (response.headers(["content-type"]).split('/')[1] === 'pdf') {
@@ -2410,7 +2450,7 @@ app.controller('PrintEvaluationPriodCtrl', function ($scope, $templateCache, $st
 
         }
         if ($scope.typeState == "single") {
-            RequestApis.HR('assessments/report/' + $scope.singleItems.Id + '/' + radioSelected + '?q=' + $scope.fileName + checkSelected, 'GET', '', "arraybuffer",'', function (response) {
+            RequestApis.HR('assessments/report/' + $scope.singleItems.Id + '/' + radioSelected + '?q=' + $scope.fileName + checkSelected, 'GET', '', "arraybuffer", '', function (response) {
                 if (response.status === 200) {
                     var suffix = '';
                     if (response.headers(["content-type"]).split('/')[1] === 'pdf') {
@@ -3051,11 +3091,11 @@ app.directive('public', function ($timeout, RequestApis, global) {
                 parent: '=parent'
             },
             template: `<div ng-repeat='data in info'>
-                            <p ng-if='data.OrderTitle != null' class='asp-label' style='text-align:right;'>{{data.OrderTitle}} ) {{data.Title}} <strong ng-if='data.Comment != undefined && data.Comment.length'> ({{data.Comment}}) </strong></p>
+                            <p ng-if='data.OrderTitle != null' class='medium-font' style='text-align:right;'>{{data.OrderTitle}} ) {{data.Title}} <strong ng-if='data.Comment != undefined && data.Comment.length'> ({{data.Comment}}) </strong></p>
                             <public ng-if='data.CategoryLabel == null' item='items' data='data.Children'></public>
                             <div ng-if='data.OrderTitle != null && data.Children[0].CategoryLabel != null && data.Children[0].Children[0].Fields[0].Title != undefined' class='card' >
                                 <div class='card-body'>
-                                    <table>
+                                    <table class='defaultTableStyle'>
                                         <thead>
                                             <tr>
                                                 <th style='width:10%'></th>
@@ -3067,7 +3107,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                             </tr>
                                         </thead>
                                         <tbody ng-repeat='item in data.Children'>
-                                            <tr class='asp-label'>
+                                            <tr class='big-font'>
                                                 <td style='padding-right:10px' rowspan='{{item.Children.length}}'>{{item.Title}}
                                                  <strong ng-if='item.Comment.length'>({{item.Comment}})</strong>
                                                 </td>
@@ -3088,12 +3128,12 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                 </td>
                                                 <td ng-if='item.MaxValue != null'>
                                                     <div style="height:25px" ng-repeat='fieldInput in item.Children[0].Values'>
-                                       <input dir="ltr" ng-init="inputMasksX()" autocomplete="off" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}" autocomplete="off" ng-keyup='checkmaxMin(item,item.Children[0].Fields[$index])' ng-model='fieldInput.ScoreValue' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}'  class='form-control directive-input text-center numericX' type='text'>
+                                       <input dir="ltr" ng-init="inputMasksX()" autocomplete="off" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}" autocomplete="off" ng-keyup='checkmaxMin(item,item.Children[0].Fields[$index])' ng-model='fieldInput.ScoreValue' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}'  class='form-control directive-input small-font text-center numericX' type='text'>
                                                     </div>
                                                 </td>
                                                 <td ng-if='item.MaxValue == null'>
                                                     <div style="height:25px" ng-repeat='fieldInput in item.Children[0].Values'>
-                                                        <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}"  autocomplete="off" ng-keyup='checkmaxMin(item,item.Children[0].Fields[$index]);sumationPublic()' ng-model='fieldInput.ScoreValue' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}' class='form-control numericX text-center directive-input' type='text'>
+                                                        <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}"  autocomplete="off" ng-keyup='checkmaxMin(item,item.Children[0].Fields[$index]);sumationPublic()' ng-model='fieldInput.ScoreValue' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}' class='form-control numericX small-font text-center directive-input' type='text'>
                                                     </div>
                                                 </td>
                                                 <td class='text-center'>
@@ -3104,7 +3144,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                     </div>
                                                  </td>
                                             </tr>
-                                            <tr ng-repeat='row in item.Children' ng-if='!$first' class='asp-label'>
+                                            <tr ng-repeat='row in item.Children' ng-if='!$first' class='big-font'>
                                                 <td style='padding-right:5px'>{{row.Title}}
                                                     <strong ng-if='row.Comment.length'>({{row.Comment}})</strong>
                                                 </td>
@@ -3124,7 +3164,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                 </td>
                                                 <td>
                                                     <div ng-repeat='fieldInput in row.Values' style="height:40px">
-                                                        <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}" autocomplete="off"  ng-keyup='checkmaxMin(item,fieldInput.Field);sumationPublic()' class='form-control  text-center  directive-input numericX' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}' ng-model='fieldInput.ScoreValue'  type='text'>
+                                                        <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}" autocomplete="off"  ng-keyup='checkmaxMin(item,fieldInput.Field);sumationPublic()' class='form-control  text-center small-font  directive-input numericX' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}' ng-model='fieldInput.ScoreValue'  type='text'>
                                                     </div>
                                                 </td>
                                                 <td class='text-center'>
@@ -3142,7 +3182,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
 
                             <div ng-if='data.OrderTitle != null && data.Children[0].Fields[0].Title != undefined' class='card'>
                                 <div class='card-body'>
-                                    <table>
+                                    <table class='defaultTableStyle'>
                                         <thead>
                                             <tr>
                                                 <th style='width:20%'>معیار</th>
@@ -3154,7 +3194,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                             </tr>
                                         </thead>
                                         <tbody ng-repeat='item in data.Children'>
-                                            <tr class='asp-label'>
+                                            <tr class='big-font'>
                                                 <td style='padding-right:5px' rowspan='{{item.Fields.length}}'>{{item.Title}}
                                                     <strong ng-if='item.Comment.length'>({{item.Comment}})</strong>
                                                </td>
@@ -3170,7 +3210,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                 </td>
                                                 <td>
                                                     <div class="pt-1 pb-1">
-                                                         <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':item.Values[0].Field.IsScore}" autocomplete="off" ng-keyup='checkmaxMin(data,item.Values[0].Field);sumationPublic()' ng-model='item.Values[0].ScoreValue' id='test-{{item.Values[0].Field.Id}}' data='{{item.Values[0]}}'  class='form-control numericX text-center directive-input' type='text'>
+                                                         <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':item.Values[0].Field.IsScore}" autocomplete="off" ng-keyup='checkmaxMin(data,item.Values[0].Field);sumationPublic()' ng-model='item.Values[0].ScoreValue' id='test-{{item.Values[0].Field.Id}}' data='{{item.Values[0]}}'  class='form-control numericX small-font text-center directive-input' type='text'>
                                                     </div>
                                                 </td>
                                                   <td class='text-center'>
@@ -3179,7 +3219,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                         </div>
                                                  </td>
                                             </tr>
-                                            <tr ng-repeat='row in item.Values' ng-if='!$first' class='asp-label'>
+                                            <tr ng-repeat='row in item.Values' ng-if='!$first' class='big-font'>
                                                 <td style='padding-right:5px'>{{row.Field.Title}}
                                                     <strong ng-if='row.Field.Comment.length'>({{row.Field.Comment}})</strong>
                                                 </td>
@@ -3189,7 +3229,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                 </td>
                                                 <td>
                                                     <div class="pt-1 pb-1">
-                                                        <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':row.Field.IsScore}" autocomplete="off" data="{{row}}" class='form-control text-center numericX directive-input' ng-keyup='checkmaxMin(data,row.Field);sumationPublic()' id='test-{{row.Field.Id}}' ng-model='row.ScoreValue'  type='text'>
+                                                        <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':row.Field.IsScore}" autocomplete="off" data="{{row}}" class='form-control text-center small-font numericX directive-input' ng-keyup='checkmaxMin(data,row.Field);sumationPublic()' id='test-{{row.Field.Id}}' ng-model='row.ScoreValue'  type='text'>
                                                     </div>
                                                 </td>
                                                 <td class='text-center'>
@@ -3219,7 +3259,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                 </div>
                                 <div class="col">
                                     <div class="float-left mr-1">
-                                        <input file-Model='files' type='file' name='files[]' accept='.xls,.xlsx,.pdf,.png,.jpg' onchange="angular.element(this).scope().uploadFile(this)" multiple='multiple' id="attach" class='inputfile hidden' title='آپلود فایل' />
+                                        <input file-Model='files' type='file' name='files[]' accept='.xls,.xlsx,.pdf,.png,.jpg' onchange="angular.element(this).scope().uploadFile(this)" multiple='multiple' id="attach" class='inputfile  hidden' title='آپلود فایل' />
                                         <label class="new-button bg-primary pl-3 pr-3" for='attach'>
                                             <i class='far fa-plus'></i>
                                             افزودن
@@ -3389,7 +3429,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                             fileReader.readAsArrayBuffer(blob);
                         }
                         global.urlInfo(function (data) {
-                            RequestApis.HR(`assessments/${scope.showAttachInfo.FormEntryId}/values/${scope.showAttachInfo.Id}/attachments?psn=${data.UserId}`,'Post','','', formData, function (response) {
+                            RequestApis.HR(`assessments/${scope.showAttachInfo.FormEntryId}/values/${scope.showAttachInfo.Id}/attachments?psn=${data.UserId}`, 'Post', '', '', formData, function (response) {
                                 if (response.length) {
                                     scope.showAttachmentsModal(scope.showAttachInfo);
                                 }
@@ -3417,7 +3457,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
                     }
                 };
                 scope.downloadAttachment = function (item) {
-                    RequestApis.HR(`assessments/values/${scope.showAttachInfo.Id}/attachments/${item.StreamId}`, 'Get', '', 'arraybuffer','', function (response) {
+                    RequestApis.HR(`assessments/values/${scope.showAttachInfo.Id}/attachments/${item.StreamId}`, 'Get', '', 'arraybuffer', '', function (response) {
                         if (response.status == 200) {
                             var a = document.createElement("a");
                             var file = new Blob([response.data], {type: `application/${item.Name.split('.')[1]}`});
@@ -3805,7 +3845,7 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
                         $("#tree-" + route.Id).append(
                             $compile(
                                 "<li>\
-                                    <div  class='li-info asp-label' id='tree-li-" + data.data[i].ChartId + "'>\
+                                    <div  class='li-info big-font' id='tree-li-" + data.data[i].ChartId + "'>\
                                         <span  id='icon-" + data.data[i].ChartId + "' ng-if='" + data.data[i].IsOraganization + "'  ng-click='getSubNode(" + data.data[i].ChartId + ")'><i class='far fa-building'></i></span>\
                                         <span  id='icon-" + data.data[i].ChartId + "' ng-if='" + data.data[i].IsPost + "'><i class='far fa-address-card'></i></span>\
                                         <span  id='icon-" + data.data[i].ChartId + "' ng-if='" + !data.data[i].IsOraganization + "&&" + !data.data[i].IsPost + "'  ng-click='getSubNode(" + data.data[i].ChartId + ")'><i class='far fa-users'></i></span>\
@@ -3873,7 +3913,7 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
             $("#tree-" + id).append(
                 $compile(
                     "<li>\
-                        <div  class='li-info asp-label' id='tree-li-" + data[i].ChartId + "'>\
+                        <div  class='li-info big-font' id='tree-li-" + data[i].ChartId + "'>\
                             <span id='icon-" + data[i].ChartId + "' ng-if='" + data[i].IsOraganization + "'  ng-click='getSubNode(" + data[i].ChartId + ")'><i class='far fa-building'></i></span>\
                             <span id='icon-" + data[i].ChartId + "' ng-if='" + data[i].IsPost + "'><i class='far fa-address-card'></i></span>\
                             <span id='icon-" + data[i].ChartId + "' ng-if='" + !data[i].IsOraganization + "&&" + !data[i].IsPost + "'  ng-click='getSubNode(" + data[i].ChartId + ")'><i class='far fa-users'></i></span>\
@@ -3907,7 +3947,6 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
     $scope.allowPublic = false;
     $scope.getPublicTables = function (item) {
         $scope.loadingTable = false;
-        $("#demo-2").collapse("show");
         var itemToPost = [];
         let publicSecutityId = $scope.currentWorkFlowLevel[0].SecurityForms.find(x => x.Codes[0] === "HR_ASMT_PUBLIC");
         let StateFieldsId = $scope.currentWorkFlowLevel[0].StateFields.filter(x => x.SecurityFormId === publicSecutityId.Id);
@@ -3989,14 +4028,14 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
                                             icon: 'success',
                                             title: 'درخواست شما با موفقیت انجام شد'
                                         }).then((result) => {
-                                            window.location.reload();
+                                            $scope.reloadPage();
                                         });
                                     } else {
                                         Toast.fire({
                                             icon: 'error',
                                             title: 'درخواست شما با مشکل مواجه شده است'
                                         }).then((result) => {
-                                            window.location.reload();
+                                            $scope.reloadPage();
                                         });
                                     }
                                 });
@@ -4006,7 +4045,7 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
                                     icon: 'success',
                                     title: 'درخواست شما با موفقیت انجام شد'
                                 }).then((result) => {
-                                    window.location.reload();
+                                    $scope.reloadPage();
                                 });
                             }
 
@@ -4016,7 +4055,7 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
                                 icon: 'error',
                                 title: 'درخواست شما با مشکل مواجه شده است'
                             }).then((result) => {
-                                window.location.reload();
+                                $scope.reloadPage();
                             });
                         }
                         $scope.loadingaccept = false;
@@ -4035,14 +4074,14 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
                                 icon: 'success',
                                 title: 'درخواست شما با موفقیت انجام شد'
                             }).then((result) => {
-                                window.location.reload();
+                                $scope.reloadPage();
                             });
                         } else {
                             Toast.fire({
                                 icon: 'error',
                                 title: 'درخواست شما با مشکل مواجه شده است'
                             }).then((result) => {
-                                window.location.reload();
+                                $scope.reloadPage();
                             });
                         }
                         $scope.loadingaccept = false;
@@ -4117,7 +4156,6 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
                                 }
                                 if (securityForm.Codes[0] == "HR_ASMT_A1") {
                                     $scope.getFirstSpecialData(itemToSet);
-                                    // $scope.getSecondSpecialTable(itemToSet);
                                 } else if (securityForm.Codes[0] == "HR_ASMT_A2") {
                                     $scope.getSecondSpecialTable(itemToSet);
                                 } else if (securityForm.Codes[0] == "HR_ASMT_PUBLIC") {
@@ -4228,7 +4266,7 @@ app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compi
         //        }
         //    ]
         //    $scope.deleteData('assessments/program', dataToSend, function (response) {
-        //        window.location.reload();
+        //       $scope.reloadPage();
         //    })
         //})
     };

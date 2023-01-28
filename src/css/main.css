@@ -2933,6 +2933,7 @@ input[type="button"]:disabled {
   }
 }
 .newTableStyle,
+.newTableStyleForWrits,
 .defaultTableStyle {
   border-collapse: separate !important;
   border-spacing: 0;
@@ -2946,6 +2947,7 @@ input[type="button"]:disabled {
   background-color: #d1daef !important;
   color: black;
 }
+.newTableStyleForWrits thead,
 .newTableStyle thead {
   position: sticky;
   font-size: 0.9rem;
@@ -2967,10 +2969,11 @@ input[type="button"]:disabled {
 }
 
 .newTableStyle tbody tr:nth-child(2n + 1),
+.newTableStyleForWrits tbody:nth-child(2n + 1),
 .defaultTableStyle tbody tr:nth-child(2n + 1) {
   background-color: rgba(0, 0, 0, 0.03);
 }
-
+.newTableStyleForWrits td,
 .newTableStyle td,
 .defaultTableStyle td {
   font-size: 0.75em !important;
@@ -3080,7 +3083,7 @@ input[type="radio"] + label {
 
 ::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: lightgray !important;
+  color: gray !important;
   opacity: 0.9 !important;
   /* Firefox */
 }
@@ -4335,4 +4338,7 @@ upload-btn-wrapper img {
 }
 .hasAdmin{
   background-color: rgba(107, 17, 17, 0.20) !important;
+}
+.accordionHover:hover{
+  background-color: rgb(237 236 236);
 }

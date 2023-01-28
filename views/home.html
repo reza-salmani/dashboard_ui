@@ -1,111 +1,119 @@
 <form id="homeForm" ng-controller="mainController">
-  <div class="header">
-    <div>
-      <!-- top-right navbar -->
-      <div class="col-10 my-0">
-        <div class="row text-right">
-          <!-- user name -->
-          <div class="col-1 position-relative" style="overflow-wrap: break-word">
-            <p class="centered-element">
-              <!-- user name must insert here -->
-              سمیه مولایی شیرتری
-            </p>
-          </div>
-          <!-- user btn -->
-          <div class="col-1">
-            <div class="dropdown">
-              <span id="menu1" data-toggle="dropdown">
-                <i class="far fa-user user" style="font-size: 1.5rem;" ></i>
-              </span>
-              <ul class="dropdown-menu personnelINfoStyle" role="menu" aria-labelledby="menu1">
-                <li>
-                  <div class="container">
-                    <div class="row">
-                      <div class="col-5" id="mailImage">
-                        <img class="full-rounded" crossorigin="use-credentials" referrerpolicy="no-referrer" alt="no-image" width="50px" height="50px" src="{{mailImage}}">
-                      </div>
-                      <div class="col-7 text-right">
-                        <p class="medium-font">
-                          سمیه مولایی شیرتری
-                          {{userInfo.PoliteName}}
+    <div class="header" ng-if="panelBarItems.length">
+        <!-- top-right navbar -->
+        <div class="row col-12 m-0">
+            <div class="col-10 my-0">
+                <div class="row text-right">
+                    <!-- user name -->
+                    <div class="col-1 position-relative" style="overflow-wrap: break-word">
+                        <p class="centered-element">
+                            {{userInfo.PoliteName}}
                         </p>
-                      </div>
                     </div>
-                  </div>
-                </li>
-                <div class="dropdown-divider"></div>
-                <li class="d-flex justify-content-around mx-0 px-0 dropdown-item pointer" role="presentation" ng-click="changePass()">
-                  <div>
+                    <!-- user btn -->
+                    <div class="col-1">
+                        <div class="dropdown">
+                              <span id="menu1" data-toggle="dropdown">
+                                <i class="far fa-user user" style="font-size: 1.5rem;"></i>
+                              </span>
+                            <ul class="dropdown-menu personnelINfoStyle" role="menu" aria-labelledby="menu1">
+                                <li>
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-5" id="mailImage">
+                                                <img class="full-rounded" crossorigin="use-credentials"
+                                                     referrerpolicy="no-referrer" alt="no-image" width="50px" height="50px"
+                                                     src="{{mailImage}}">
+                                            </div>
+                                            <div class="col-7 text-right">
+                                                <p class="medium-font">
+                                                    {{userInfo.PoliteName}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <div class="dropdown-divider"></div>
+                                <li class="d-flex justify-content-around mx-0 px-0 dropdown-item pointer"
+                                    role="presentation" ng-click="changePass()">
+                                    <div>
                     <span class="big-font">
                       تغییر رمز
                     </span>
-                  </div>
-                  <div>
-                    <i class="far fa-lock text-lightGray"></i>
-                  </div>
-                </li>
-                <li class="d-flex justify-content-around mx-0 px-0  dropdown-item pointer" role="presentation" ng-click="logOut()">
+                                    </div>
+                                    <div>
+                                        <i class="far fa-lock text-lightGray"></i>
+                                    </div>
+                                </li>
+                                <li class="d-flex justify-content-around mx-0 px-0  dropdown-item pointer"
+                                    role="presentation" ng-click="logOut()">
                   <span class="big-font ">
                     خروج
                   </span>
-                  <i class="far fa-sign-out text-lightGray"></i>
-                </li>
-              </ul>
+                                    <i class="far fa-sign-out text-lightGray"></i>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- navigation btn -->
+                   <div class="w-auto mt-1  text-right">
+                       <div class="d-flex">
+                           <button ng-repeat="system in panelBarItems track by $index"
+                              class="big-font mx-2 btn btn-info"
+                              id="p-{{system.Id}}"
+                                   ng-class="[{'disabledNavBarItem':!system.HasAccess}]"
+                              ng-attr-title="{{!system.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}"
+                              ng-click="gotoPage(system)">
+                               {{system.Title}}
+                           </button>
+                       </div>
+                   </div>
+                </div>
             </div>
-          </div>
-          <!-- navigation btn -->
-          <div class="col-1 position-relative">
-            <div class="centered-element showNavigatPanel" ng-if="panelIconState" ng-click="showNavigatPanel()">
-              <i class="far fa-close pointer showNavigatPanel" style="font-size: 1.5rem;"></i>
+            <!-- logo image -->
+            <div class="col-2">
+                <div class="position-absolute left-0">
+                    <img alt="no-image" src="{{logoImage}}" crossorigin="use-credentials" referrerpolicy="no-referrer"
+                         width="60px">
+                </div>
             </div>
-            <div class="centered-element showNavigatPanel" ng-if="!panelIconState" ng-click="showNavigatPanel()">
-              <i class="far fa-bars pointer showNavigatPanel" style="font-size: 1.5rem;"></i>
-            </div>
-          </div>
-      </div>
-      <!-- logo image -->
-      <div class="col-2">
-        <div class="position-absolute left-0">
-          <img alt="no-image" src="{{logoImage}}" crossorigin="use-credentials" referrerpolicy="no-referrer" width="60px">
         </div>
-      </div>
-    </div>
-    <div class="main-panel-container hidden">
-      <div class="navigate-container">
-        <div class="container-fluid">
-          <div class="row col-12 color-panel" ng-if="loaded">
-            <div class="col" style="margin-top: 5px;">
-              <p  ng-repeat="system in panelBarItems track by $index" class="selective-p" id="p-{{system.Id}}" ng-class="[{'disabledNavBarItem':!system.HasAccess}]" ng-attr-title="{{!system.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}" ng-click="gotoPage(system)">
-                <i class="far fa-home" style="margin: 0 0 0 10px"></i>
-                {{system.Title}}
-              </p>
+        <div class="main-panel-container hidden">
+            <div class="navigate-container">
+                <div class="container-fluid">
+                    <div class="row col-12 color-panel" ng-if="loaded">
+                        <div class="col" style="margin-top: 5px;">
+                            <p ng-repeat="system in panelBarItems track by $index" class="selective-p"
+                               id="p-{{system.Id}}" ng-class="[{'disabledNavBarItem':!system.HasAccess}]"
+                               ng-attr-title="{{!system.HasAccess?'این بخش برای شما در دسترس نیست. لطفا با مدیر سیستم تماس بگیرید.':''}}"
+                               ng-click="gotoPage(system)">
+                                <i class="far fa-home" style="margin: 0 0 0 10px"></i>
+                                {{system.Title}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <div class="main-container-page">
-    <div class="accessory">
-      <div class="pointer" title="تقویم در این نسخه فعال نمی باشد" data-toggle="tooltip">
-        <i class="far fa-calendar"></i>
-      </div>
-      <div class="pointer" title="یادداشت در این نسخه فعال نمی باشد" data-toggle="tooltip">
-        <i class="far fa-sticky-note"></i>
-      </div>
-      <div class="pointer" ng-click="reloadPage()" title="بارگذاری مجدد صفحه" data-toggle="tooltip">
-        <i class="far fa-undo"></i>
-      </div>
-      <div class="pointer" ng-click="gotoInitPage()" title="صفحه نخست" data-toggle="tooltip">
-        <i class="far fa-home"></i>
-      </div>
-      <a class="pointer" href="http://hd.arisrayaneh.ir" target="_blank" title="ارتباط با پشتیبانی" data-toggle="tooltip">
-        <i class="far fa-headphones"></i>
-      </a>
+    <div class="main-container-page">
+        <div class="accessory">
+            <div class="pointer" title="تقویم در این نسخه فعال نمی باشد" data-toggle="tooltip">
+                <i class="far fa-calendar"></i>
+            </div>
+            <div class="pointer" title="یادداشت در این نسخه فعال نمی باشد" data-toggle="tooltip">
+                <i class="far fa-sticky-note"></i>
+            </div>
+            <div class="pointer" ng-click="reloadPage()" title="بارگذاری مجدد صفحه" data-toggle="tooltip">
+                <i class="far fa-undo"></i>
+            </div>
+            <a class="pointer" href="http://hd.arisrayaneh.ir" target="_blank" title="ارتباط با پشتیبانی"
+               data-toggle="tooltip">
+                <i class="far fa-headphones"></i>
+            </a>
+        </div>
+        <div class="width-90 overflow-y h-100p">
+            <div  id="bigPart" ui-view></div>
+        </div>
     </div>
-    <div class="width-90 overflow-y h-100p">
-      <div id="bigPart" ui-view></div>
-    </div>
-  </div>
 </form>

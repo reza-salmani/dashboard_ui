@@ -111,22 +111,12 @@ app.factory("global", function (RequestApis) {
                 return false;
             }
         },
-        urlInfo: function (callback) {
-            var urlsearch;
-            if (window.location.toString().indexOf('?') === -1) {
-                RequestApis.HR(`personnel/current`, 'get', '', '', '', function (response) {
-                    RequestApis.HR(`securities/current/user`, 'get', '', '', '', function (user) {
-                        callback({urlParams: null, personnelInfo: response.data, UserId: Number(user.data)});
-                    })
+        currentUser: function (callback) {
+            RequestApis.HR(`personnel/current`, 'get', '', '', '', function (response) {
+                RequestApis.HR(`securities/current/user`, 'get', '', '', '', function (user) {
+                    callback({personnelInfo: response.data, UserId: Number(user.data)});
                 })
-            } else {
-                urlsearch = JSON.parse('{"' + decodeURI(window.location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
-                callback({
-                    urlParams: urlsearch,
-                    personnelInfo: {Id: Number(urlsearch.personnelId)},
-                    UserId: Number(urlsearch.userId)
-                });
-            }
+            })
         },
         objEqual: function (obj1, obj2) {
             let result = false;

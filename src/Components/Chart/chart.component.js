@@ -56,7 +56,7 @@
                             <span>${item.Title}
                             </span >
                         </div>
-                        <ul id='tree-select-${item.ChartId}'></ul>
+                        <ul id='tree-select-${item.ChartId}' style="display: none"></ul>
                     </li>
                         `
                 )($scope)
@@ -79,7 +79,7 @@
                             <span>${item.Title}
                             </span >
                         </div>
-                        <ul id='tree-select-${item.ChartId}'></ul>
+                        <ul id='tree-select-${item.ChartId}' style="display: none"></ul>
                     </li>
                         `
                 )($scope)
@@ -169,7 +169,7 @@
                             <span>${item.Title}
                             </span >
                         </div>
-                        <ul id='tree-select-${item.ChartId}'></ul>
+                        <ul id='tree-select-${item.ChartId}' style="display: none"></ul>
                     </li>
                         `
                 )($scope)
@@ -301,7 +301,7 @@ app.component("chart", {
                            id='radio-{{treeNode.ChartId}}'>
                     {{treeNode.Title}}
                 </div>
-                <ul id="tree-select-{{treeNode.ChartId}}"></ul>
+                <ul id="tree-select-{{treeNode.ChartId}}" style="display: none"></ul>
             </li>
         </ul>
     </div>`

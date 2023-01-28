@@ -4,6 +4,8 @@
   $scope.selected = false;
   //======================= check Url =======================
   this.$onInit = function () {
+    if ($ctrl.getData.identifier === undefined)
+      $ctrl.getData.identifier = "Id";
     $scope.outerId = `header_${$scope.$id}`;
     $scope.innerId = `items_${$scope.$id}`;
     if (localStorage.getItem('pageSizeGloab')) {
@@ -108,7 +110,7 @@
   $scope.checkState = function (item) {
     let result = false;
     if ($scope.selected && $scope.selectItem != undefined) {
-      if ($scope.selectItem.some(x => x.Id === item)) {
+      if ($scope.selectItem.some(x => x[$ctrl.getData.identifier] === item)) {
         result = true;
       }
     }
@@ -133,7 +135,7 @@
   };
   $scope.removeItem = function (item) {
     if ($scope.selectItem.length) {
-      $scope.selectItem = $scope.selectItem.filter(x => x[$scope.data.parameter[0].latin] !== item[$scope.data.parameter[0].latin]);
+      $scope.selectItem = $scope.selectItem.filter(x => x[$ctrl.getData.identifier] !== item[$ctrl.getData.identifier]);
       if ($scope.selectItem.length) {
         $scope.data.selectedData = $scope.selectItem;
       } else {
@@ -148,16 +150,16 @@
   $scope.setThisPageData = function (event, item) {
     if (event.target.checked) {
       Object.values(item).forEach(x => {
-        if (!$scope.selectItem.some(y => y[$scope.data.parameter[0].latin] === x[$scope.data.parameter[0].latin])) {
+        if (!$scope.selectItem.some(y => y[$ctrl.getData.identifier] === x[$ctrl.getData.identifier])) {
           $scope.selectItem.push(x);
-          $scope.checkState(x[$scope.data.parameter[0].latin]);
+          $scope.checkState(x[$ctrl.getData.identifier]);
         }
       });
     } else {
       if (item.length) {
         Object.values(item).forEach(y => {
-          $scope.selectItem = $scope.selectItem.filter(x => x[$scope.data.parameter[0].latin] != y[$scope.data.parameter[0].latin]);
-          $scope.checkState(y[$scope.data.parameter[0].latin]);
+          $scope.selectItem = $scope.selectItem.filter(x => x[$ctrl.getData.identifier] != y[$ctrl.getData.identifier]);
+          $scope.checkState(y[$ctrl.getData.identifier]);
         });
       }
     }
@@ -199,12 +201,12 @@
     if ($scope.maxSelectable !== 1) {
       if (input.checked === true) {
         if ($scope.selectItem.length < $scope.maxSelectable || $scope.maxSelectable === 0) {
-          if (!$scope.selectItem.some(x => x[$scope.data.parameter[0].latin] === item[$scope.data.parameter[0].latin]))
+          if (!$scope.selectItem.some(x => x[$ctrl.getData.identifier] === item[$ctrl.getData.identifier]))
             $scope.selectItem.push(item);
         }
       } else {
         if ($scope.selectItem.length) {
-          $scope.selectItem = $scope.selectItem.filter(x => x[$scope.data.parameter[0].latin] !== item[$scope.data.parameter[0].latin]);
+          $scope.selectItem = $scope.selectItem.filter(x => x[$ctrl.getData.identifier] !== item[$ctrl.getData.identifier]);
         }
       }
     } else {
@@ -224,11 +226,11 @@
   };
   $scope.goToBreadCrumbItems = function (item) {
     if ($scope.data.BreadCrumbs.Items.length) {
-      if (!$scope.data.BreadCrumbs.Items.some(x => x.Id === item.Id)) {
+      if (!$scope.data.BreadCrumbs.Items.some(x => x[$ctrl.getData.identifier] === item[$ctrl.getData.identifier])) {
         $scope.data.BreadCrumbs.Items.push(item);
       } else {
         for (var i = 0; i < $scope.data.BreadCrumbs.Items.length; i++) {
-          if ($scope.data.BreadCrumbs.Items[i].Id === item.Id) {
+          if ($scope.data.BreadCrumbs.Items[i][$ctrl.getData.identifier] === item[$ctrl.getData.identifier]) {
             $scope.data.BreadCrumbs.Items = $scope.data.BreadCrumbs.Items.slice(0, i + 1);
           }
         }
@@ -409,8 +411,8 @@ app.directive("cSelect", function () {
                         {{(data.PageIndex-1)*data.PageSize + $index+1}}
                     </td>
                     <td class="text-center">
-                        <input ng-if="maxSelectable===1" ng-checked="checkState(dataList.Id)" type="radio" id="{{dataList.Id}}" value="{{dataList.Id}}">
-                        <input class="p-0 m-0" ng-if="maxSelectable!==1" ng-checked="checkState(dataList.Id)" id="{{dataList.Id}}" type="checkbox" value="{{dataList.Id}}">
+                        <input ng-if="maxSelectable===1" ng-checked="checkState(dataList[$ctrl.getData.identifier])" type="radio" id="{{dataList[$ctrl.getData.identifier]}}" value="{{dataList[$ctrl.getData.identifier]}}">
+                        <input class="p-0 m-0" ng-if="maxSelectable!==1" ng-checked="checkState(dataList[$ctrl.getData.identifier])" id="{{dataList[$ctrl.getData.identifier]}}" type="checkbox" value="{{dataList[$ctrl.getData.identifier]}}">
                     </td>
                     <td ng-repeat="param in data.parameter track by $index" class="text-center" ng-click="data.BreadCrumbs !== undefined && dataList[data.BreadCrumbs.param] ?goToBreadCrumbItems(dataList):''">
                         {{dataList[param.latin]}}
