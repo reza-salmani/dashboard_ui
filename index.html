@@ -1,25 +1,23 @@
-
-
 <!DOCTYPE html>
 <html lang="fa" ng-app="humanResource">
 
-  <head>
+<head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
-    <link rel="icon" type="image/png" href="./src/images/logo.png" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="Tue, 01 Jan 1980 1:00:00 GMT"/>
+    <link rel="icon" type="image/png" href="./src/images/logo.png"/>
     <title>راهکار یکپارچه مالی و اداری اریس نسخه</title>
     <!-- style section -->
     <link tabindex="0" rel="stylesheet" type="text/css" referrerpolicy="no-referrer"
-           href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+          href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link tabindex="1" rel="stylesheet" type="text/css" referrerpolicy="no-referrer" href="./src/css/main.css?n=1">
     <link tabindex="2" rel="stylesheet" type="text/css" referrerpolicy="no-referrer"
-           href="./src/datepicker/bootstrap-datepicker.min.css">
+          href="./src/datepicker/bootstrap-datepicker.min.css">
     <link tabindex="3" rel="stylesheet" type="text/css" referrerpolicy="no-referrer"
-           href="./src/TimePicker/bootstrap-clockpicker.css">
+          href="./src/TimePicker/bootstrap-clockpicker.css">
     <link tabindex="4" rel="stylesheet" type="text/css" referrerpolicy="no-referrer"
           href="./src/fontaweasome/all.min.css">
     <link tabindex="5" rel="stylesheet" type="text/css" referrerpolicy="no-referrer"
@@ -28,14 +26,19 @@
     <script type="text/javascript" referrerpolicy="no-referrer" src="./node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./node_modules/angular/angular.min.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/auth/ngOidc.min.js"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./node_modules/@uirouter/angularjs/release/angular-ui-router.min.js"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./node_modules/@uirouter/angularjs/release/angular-ui-router.min.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/drag.js"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./node_modules/angular-file-saver/dist/angular-file-saver.bundle.min.js"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./node_modules/angular-file-saver/dist/angular-file-saver.bundle.min.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/fontaweasome/all.min.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/datepicker/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/datepicker/bootstrap-datepicker.fa.min.js"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/TimePicker/bootstrap-clockpicker.js"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/datepicker/bootstrap-datepicker.fa.min.js"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/TimePicker/bootstrap-clockpicker.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/SweetAlert/sweetalert2.all.min.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/InputMask/jquery.inputmask.js"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/InputMask/inputmask.binding.js"></script>
@@ -44,15 +47,27 @@
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/app.module.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/app.config.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/app.RESTService.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/AdvanceSearch/advanceSearch.component.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/DragableModal/dragAndDropModal.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/DropBox/menuItem.component.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/SelectLists/select.component.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/SelectLists/select.directive.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/personnel/PersonnelComponent.js?n=1"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/Components/Chart/chart.component.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/AdvanceSearch/advanceSearch.component.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/DragableModal/dragAndDropModal.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/DropBox/menuItem.component.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/SelectLists/select.component.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/SelectLists/select.directive.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/personnel/PersonnelComponent.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/Chart/chart.component.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/Pagination/dirPagination.js?n=1">
+    </script> <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/Components/Location/location.component.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/xlsx.js"></script>
-    <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/personnelActionForm.controller.js?n=1"></script>
+    <script type="text/javascript" referrerpolicy="no-referrer"
+            src="./src/js/personnelActionForm.controller.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/cartable.controller.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/assessment.controller.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/dashboard.controller.js?n=1"></script>
@@ -62,16 +77,16 @@
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/auth.service.js?n=1"></script>
     <script type="text/javascript" referrerpolicy="no-referrer" src="./src/js/Global.js?n=1"></script>
 
-    <base href="/" />
-  </head>
+    <base href="/"/>
+</head>
 
-  <body class="m-auto h-100 w-100" ng-controller="indexController" ng-cloak>
-    <main class="overflow-hidden">
-      <div ng-include="initialPage"></div>
-    </main>
-    <!-- <footer>
-      <div class="footer"><div class="d-flex justify-content-center m-auto"><p class="text-info">سال مالی : </p></div></div>
-    </footer> -->
-  </body>
+<body class="m-auto h-100 w-100" ng-controller="indexController" ng-cloak>
+<main class="overflow-hidden">
+    <div ng-include="initialPage"></div>
+</main>
+<!-- <footer>
+  <div class="footer"><div class="d-flex justify-content-center m-auto"><p class="text-info">سال مالی : </p></div></div>
+</footer> -->
+</body>
 
 </html>

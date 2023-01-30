@@ -30,7 +30,7 @@
     </div>
     
     <!------------------- create day mission ---------------------->
-    <div ng-if="dayMistion" class="" ng-init="maskInput()">
+    <div ng-if="dayMistion">
         <form name="CreateDayForm" class="">
     
             <div class="row pl-4 pr-4">
@@ -67,8 +67,7 @@
                                 <span class="pointer position-absolute ml-3 mt-2" style="left:0;font-size: 11px;z-index: 10;"
                                     ng-if="createDayMissionData.chartTreeID" ng-click="clearChart()"><i class="far fa-times text-danger "></i></span>
                                 <div ng-if="showChart" class="selectItem card p-1">
-                                    <chart state-select="unit" by-date="{{''}}" dataunit="dataunit" use-selected-chart="useSelectedChart(dataunit)">
-                                    </chart>
+                                    <chart state-select="unit" by-sdate="" by-fdate="" dataunit="dataunit" use-selected-chart="useSelectedChart(dataunit)"></chart>
                                 </div>
                             </div>
                         </div>
@@ -102,9 +101,11 @@
                                     ng-blur="AutoCompleteSearchCreateSubjectMission(createDayMissionData.subjectMission)" class="form-control text-center"
                                     autocomplete="off" ng-disabled="SubmitOccured" ng-model="createDayMissionData.subjectMission">
                             </div>
-                            <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompleteSubjectMission}">
-                                <div class="table-body">
-                                    <table class="table table-striped" style="font-size: 10px;">
+                            <div class="card position-absolute overflow-y" style="z-index: 100;width: 92%;max-height:
+                             200px"
+                                 ng-class="{'hidden': !showAutoCompleteSubjectMission}">
+                                <div>
+                                    <table class="newTableStyle">
                                         <thead>
                                             <tr>
                                                 <td class="w-90">عنوان</td>
@@ -113,8 +114,8 @@
                                         <tbody>
                                             <tr ng-repeat="item in wordListSubjectMission track by item.id"
                                                 ng-click="selectPredictSubjectMission(item.description)">
-                                                <td class="w-90 text-center p-0 pointer">
-                                                    <p class="mt-2 p-0">{{item.description}}</p>
+                                                <td class="w-90 text-center small-font pointer">
+                                                    {{item.description}}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -226,8 +227,8 @@
                                     autocomplete="off" ng-model="createDayMissionData.residence">
                             </div>
                             <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompleteResidence}">
-                                <div class="table-body">
-                                    <table class="table table-striped" style="font-size: 10px;">
+                                <div>
+                                    <table class="newTableStyle">
                                         <thead>
                                             <tr>
                                                 <td class="w-90">عنوان</td>
@@ -671,7 +672,7 @@
     </div>
     
     <!------------------- create hour mission ---------------------->
-    <div ng-if="hourMistion" class="card" ng-init="maskInput()">
+    <div ng-if="hourMistion" class="card">
         <form name="CreateForm">
             <div class="col-12">
                 <div class="row">
@@ -688,9 +689,11 @@
                                 ng-blur="AutoCompleteSearchCreateSubjectMission(createHourMissionData.subjectMission)" class="form-control text-center"
                                 autocomplete="off" ng-disabled="SubmitOccured" ng-model="createHourMissionData.subjectMission">
                         </div>
-                        <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompleteSubjectMission}">
-                            <div class="table-body">
-                                <table class="table table-striped" style="font-size: 10px;">
+                        <div class="card position-absolute overflow-y" style="z-index: 100;width: 92%;max-height:
+                        150px"
+                             ng-class="{'hidden': !showAutoCompleteSubjectMission}">
+                            <div>
+                                <table class="newTableStyle">
                                     <thead>
                                         <tr>
                                             <td class="w-90">عنوان</td>
@@ -699,8 +702,8 @@
                                     <tbody>
                                         <tr ng-repeat="item in wordListSubjectMission track by item.id"
                                             ng-click="selectPredictSubjectMissionH(item.description)">
-                                            <td class="w-90 text-center p-0 pointer">
-                                                <p class="mt-2 p-0">{{item.description}}</p>
+                                            <td class="w-90 text-center small-font pointer">
+                                                {{item.description}}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -721,9 +724,10 @@
                                 ng-blur="AutoCompleteSearchCreatelocation(createHourMissionData.missionLocation)" class="form-control text-center"
                                 autocomplete="off" ng-model="createHourMissionData.missionLocation">
                         </div>
-                        <div class="card position-absolute" style="z-index: 100;width: 92%;" ng-class="{'hidden': !showAutoCompletelocation}">
-                            <div class="table-body">
-                                <table class="table table-striped" style="font-size: 10px;">
+                        <div class="card position-absolute overflow-y" style="z-index: 100;width: 92%;max-height: 150px"
+                             ng-class="{'hidden': !showAutoCompletelocation}">
+                            <div>
+                                <table class="newTableStyle">
                                     <thead>
                                         <tr>
                                             <td class="w-90">عنوان</td>
@@ -731,8 +735,8 @@
                                     </thead>
                                     <tbody>
                                         <tr ng-repeat="item in wordListLocation track by item.id" ng-click="selectPredictlocationH(item.description)">
-                                            <td class="w-90 text-center p-0 pointer">
-                                                <p class="mt-2 p-0">{{item.description}}</p>
+                                            <td class="w-90 text-center small-font pointer">
+                                                {{item.description}}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -803,8 +807,8 @@
             </div>
     
             <div class="card" ng-if="trafficHours.item1.length">
-                <div class="table-body">
-                    <table class="test">
+                <div>
+                    <table class="newTableStyle">
                         <thead>
                             <tr>
                                 <th class="w-20">
@@ -958,8 +962,8 @@
                     <div class="card">
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="table-body">
-                                    <table class="test">
+                                <div>
+                                    <table class="newTableStyle">
                                         <thead>
                                             <tr>
                                                 <th style="width: 5%;">
@@ -1052,8 +1056,8 @@
                         <span class="cancelIcon" title="بستن" ng-click="closeClosedList()"><i class="far fa-close "></i></span>
                     </p>
     
-                    <div class="table-body">
-                        <table class="test">
+                    <div>
+                        <table class="newTableStyle">
                             <thead>
                                 <tr>
                                     <th class="w-20">نام</th>

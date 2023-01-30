@@ -35,7 +35,7 @@
     <!------------------- create hour Vacation ---------------------->
     <div ng-if="hourVacation">
         <form name="CreateHourForm">
-            <div class="card" ng-init="maskInput()">
+            <div class="card" >
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-1">
@@ -86,8 +86,8 @@
                 </div>
             </div>
             <div class="card" ng-if="trafficHours.item1.length">
-                <div class="table-body">
-                    <table class="test">
+                <div>
+                    <table class="newTableStyle">
                         <thead>
                             <tr>
                                 <th class="w-20">
@@ -145,7 +145,7 @@
             درخواست مرخصی ساعتی
         </p>
         <form name="CreateHourForm">
-            <div class="card" ng-init="maskInput()">
+            <div class="card" >
                 <div class="row">
                     <div class="col-md-4">
                         <div class="mb-1">
@@ -211,7 +211,7 @@
     <!------------------- create day Vacation ---------------------->
     <div ng-if="dayVacation" class="">
         <form name="CreateDayForm">
-            <div class="row pl-4 pr-4" ng-init="maskInput()">
+            <div class="row pl-4 pr-4" >
                 <div class="col-lg-10 card">
                     <div class="row">
                         <div class="col-sm-6 col-md-4">
@@ -261,7 +261,7 @@
                         </div>
                     </div>
                     <div ng-if="treatment">
-                        <div class="row" ng-init="maskInput()">
+                        <div class="row" >
                             <div class="col-sm-6 col-md-4">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -275,8 +275,8 @@
                                         ng-keyup="AutoCompleteSearch('SubjectLeaveAC')">
                                 </div>
                                 <div class="card position-absolute" style="z-index: 100;width: inherit;" ng-class="{'hidden': !showAutoCompleteReason}">
-                                    <div class="table-body">
-                                        <table class="table table-striped" style="font-size: 10px;">
+                                    <div>
+                                        <table class="newTableStyle">
                                             <thead>
                                                 <tr>
                                                     <td>عنوان</td>
@@ -311,8 +311,8 @@
                                 </div>
                                 <div class="card position-absolute" style="z-index: 100;width: inherit;"
                                     ng-class="{'hidden': !showAutoCompleteTreatmentUnitAC}">
-                                    <div class="table-body">
-                                        <table class="table table-striped" style="font-size: 10px;">
+                                    <div>
+                                        <table class="newTableStyle">
                                             <thead>
                                                 <tr>
                                                     <td class="">عنوان</td>
@@ -348,8 +348,8 @@
                                 </div>
                                 <div class="card position-absolute" style="z-index: 100;width: inherit;"
                                     ng-class="{'hidden': !showAutoCompleteTrustedDoctorAC}">
-                                    <div class="table-body">
-                                        <table class="table table-striped" style="font-size: 10px;">
+                                    <div>
+                                        <table class="newTableStyle">
                                             <thead>
                                                 <tr>
                                                     <td class="">عنوان</td>
@@ -407,7 +407,7 @@
                         </div>
                     </div>
                     <div ng-if="hardDisease">
-                        <div class="row" ng-init="maskInput()">
+                        <div class="row" >
                             <div class="col-sm-6 col-md-4">
                                 <div style="margin-bottom: 15px;">
                                     <div class="input-group">
@@ -438,7 +438,7 @@
                         </div>
                     </div>
                     <div ng-if="maternity">
-                        <div class="row" ng-init="maskInput()">
+                        <div class="row" >
                             <div class="col-sm-6 col-md-4">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -453,8 +453,8 @@
                                 </div>
                                 <div class="card position-absolute" style="z-index: 100;width: inherit;"
                                     ng-class="{'hidden': !showAutoCompleteTreatmentUnitAC}">
-                                    <div class="table-body">
-                                        <table class="table table-striped" style="font-size: 10px;">
+                                    <div>
+                                        <table class="newTableStyle">
                                             <thead>
                                                 <tr>
                                                     <td>عنوان</td>
@@ -490,8 +490,8 @@
                                 </div>
                                 <div class="card position-absolute" style="z-index: 100;width: inherit;"
                                     ng-class="{'hidden': !showAutoCompleteTrustedDoctorAC}">
-                                    <div class="table-body">
-                                        <table class="table table-striped" style="font-size: 10px;">
+                                    <div>
+                                        <table class="newTableStyle">
                                             <thead>
                                                 <tr>
                                                     <td>عنوان</td>
@@ -994,7 +994,7 @@
                 </div>
             </div>
             <div ng-if="dayVacationDetailsData.dayLeaveTypeId===5">
-                <div class="row" ng-init="maskInput()">
+                <div class="row" >
                     <div class="col-sm-12 col-md-4">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -1018,7 +1018,7 @@
                 </div>
             </div>
             <div ng-if="dayVacationDetailsData.dayLeaveTypeId ===6">
-                <div class="row" ng-init="maskInput()">
+                <div class="row" >
                     <div class="col-sm-12 col-md-4">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -1345,8 +1345,8 @@
                     <div class="card">
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="table-body">
-                                    <table class="test">
+                                <div>
+                                    <table class="newTableStyle">
                                         <thead>
                                             <tr>
                                                 <th style="width: 5%;">
@@ -1439,8 +1439,8 @@
                         <span class="cancelIcon" title="بستن" ng-click="closeClosedList()"><i class="far fa-close "></i></span>
                     </p>
     
-                    <div class="table-body">
-                        <table class="test">
+                    <div>
+                        <table class="newTableStyle">
                             <thead>
                                 <tr>
                                     <th class="w-20">نام</th>

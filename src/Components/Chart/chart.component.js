@@ -46,7 +46,7 @@
         Object.values(items).forEach(item => {
             $scope.totalNodes.push(item);
             $("#tree-select-" + parentId).append(
-                $compile(`<li class="my-1">
+                $compile(`<li class="my-1 border-0 py-0">
                         <div  class='li-info asp-label border rounded'>
                         <span class='user-span' data-toggle='tooltip' title='دارای تصدی'  ng-if='${item.HasPersonnel}' id='user-${item.ChartId}' ><i class='far fa-user'></i></span>
                             <span  id='icon-${item.ChartId}' ng-if='${item.IsOraganization}'  ng-click='getSubNode(${item.ChartId})'><i class='far fa-building'></i></span>
@@ -69,7 +69,7 @@
         Object.values(items).forEach(item => {
             $scope.totalNodes.push(item);
             $("#tree-select-" + parentId).append(
-                $compile(`<li class="my-1">
+                $compile(`<li class="my-1 border-0 py-0">
                         <div  class='li-info asp-label border rounded'>
                         <span class='user-span' data-toggle='tooltip' title='دارای تصدی'  ng-if='${item.HasPersonnel}' id='user-${item.ChartId}' ><i class='far fa-user'></i></span>
                             <span id='icon-${item.ChartId}' ng-if='${item.IsOraganization}'  ng-click='getSubNode(${item.ChartId})'><i class='far fa-building'></i></span>
@@ -157,7 +157,7 @@
         Object.values(items).forEach(item => {
             $scope.totalNodes.push(item);
             $("#tree-select-" + parentId).append(
-                $compile(`<li class="my-1">
+                $compile(`<li class="my-1 border-0 py-0">
                         <div  class='li-info asp-label border rounded'>
                         <span class='user-span' data-toggle='tooltip' title='دارای تصدی'  ng-if='${item.HasPersonnel}' id='user-${item.ChartId}' >
                         <i class='far fa-user'></i>

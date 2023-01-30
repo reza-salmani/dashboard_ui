@@ -352,7 +352,7 @@ function personnelController($scope, RequestApis, $compile, $timeout, global) {
     })
   }
   $scope.showOrganizationTree = function () {
-    $scope.treePage = 'organizationTree.html'
+    $scope.treePage = 'organizationTree.html?v=' + Date.now();
     $("#tree").modal("show");
   }
   $scope.nodes = [];

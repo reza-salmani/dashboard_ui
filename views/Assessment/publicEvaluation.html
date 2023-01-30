@@ -1,6 +1,7 @@
 
-<div id="publicSum" class="dynamic-table" ng-if="checkingExist(assessment.publicTableData.Categories[0].Children) && assessment.AllowPublicPage" ng-style="assessment.isFromCartable?assessment.PublicStyle:''">
-    <public data="assessment.publicTableData.Categories[0].Children" item="assessment.publicTableData.Items"></public>
+<div id="publicSum" class="dynamic-table" ng-if="checkingExist(assessment.publicTableData.Categories[0].Children) && assessment.AllowPublicPage">
+    <public data="assessment.publicTableData.Categories[0].Children"
+            parent="assessment.urlParamsInfo" item="assessment.publicTableData.Items"></public>
 
     <div class="card" ng-if="checkingExist(assessment.publicTableData.NoCategoryFields) ">
         <table class="defaultTableStyle">

@@ -1,1 +1,1 @@
-var app = angular.module("humanResource", ['ui.router', 'ngDraggable', 'ngOidc','ngFileSaver']);
+var app = angular.module("humanResource", ['ui.router', 'ngDraggable', 'ngOidc','ngFileSaver','angularUtils.directives.dirPagination']);

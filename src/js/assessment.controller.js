@@ -85,7 +85,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
             form: 1
         }
     ];
-    $templateCache.remove($state.current.templateUrl);
+
     $scope.reloadPage = function () {
         const currentState = $state.current.name;
         $templateCache.remove($state.current.templateUrl);
@@ -190,7 +190,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
                 });
             } else {
                 RequestApis.HR(`periods`, 'get', '', '', '', function (responsePeriod) {
-                    $scope.assessment.priodsInfo = responsePeriod.data.Items.find(x=>x.Id===$scope.assessment.urlParamsInfo.PeriodId);
+                    $scope.assessment.priodsInfo = responsePeriod.data.Items.find(x => x.Id === $scope.assessment.urlParamsInfo.PeriodId);
                     RequestApis.HR(`assessments/personnel/${id}/period/${$scope.assessment.urlParamsInfo.PeriodId}/formentries`, 'get', '', '', '', function (response) {
                         if (response.status === 200 && global.checkExist(response.data[0])) {
                             if (!global.checkExist(response.data[0].RequestId)) {
@@ -234,19 +234,19 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
                     $scope.assessment.formInfo = responseParent.data[0];
                     RequestApis.HR(`assessments/${$scope.assessment.personnelInfo.Id}/programs/any?frm=${$scope.assessment.formInfo.Id}&prd=${id}`, 'get', '', '', '', function (responseMiddle) {
                         $scope.assessment.anyApiInfo = responseMiddle;
-                        if (responseMiddle.status === 200) {
-                            RequestApis.HR(`assessments/${$scope.assessment.personnelInfo.Id}/formentry?frm=${$scope.assessment.formInfo.Id}&prd=${id}`, 'get', '', '', '', function (responseChild) {
-                                $scope.assessment.formEntryInfo = responseChild.data;
+                        RequestApis.HR(`assessments/${$scope.assessment.personnelInfo.Id}/formentry?frm=${$scope.assessment.formInfo.Id}&prd=${id}`, 'get', '', '', '', function (responseChild) {
+                            $scope.assessment.formEntryInfo = responseChild.data;
+                            if (responseMiddle.status === 200) {
                                 if (!global.checkExist($scope.assessment.formEntryInfo.RequestId)) {
                                     $scope.getworkflowLevels(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
                                 } else {
                                     $scope.assessment.checkingWorkflow = true;
                                     $scope.getWorkFlowCurrentLevel(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
                                 }
-                            });
-                        } else {
-                            $scope.getworkflowLevels(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
-                        }
+                            } else {
+                                $scope.getworkflowLevels(global.checkExist($scope.assessment.headerInfo.PostId) ? $scope.assessment.headerInfo.PostId : (global.checkExist($scope.assessment.headerInfo.UnitId) ? $scope.assessment.headerInfo.UnitId : $scope.assessment.headerInfo.OrganId));
+                            }
+                        })
                     });
                 });
             }
@@ -641,7 +641,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
             if (global.checkExist($scope.assessment.headerInfo.PostClassId)) {
                 addingPathp = "&pc=" + $scope.assessment.headerInfo.PostClassId;
             }
-            if (!global.checkExist($scope.assessment.formEntryInfo.Id)) {
+            if (!global.checkExist($scope.assessment.formEntryInfo)) {
                 priodFirstApiPath = "assessments/period/" + $scope.assessment.priodsInfo.Id + "/programs/first/init?ss=" + $scope.assessment.priodsInfo.StartDatePersian + "&psn=" + $scope.assessment.headerInfo.PersonnelId + "&chid=" + item + addingPathj + addingPathp + $scope.assessment.paginationItemsForTableData1_2;
             } else {
                 priodFirstApiPath = "assessments/period/" + $scope.assessment.priodsInfo.Id + "/programs/first/init?feid=" + $scope.assessment.formEntryInfo.Id + "&psn=" + $scope.assessment.headerInfo.PersonnelId + "&ss=" + $scope.assessment.priodsInfo.StartDatePersian + "&chid=" + item + addingPathj + addingPathp + $scope.assessment.paginationItemsForTableData1_2;
@@ -654,9 +654,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
                     if (global.checkExist(children.data)) {
                         $scope.assessment.children = children.data;
                         RequestApis.HR(priodFirstApiPath, 'get', '', '', '', function (subchildren) {
-                            if (subchildren.status === 200){
-                                $scope.evaluation.find(x=>x.Id==="1").selected = true;
-                            }
+                            $scope.evaluation.find(x => x.Id === "1").selected = true;
                             $scope.assessment.tableData = subchildren.data;
                             $scope.assessment.AllowSpecialPage = true;
                             $scope.assessment.loadingTable = false;
@@ -693,7 +691,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
                                     SecondFieldId: $scope.assessment.children[1].Id,
                                     Values: []
                                 };
-                                if (global.checkExist($scope.assessment.formEntryInfo.Id)) {
+                                if (global.checkExist($scope.assessment.formEntryInfo)) {
                                     $scope.assessment.goalsToAdd.FormEntryId = $scope.assessment.formEntryInfo.Id;
                                 }
                             }
@@ -718,9 +716,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
                             flds = flds.substring(1);
                         }
                         RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/programs/first?pfld=${$scope.assessment.fieldOneInfo.Id}&psn=${$scope.assessment.headerInfo.PersonnelId}&flds=${flds}${$scope.assessment.paginationItemsForTableData1_2}`, 'get', '', '', '', function (subchildren) {
-                            if (subchildren.status === 200){
-                                $scope.evaluation.find(x=>x.Id==="1").selected = true;
-                            }
+                            $scope.evaluation.find(x => x.Id === "1").selected = true;
                             $scope.assessment.tableData1 = subchildren.data;
                             $scope.assessment.AllowSpecialPage = true;
                             $scope.assessment.loadingTable = false;
@@ -788,7 +784,7 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
         RequestApis.HR(`assessments/field/7?prd=${$scope.assessment.priodsInfo.Id}&frm=${$scope.assessment.formInfo.Id}`, 'get', '', '', '', function (field) {
             $scope.assessment.fieldTwoInfo = field.data;
             RequestApis.HR(`assessments/${$scope.assessment.formEntryInfo.Id}/programs/second?pfld=${$scope.assessment.fieldTwoInfo.CategoryId}`, 'get', '', '', '', function (response) {
-                if (response.status === 200){
+                if (response.status === 200) {
                     $("#demo-1").collapse("show");
                 }
                 $scope.assessment.secondTableData = response.data;
@@ -974,8 +970,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
     $scope.cancelDelete = function () {
         $scope.assessment.dataToDelete = [];
         $("#deleteConfirm").modal('hide');
-        $timeout(function (){$scope.refreshSpecialForm();
-        },1000);
+        $timeout(function () {
+            $scope.refreshSpecialForm();
+        }, 1000);
     };
     $scope.changeEditMode = function (goal) {
         if (goal.editMode) {
@@ -1076,8 +1073,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
             RequestApis.HR(`assessments/program`, 'Post', '', '', dataToSend, function (response) {
                 if (response.status === 200) {
                     $scope.cancelCreate();
-                    $timeout(function (){$scope.refreshSpecialForm();
-                    },1000);
+                    $timeout(function () {
+                        $scope.refreshSpecialForm();
+                    }, 1000);
                 }
                 global.messaging(response);
             });
@@ -1157,8 +1155,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
         RequestApis.HR(path, 'Post', '', '', $scope.assessment.tableDataAdd1, function (response) {
             if (response.status === 200) {
                 $("#list").modal("hide");
-                $timeout(function (){$scope.refreshSpecialForm();
-                },1000);
+                $timeout(function () {
+                    $scope.refreshSpecialForm();
+                }, 1000);
             }
             global.messaging(response);
             $scope.AddProgramFromListLoading = false;
@@ -1406,8 +1405,8 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
             itemToPost.push(x.FieldId);
         });
         RequestApis.HR(`assessments/categories/${$scope.assessment.formEntryInfo.Id}`, 'Post', '', '', itemToPost, function (response) {
-            if (response.status === 200){
-                $("#demo-2").collapse("show");
+            if (response.status === 200) {
+                $scope.evaluation.find(x => x.Id === "2").selected = true;
             }
             $scope.assessment.publicTableData = response.data;
             $timeout(function () {
@@ -1552,12 +1551,9 @@ app.controller('evaluationCtrl', function ($scope, $templateCache, $state, $stat
         Object.values(StateFieldsId).forEach(x => {
             itemToPost.push(x.FieldId);
         });
-        // console.log(ADVISESecutityId)
-        // console.log(StateFieldsId)
-        // console.log(itemToPost)
         RequestApis.HR(`assessments/categories/${$scope.assessment.formEntryInfo.Id}`, 'Post', '', '', itemToPost, function (response) {
-            if (response.status === 200){
-                $("#demo-3").collapse("show");
+            if (response.status === 200) {
+                $scope.evaluation.find(x => x.Id === "3").selected = true;
             }
             $scope.assessment.adviceTableData = response.data;
             $timeout(function () {
@@ -3092,7 +3088,7 @@ app.directive('public', function ($timeout, RequestApis, global) {
             },
             template: `<div ng-repeat='data in info'>
                             <p ng-if='data.OrderTitle != null' class='medium-font' style='text-align:right;'>{{data.OrderTitle}} ) {{data.Title}} <strong ng-if='data.Comment != undefined && data.Comment.length'> ({{data.Comment}}) </strong></p>
-                            <public ng-if='data.CategoryLabel == null' item='items' data='data.Children'></public>
+                            <public ng-if='data.CategoryLabel == null' item='items' parent='parent' data='data.Children'></public>
                             <div ng-if='data.OrderTitle != null && data.Children[0].CategoryLabel != null && data.Children[0].Children[0].Fields[0].Title != undefined' class='card' >
                                 <div class='card-body'>
                                     <table class='defaultTableStyle'>
@@ -3115,29 +3111,29 @@ app.directive('public', function ($timeout, RequestApis, global) {
                                                  <strong ng-if='item.Children[0].Comment.length'>({{item.Children[0].Comment}})</strong>
                                                 </td>
                                                 <td style='padding-right:5px'>
-                                                    <div ng-repeat='subItem in item.Children[0].Fields' style="height:25px"> {{ subItem.Title }}
+                                                    <div ng-repeat='subItem in item.Children[0].Fields' style="min-height:25px"> {{ subItem.Title }}
                                                         <strong ng-if='subItem.ShowComment'> ({{subItem.Comment}})</strong>
                                                     </div>    
                                                 </td>
                                                 <td ng-if='item.MaxValue != null' rowspan='{{item.Children.length}}' class='center'>{{item.MaxValue}}</td>
                                                 <td ng-if='item.MaxValue == null' class='center'>{{item.Children[0].MaxValue}}
-                                                    <div ng-repeat='title in item.Children[0].Fields' style="height:25px">
+                                                    <div ng-repeat='title in item.Children[0].Fields' style="min-height:25px">
                                                         <span w-100" ng-if='title.MinValue != 0 && item.Children[0].MaxValue == null'>{{title.MinValue}}</span>
                                                         <span w-100" ng-if='title.MaxValue != 0 && item.Children[0].MaxValue == null'>{{title.MaxValue}}</span>
                                                     </div>
                                                 </td>
                                                 <td ng-if='item.MaxValue != null'>
-                                                    <div style="height:25px" ng-repeat='fieldInput in item.Children[0].Values'>
+                                                    <div ng-repeat='fieldInput in item.Children[0].Values'>
                                        <input dir="ltr" ng-init="inputMasksX()" autocomplete="off" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}" autocomplete="off" ng-keyup='checkmaxMin(item,item.Children[0].Fields[$index])' ng-model='fieldInput.ScoreValue' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}'  class='form-control directive-input small-font text-center numericX' type='text'>
                                                     </div>
                                                 </td>
                                                 <td ng-if='item.MaxValue == null'>
-                                                    <div style="height:25px" ng-repeat='fieldInput in item.Children[0].Values'>
+                                                    <div ng-repeat='fieldInput in item.Children[0].Values'>
                                                         <input dir="ltr" ng-init="inputMasksX()" ng-readonly="!dynamicButtonAllow" ng-class="{'sumationInput':fieldInput.Field.IsScore}"  autocomplete="off" ng-keyup='checkmaxMin(item,item.Children[0].Fields[$index]);sumationPublic()' ng-model='fieldInput.ScoreValue' id='test-{{fieldInput.Field.Id}}' data='{{fieldInput}}' class='form-control numericX small-font text-center directive-input' type='text'>
                                                     </div>
                                                 </td>
                                                 <td class='text-center'>
-                                                    <div style="height:25px" class='text-center' ng-repeat='UploadFiles in item.Children[0].Fields'>
+                                                    <div class='text-center' ng-repeat='UploadFiles in item.Children[0].Fields'>
                                                         <div ng-if='UploadFiles.HasAttachment && dynamicButtonAllow'>
                                                              <span class="pointer" style="font-size:15px;" ng-class="item.Children[0].Values[$index].Id ===null ?'text-danger':'text-primary'" ng-attr-title="{{item.Children[0].Values[$index].Id !=null?'فایل های ضمیمه':'برای مدیریت فایل های ضمیمه، ابتدا نیاز است امتیازی برای این ایتم ثبت گردد'}}" ng-click="item.Children[0].Values[$index].Id !=null && showAttachmentsModal(item.Children[0].Values[$index])"><i class="far fa-paperclip "></i></span>
                                                         </div>
@@ -3277,8 +3273,6 @@ app.directive('public', function ($timeout, RequestApis, global) {
             link: function (scope, element, attrs) {
                 //=============== toast notification ======================
                 scope.dynamicButtonAllow = localStorage.getItem("dynamicButtonAllow") != "false";
-                this.$onInit = function () {
-                };
                 scope.inputMasksX = function () {
                     //$(".numericx").inputmask({
                     //    alias: 'numeric',
@@ -3408,36 +3402,6 @@ app.directive('public', function ($timeout, RequestApis, global) {
                     scope.showAttachInfo = {};
                     scope.attachmentsModals = false;
                 };
-                scope.uploadFile = function (thiss) {
-                    const formData = new FormData();
-                    if (thiss.files.length) {
-                        for (var j = 0; j < thiss.files.length; j++) {
-                            var blob = thiss.files[j]; // See step 1 above
-                            var fileReader = new FileReader();
-                            fileReader.onloadend = function (e) {
-                                var arr = (new Uint8Array(e.target.result)).subarray(0, 4);
-                                var header = "";
-                                for (var i = 0; i < arr.length; i++) {
-                                    header += arr[i].toString(16);
-                                }
-                                if (getMimetype(header) !== "Unknown") {
-                                    formData.append(thiss.files[j].name.toString(), thiss.files[j]);
-                                } else {
-                                    global.Toast('error', 'مستندات بارگزاری باید فقط از نوع عکس و  پی دی اف باشد');
-                                }
-                            };
-                            fileReader.readAsArrayBuffer(blob);
-                        }
-                        global.urlInfo(function (data) {
-                            RequestApis.HR(`assessments/${scope.showAttachInfo.FormEntryId}/values/${scope.showAttachInfo.Id}/attachments?psn=${data.UserId}`, 'Post', '', '', formData, function (response) {
-                                if (response.length) {
-                                    scope.showAttachmentsModal(scope.showAttachInfo);
-                                }
-                                global.messaging(response);
-                            });
-                        });
-                    }
-                };
                 const getMimetype = (signature) => {
                     switch (signature.toUpperCase()) {
                         case '89504E47':
@@ -3456,6 +3420,37 @@ app.directive('public', function ($timeout, RequestApis, global) {
                             return 'Unknown';
                     }
                 };
+                scope.uploadFile = function (thiss) {
+                    const formData = new FormData();
+                    if (thiss.files.length) {
+                        for (let j = 0; j < thiss.files.length; j++) {
+                            let blob = thiss.files[j]; // See step 1 above
+                            let fileReader = new FileReader();
+                            fileReader.onloadend = function (e) {
+                                let arr = (new Uint8Array(e.target.result)).subarray(0, 4);
+                                let header = "";
+                                for (let i = 0; i < arr.length; i++) {
+                                    header += arr[i].toString(16);
+                                }
+                                if (getMimetype(header) !== "Unknown") {
+                                    formData.append(thiss.files[j].name.toString(), thiss.files[j]);
+                                } else {
+                                    global.Toast('error', 'مستندات بارگزاری باید فقط از نوع عکس و  پی دی اف باشد');
+                                }
+                            };
+                            fileReader.readAsArrayBuffer(blob);
+                        }
+                        $timeout(function () {
+                            RequestApis.HR(`assessments/${scope.showAttachInfo.FormEntryId}/values/${scope.showAttachInfo.Id}/attachments?psn=${scope.parent.PersonnelId}`, 'Post', 'multipart/form-data', '', formData, function (response) {
+                                if (response.status === 200) {
+                                    scope.showAttachmentsModal(scope.showAttachInfo);
+                                }
+                                global.messaging(response);
+                            });
+                        }, 1000)
+                    }
+                };
+
                 scope.downloadAttachment = function (item) {
                     RequestApis.HR(`assessments/values/${scope.showAttachInfo.Id}/attachments/${item.StreamId}`, 'Get', '', 'arraybuffer', '', function (response) {
                         if (response.status == 200) {
@@ -3523,1153 +3518,6 @@ app.directive('fileModel', ['$parse', function ($parse) {
     };
     return uploadDirective;
 }]);
-app.controller('evaluationProgramCtrl', function ($scope, $templateCache, $compile, $state, RequestApis, global) {
-    //============== constants ========================
-    $scope.files = [];
-    $scope.checkingWorkflow = false;
-    $scope.rejectRequest = false;
-    $scope.deleteAllowed = false;
-    $scope.submitingFormLoading = false;
-    $templateCache.remove($state.current.templateUrl);
-    //=============== watch function ===================
-    $scope.$watch(function () {
-        var inputs = $('input[type="file"]');
-        for (var i = 0; i < inputs.length; i++) {
-            inputs[i].addEventListener('change', function () {
-                if (this.value != null) {
-                    var ext = this.value.match(/\.([^\.]+)$/)[1];
-                    switch (ext) {
-                        case 'jpg':
-                        case 'xlsx':
-                        case 'png':
-                        case 'xls':
-                        case 'pdf':
-                            break;
-                        default:
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'فرمت فایل انتخاب شده باید یکی از این موارد باشد : [.xlsx - .xls - .pdf - .png - .jpg]'
-                            });
-                            this.value = '';
-                    }
-                }
-            });
-        }
-    });
-
-    //================= miscellaneous functions ============================
-    $scope.checkmaxMinInNon = function (item) {
-        if (Number(document.getElementById(`test-${item.Field.Id}`).value) > Number(item.Field.MaxValue) || Number(document.getElementById(`test-${item.Field.Id}`).value) < Number(item.Field.MinValue)) {
-            document.getElementById(`test-${item.Field.Id}`).value = '';
-        }
-    };
-    $scope.searchingPositionChange = function () {
-        $scope.searchingPosition = false;
-        $scope.searchP.value = null;
-    };
-    $scope.searchP = {
-        value: null
-    };
-    $('[data-toggle="tooltip"]').tooltip();
-    $scope.cartableRequestId = null;
-
-    //============= table functions =====================
-
-    $scope.changeTableViewP = function (item) {
-        $scope.evaluation[1].form = item;
-        $(".list-group-item").removeClass("selected-list-group");
-        $("#HR_p_A" + item).addClass("selected-list-group");
-    };
-    $scope.getTreeRootNode = function () {
-        var route = "charts/all";
-        RequestApis.HR(route, 'Get', '', '', '', function (node) {
-            $scope.nodes = node.data;
-            $scope.totalNodes = node.data;
-        });
-    };
-    //$scope.getCurrentActive = function () {
-    //    $scope.getData("securities/authcookie", function (response) {
-    //        $scope.currentCoockie = response;
-    //        // $scope.currentUserId = $("#hdnUsrId").val();
-    //        // $scope.getPersonnelInfo($scope.currentUserId)
-
-    //    })
-    //}
-    $scope.getUser = function () {
-
-    };
-    $scope.getPeriod = function () {
-        global.urlInfo(function (data) {
-            if (!global.checkExist(data.urlParams)) {
-                $scope.currentUserId = data.UserId;
-                RequestApis.HR("periods/active", 'Get', '', '', '', function (response) {
-                    $scope.period = response.data;
-                    RequestApis.HR("assessment/categories/hasprogram", 'Get', '', '', '', function (response1) {
-                        $scope.evaluationType = response1.data;
-                        RequestApis.HR("constants/enum/JobType", 'Get', '', '', '', function (response2) {
-                            $scope.jobType = response2;
-                            RequestApis.HR("personnel/user/" + $scope.currentUserId + "/current", 'Get', '', '', '', function (response3) {
-                                $scope.setPersonnel(response3, 1);
-                            });
-                        });
-                        $scope.getCurrentActive();
-                    });
-                });
-            } else {
-                $scope.currentUserId = data.urlParams.UserId;
-                $scope.cartableRequestId = data.urlParams.RequestId;
-                $scope.cartableFoemEntryId = data.urlParams.FormEntryId;
-                RequestApis.HR("periods/active", 'Get', '', '', '', function (response) {
-                    $scope.period = response.data;
-                    RequestApis.HR("assessment/categories/hasprogram", 'Get', '', '', '', function (response1) {
-                        $scope.evaluationType = response1.data;
-                        RequestApis.HR("constants/enum/JobType", 'Get', '', '', '', function (response2) {
-                            $scope.jobType = response2;
-                            RequestApis.HR("personnel/user/" + $scope.currentUserId + "/current", 'Get', '', '', '', function (response3) {
-                                $scope.setPersonnel(response3, 1);
-                            });
-                        });
-                        $scope.getCurrentActive();
-                    });
-                });
-            }
-        })
-    }
-
-    $scope.openCreateModal = function (id) {
-        $scope.currentPage = 1;
-        $scope.selectedChart = true;
-        $scope.currentItem = id;
-        $(".li-info").removeClass("selected-row");
-        $("#tree-li-" + id).addClass("selected-row");
-        $scope.currentPath = "assessments/program?chid=" + id + "&prd=" + $scope.period.Id;
-        RequestApis.HR("assessments/program?chid=" + id + "&prd=" + $scope.period.Id, 'Get', '', '', '', function (response) {
-            $("#goal").val('');
-            $("#result").val('');
-            if (response.status != 404) {
-                $scope.tableData = response.data;
-                $scope.$broadcast('getDataForDeleteRow', response.data);
-                for (var i = 0; i < $scope.tableData.Items.length; i++) {
-                    $scope.tableData.Items[i].jobName = [];
-                    for (var j = 0; j < $scope.jobType.length; j++) {
-                        if (($scope.jobType[j].Id & $scope.tableData.Items[i].JobType) == $scope.jobType[j].Id) {
-                            $scope.tableData.Items[i].jobName.push($scope.jobType[j]);
-                        }
-                    }
-                }
-
-            } else {
-                $scope.tableData = {};
-            }
-            setTimeout(function () {
-                $('.dropdown').on({
-                    "click": function (event) {
-                        if ($(event.target).closest('.dropdown-toggle').length) {
-                            $(this).data('closable', true);
-                        } else {
-                            $(this).data('closable', false);
-                        }
-                    },
-                    "hide.bs.dropdown": function (event) {
-                        hide = $(this).data('closable');
-                        $(this).data('closable', true);
-                        return hide;
-                    }
-                });
-
-            }, 500);
-        });
-    };
-    $scope.getTableData = function (page = 1) {
-        var additinalPath = "";
-        var itemtosend = $scope.compeleteInfo.PostId != null ? $scope.compeleteInfo.PostId : ($scope.compeleteInfo.UnitId != null ? $scope.compeleteInfo.UnitId : $scope.compeleteInfo.OrganId);
-        if ($scope.compeleteInfo.JobType != null) {
-            additinalPath = "&jt=" + $scope.compeleteInfo.JobType;
-        } else {
-            additinalPath = "&pc=" + $scope.compeleteInfo.PostClassId;
-        }
-        var FullPath = "";
-        if ($scope.formEntry.Id == undefined) {
-
-            FullPath = "assessments/period/" + $scope.period.Id + "/programs/first/init?ss=" + $scope.period.StartDatePersian + "&pn=" + page + "&psn=" + $scope.compeleteInfo.PersonnelId + "&chid=" + itemtosend + additinalPath;
-        } else {
-            FullPath = "assessments/period/" + $scope.period.Id + "/programs/first/init?feid=" + $scope.formEntry.Id + "&pn=" + page + "&psn=" + $scope.compeleteInfo.PersonnelId + "&ss=" + $scope.period.StartDatePersian + "&chid=" + itemtosend + additinalPath;
-        }
-        RequestApis.HR(FullPath, 'Get', '', '', '', function (response) {
-            $scope.tableData = response.data;
-            if ($scope.chackAllStateFunc(response.data.Items)) {
-                document.getElementById('checkAll').checked = true;
-            } else {
-                document.getElementById('checkAll').checked = false;
-            }
-        });
-    };
-    $scope.getTableData1 = function (page = 1) {
-        RequestApis.HR("assessments/" + $scope.formEntry.Id + "/programs/first?search.pfld=" + $scope.field.Id + "&pn=" + page + "&psn=" + $scope.compeleteInfo.PersonnelId + "&search.flds=" + $scope.children[0].Id + "-" + $scope.children[1].Id, 'Get', '', '', '', function (response) {
-            $scope.tableData1 = response.data;
-        });
-    };
-    $scope.getTableDataList = function (url) {
-        RequestApis.HR(url, 'Get', '', '', '', function (response) {
-            if (response.status !== 200) {
-                $scope.tableDataList = response.data;
-            } else {
-                $scope.tableDataList = [];
-            }
-        });
-    };
-    $scope.loadPage = function (method) {
-        if (method == 1) {
-            if (!$scope.tableData.LastPage) {
-                $scope.getTableData(Number($scope.tableData.PageIndex) + 1);
-
-            }
-        } else if (method == -1) {
-            if ($scope.tableData.PageIndex > 1) {
-                $scope.getTableData(Number($scope.tableData.PageIndex) - 1);
-
-            }
-        } else if (method == "first") {
-            $scope.getTableData(1);
-        } else {
-            $scope.getTableData($scope.tableData.TotalPages);
-        }
-    };
-    $scope.loadPage1 = function (method) {
-        if (method == 1) {
-            if (!$scope.tableData1.LastPage) {
-                $scope.getTableData1(Number($scope.tableData1.PageIndex) + 1);
-
-            }
-        } else if (method == -1) {
-            if ($scope.tableData1.PageIndex > 1) {
-                $scope.getTableData1(Number($scope.tableData1.PageIndex) - 1);
-
-            }
-        } else if (method == "first") {
-            $scope.getTableData1(1);
-        } else {
-            $scope.getTableData1($scope.tableData1.TotalPages);
-        }
-    };
-    $scope.currentPageModal = 1;
-    $scope.loadPageModal = function (method) {
-        if (method == 1) {
-            if (!$scope.tableDataList.LastPage) {
-                var page = Number($scope.tableDataList.PageIndex) + 1;
-                $scope.currentPageModal = page;
-                newPath = $scope.currentPathModal + "&pn=" + page;
-                $scope.getTableDataList(newPath);
-
-            }
-        } else if (method == -1) {
-            if ($scope.tableDataList.PageIndex > 1) {
-                var page = Number($scope.tableDataList.PageIndex) - 1;
-                $scope.currentPageModal = page;
-                newPath = $scope.currentPathModal + "&pn=" + page;
-                $scope.getTableDataList(newPath);
-
-            }
-        } else if (method == "first") {
-            var page = 1;
-            $scope.currentPageModal = 1;
-            newPath = $scope.currentPathModal + "&pn=" + page;
-            $scope.getTableDataList(newPath);
-        } else {
-            var page = $scope.tableDataList.TotalPages;
-            $scope.currentPageModal = page;
-            newPath = $scope.currentPathModal + "&pn=" + page;
-            $scope.getTableDataList(newPath);
-        }
-    };
-    $scope.changePage = function (event, page) {
-        $("form").submit(function () {
-            return false;
-        });
-        if (page <= $scope.tableData.TotalPages && page >= 1) {
-            $scope.getTableData(page);
-        } else {
-            $("#pagingD").val("");
-        }
-    };
-    $scope.changePage1 = function (event, page) {
-        $("form").submit(function () {
-            return false;
-        });
-        if (page <= $scope.tableData1.TotalPages && page >= 1) {
-            $scope.getTableData1(page);
-        } else {
-            $("#pagingD").val("");
-        }
-    };
-    $scope.changePage12 = function (event, page) {
-        $("form").submit(function () {
-            return false;
-        });
-        if (event.keyCode == 13) {
-            if (page <= $scope.tableDataList.TotalPages && page >= 1) {
-                $scope.currentPageModal = page;
-                newPath = $scope.currentPathModal + "&pn=" + page;
-                $scope.getTableDataList(newPath);
-                $("#pagingDM").val("");
-            } else {
-                $("#pagingDM").val("");
-            }
-        }
-    };
-    $scope.getSubNode = function (id) {
-        // check this for length
-        if ($("#tree-" + id + ":empty").length == 1 || $("#tree-" + id + ":empty").length == 2) {
-            var route = "charts/" + id + "/children/all";
-            RequestApis.HR(route, 'Get', '', '', '', function (response) {
-                $scope.makingTreeNode(id, response.data);
-            });
-        } else {
-            $("#tree-" + id).slideToggle();
-        }
-    };
-    $scope.loadTree = function (route, node) {
-        $scope.scrollTo = node;
-        $scope.routing = route;
-        $scope.indicatior = route.length;
-        $scope.indexOfRoute = 0;
-        $scope.recFunction(route[0]);
-    };
-    $scope.recFunction = function (route) {
-        if ($("#tree-" + route.Id + ":empty").length == 1 || $("#tree-" + route.Id + ":empty").length == 2) {
-            var path = "charts/" + route.Id + "/children/all";
-            RequestApis.HR(path, 'Get', '', '', '', function (data) {
-                for (var i = 0; i < data.data.length; i++) {
-                    $scope.totalNodes.push(data.data[i]);
-                    if (!data.data[i].IsDeleted) {
-                        $("#tree-" + route.Id).append(
-                            $compile(
-                                "<li>\
-                                    <div  class='li-info big-font' id='tree-li-" + data.data[i].ChartId + "'>\
-                                        <span  id='icon-" + data.data[i].ChartId + "' ng-if='" + data.data[i].IsOraganization + "'  ng-click='getSubNode(" + data.data[i].ChartId + ")'><i class='far fa-building'></i></span>\
-                                        <span  id='icon-" + data.data[i].ChartId + "' ng-if='" + data.data[i].IsPost + "'><i class='far fa-address-card'></i></span>\
-                                        <span  id='icon-" + data.data[i].ChartId + "' ng-if='" + !data.data[i].IsOraganization + "&&" + !data.data[i].IsPost + "'  ng-click='getSubNode(" + data.data[i].ChartId + ")'><i class='far fa-users'></i></span>\
-                                        <span class='float-left' data-toggle='tooltip' title='تعریف اهداف و وظایف'   id='plus-" + data.data[i].ChartId + "' ng-click='openCreateModal(" + data.data[i].ChartId + ")'><i class='far fa-th-list green-button' ></i></span>\
-                                        <span ng-click='openCreateModal(" + data.data[i].ChartId + ")' ng-dblclick='getSubNode(" + data.data[i].ChartId + ")' data-toggle='tooltip' title='" + data.data[i].Title + "'>" + data.data[i].Title + "\
-                                        </span >\
-                                    </div>\
-                                    <ul id='tree-" + data.data[i].ChartId + "'></ul>\
-                                </li> "
-                            )($scope)
-                        );
-
-                    }
-                    // if(data[i].IsPost) {
-                    //     $("#plus-" + data[i].ChartId).css("display","none");
-                    // }
-                }
-                $('[data-toggle="tooltip"]').tooltip();
-                $("#tree-" + route.Id).slideToggle();
-                if ($scope.indexOfRoute + 1 < $scope.indicatior) {
-                    $scope.indexOfRoute = $scope.indexOfRoute + 1;
-                    $scope.recFunction($scope.routing[$scope.indexOfRoute]);
-                } else {
-                    $('#tree-container').animate({
-                        scrollTop: 0
-                    }, 100);
-                    setTimeout(function () {
-
-                        $(".li-info").removeClass("selected-li");
-
-                        $('#tree-container').animate({
-                            scrollTop: $("#tree-li-" + $scope.scrollTo.ChartId).offset().top - 400
-                        }, 1000);
-                        $scope.openCreateModal($scope.scrollTo.ChartId);
-                        $("#tree-li-" + $scope.scrollTo.ChartId).addClass("selected-row");
-                    }, 200);
-                }
-
-            });
-        } else {
-            $("#tree-" + route.Id).slideDown();
-            if ($scope.indexOfRoute + 1 < $scope.indicatior) {
-                $scope.indexOfRoute = $scope.indexOfRoute + 1;
-                $scope.recFunction($scope.routing[$scope.indexOfRoute]);
-            } else {
-                $('#tree-container').animate({
-                    scrollTop: 0
-                }, 100);
-                setTimeout(function () {
-                    $(".li-info").removeClass("selected-li");
-                    $("#tree-li-" + $scope.scrollTo.ChartId).addClass("selected-row");
-                    $('#tree-container').animate({
-                        scrollTop: $("#tree-li-" + $scope.scrollTo.ChartId).offset().top - 400
-                    }, 1000);
-                    $scope.openCreateModal($scope.scrollTo.ChartId);
-                }, 200);
-            }
-        }
-        // $scope.getSubNode(route[0].Id);
-
-    };
-    $scope.makingTreeNode = function (id, data) {
-        for (var i = 0; i < data.length; i++) {
-            $scope.totalNodes.push(data[i]);
-            $("#tree-" + id).append(
-                $compile(
-                    "<li>\
-                        <div  class='li-info big-font' id='tree-li-" + data[i].ChartId + "'>\
-                            <span id='icon-" + data[i].ChartId + "' ng-if='" + data[i].IsOraganization + "'  ng-click='getSubNode(" + data[i].ChartId + ")'><i class='far fa-building'></i></span>\
-                            <span id='icon-" + data[i].ChartId + "' ng-if='" + data[i].IsPost + "'><i class='far fa-address-card'></i></span>\
-                            <span id='icon-" + data[i].ChartId + "' ng-if='" + !data[i].IsOraganization + "&&" + !data[i].IsPost + "'  ng-click='getSubNode(" + data[i].ChartId + ")'><i class='far fa-users'></i></span>\
-                            <span class='float-left' data-toggle='tooltip' title='تعریف اهداف و وظایف'   id='plus-" + data[i].ChartId + "' ng-click='openCreateModal(" + data[i].ChartId + ")'><i class='far fa-th-list green-button' ></i></span>\
-                            <span ng-click='openCreateModal(" + data[i].ChartId + ")' ng-dblclick='getSubNode(" + data[i].ChartId + ")' data-toggle='tooltip' title='" + data[i].Title + "'>" + data[i].Title + "\
-                            </span >\
-                        </div>\
-                        <ul id='tree-" + data[i].ChartId + "'></ul>\
-                    </li> "
-                )($scope)
-            );
-            // if(data[i].IsPost) {
-            //     $("#plus-" + data[i].ChartId).css("display","none");
-            // }
-        }
-        $('[data-toggle="tooltip"]').tooltip();
-        $("#tree-" + id).slideToggle();
-    };
-    $scope.tableDataAdd = {
-        Items: []
-    };
-    $scope.loadingTable = true;
-    $scope.tableData1 = {
-        Items: []
-    };
-
-    //================================== Special Section ================================
-
-
-    //================================== Public Section ================================
-    $scope.allowPublic = false;
-    $scope.getPublicTables = function (item) {
-        $scope.loadingTable = false;
-        var itemToPost = [];
-        let publicSecutityId = $scope.currentWorkFlowLevel[0].SecurityForms.find(x => x.Codes[0] === "HR_ASMT_PUBLIC");
-        let StateFieldsId = $scope.currentWorkFlowLevel[0].StateFields.filter(x => x.SecurityFormId === publicSecutityId.Id);
-        Object.values(StateFieldsId).forEach(x => {
-            itemToPost.push(x.FieldId);
-        });
-        RequestApis.HR("assessments/categories/" + $scope.formEntry.Id, 'post', '', '', itemToPost, function (response) {
-            $scope.publicTableData = response.data;
-            $scope.allowPublic = false;
-            for (var i = 0; i < $scope.currentWorkFlowLevel[0].StateFields.length; i++) {
-                if (($scope.currentWorkFlowLevel[0].StateFields[i].Permission & 2) != 2 && ($scope.currentWorkFlowLevel[0].StateFields[i].Permission & 8) != 8) {
-                    // $("#test-" + $scope.currentWorkFlowLevel[0].StateFields[i].FieldId).attr("disabled", "true")
-                } else {
-                    $scope.allowPublic = true;
-                }
-            }
-            setTimeout(function () {
-                for (var i = 0; i < $scope.currentWorkFlowLevel[0].StateFields.length; i++) {
-                    if (($scope.currentWorkFlowLevel[0].StateFields[i].Permission & 2) != 2 && ($scope.currentWorkFlowLevel[0].StateFields[i].Permission & 8) != 8) {
-                        $("#test-" + $scope.currentWorkFlowLevel[0].StateFields[i].FieldId).attr("disabled", "true");
-                    } else {
-                        $scope.allowPublic = true;
-                    }
-                }
-            }, 1000);
-
-        });
-    };
-    $scope.confirmPublic = function () {
-        $("form").submit(function () {
-            return false;
-        });
-        $scope.loadingaccept = true;
-        var item = $(".directive-input");
-        var checkingItems = [];
-        var itemToPost = [];
-        var itemToPatch = [];
-        for (var i = 0; i < item.length; i++) {
-            if (JSON.parse($(item[i]).attr('data')).ScoreValue != null) {
-                var itemToPush = {
-                    FieldId: Number(JSON.parse($(item[i]).attr('data')).FieldId),
-                    ScoreValue: Number(JSON.parse($(item[i]).attr('data')).ScoreValue)
-                };
-                checkingItems.push(itemToPush);
-                if (JSON.parse($(item[i]).attr('data')).Id != null) {
-                    itemToPatch.push(JSON.parse($(item[i]).attr('data')));
-                    itemToPatch[itemToPatch.length - 1].ScoreValue = Number(itemToPatch[itemToPatch.length - 1].ScoreValue);
-                    itemToPatch[itemToPatch.length - 1].NumericValue = Number(itemToPatch[itemToPatch.length - 1].ScoreValue);
-                } else {
-                    itemToPost.push(JSON.parse($(item[i]).attr('data')));
-                    itemToPost[itemToPost.length - 1].ScoreValue = Number(itemToPost[itemToPost.length - 1].ScoreValue);
-                    itemToPost[itemToPost.length - 1].NumericValue = Number(itemToPost[itemToPost.length - 1].ScoreValue);
-                }
-                // JSON.parse($(item[i]).attr('data')).NumericValue = JSON.parse($(item[i]).attr('data')).ScoreValue;
-            }
-        }
-        RequestApis.HR("assessments/" + $scope.formEntry.Id + "/check", 'post', '', '', checkingItems, function (response) {
-            if (response.data == 'error') {
-                if (itemToPost.length != 0) {
-                    var itemToConfirm = {
-                        FormEntryId: $scope.publicTableData.FormEntryId,
-                        FormRowVersion: $scope.publicTableData.FormRowVersion,
-                        Header: $scope.publicTableData.Header,
-                        Values: itemToPost
-                    };
-                    RequestApis.HR("assessments/programs/common?secfid=" + $scope.currentWorkFlowLevel[0].SecurityForms[0].Id, 'post', '', '', checkingItems, function (response1) {
-                        if (response1.status === 200) {
-                            if (itemToPatch.length != 0) {
-                                var itemToConfirmPatch = {
-                                    FormEntryId: $scope.publicTableData.FormEntryId,
-                                    FormRowVersion: $scope.publicTableData.FormRowVersion,
-                                    Header: $scope.publicTableData.Header,
-                                    Values: itemToPatch
-                                };
-                                RequestApis.HR("assessments/programs/common?secfid=" + $scope.currentWorkFlowLevel[0].SecurityForms[0].Id, 'patch', '', '', itemToConfirmPatch, function (response2) {
-                                    if (response2.data.length) {
-                                        $scope.getPersonnelInfo($scope.compeleteInfo.PersonnelId);
-                                        Toast.fire({
-                                            icon: 'success',
-                                            title: 'درخواست شما با موفقیت انجام شد'
-                                        }).then((result) => {
-                                            $scope.reloadPage();
-                                        });
-                                    } else {
-                                        Toast.fire({
-                                            icon: 'error',
-                                            title: 'درخواست شما با مشکل مواجه شده است'
-                                        }).then((result) => {
-                                            $scope.reloadPage();
-                                        });
-                                    }
-                                });
-                            } else {
-                                $scope.getPersonnelInfo($scope.compeleteInfo.PersonnelId);
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'درخواست شما با موفقیت انجام شد'
-                                }).then((result) => {
-                                    $scope.reloadPage();
-                                });
-                            }
-
-                        } else {
-                            $scope.getPersonnelInfo($scope.compeleteInfo.PersonnelId);
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'درخواست شما با مشکل مواجه شده است'
-                            }).then((result) => {
-                                $scope.reloadPage();
-                            });
-                        }
-                        $scope.loadingaccept = false;
-                    });
-                } else if (itemToPatch.length != 0) {
-                    var itemToConfirmPatch = {
-                        FormEntryId: $scope.publicTableData.FormEntryId,
-                        FormRowVersion: $scope.publicTableData.FormRowVersion,
-                        Header: $scope.publicTableData.Header,
-                        Values: itemToPatch
-                    };
-                    RequestApis.HR("assessments/programs/common?secfid=" + $scope.currentWorkFlowLevel[0].SecurityForms[0].Id, 'patch', '', '', itemToConfirmPatch, function (response2) {
-                        if (response2.data.length) {
-                            $scope.getPersonnelInfo($scope.compeleteInfo.PersonnelId);
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'درخواست شما با موفقیت انجام شد'
-                            }).then((result) => {
-                                $scope.reloadPage();
-                            });
-                        } else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'درخواست شما با مشکل مواجه شده است'
-                            }).then((result) => {
-                                $scope.reloadPage();
-                            });
-                        }
-                        $scope.loadingaccept = false;
-                    });
-                }
-            } else {
-                $scope.publicErrors = response.data;
-                $("#publicErrorModal").modal();
-            }
-        });
-    };
-    $scope.cancelPublickError = function () {
-        $("form").submit(function () {
-            return false;
-        });
-        $("#publicErrorModal").modal('hide');
-    };
-
-
-    //================================== WorkFow ================================
-    $scope.Isstarted = true;
-    $scope.getWorkFlowCurrentLevel = function (itemToSet) {
-        var path = "";
-        if ($scope.cartableRequestId != null) {
-            path = "workflows/request/" + $scope.cartableRequestId + "/status?feid=" + $scope.cartableFoemEntryId;
-        } else {
-            path = "workflows/request/" + $scope.formEntry.RequestId + "/status?feid=" + $scope.formEntry.Id;
-        }
-        RequestApis.HR(path, 'Get', '', '', '', function (response) {
-            $scope.AllowAdvicePage = false;
-            $scope.AllowSpecialPage = false;
-            $scope.AllowPublicPage = false;
-            $scope.currentWorkFlowLevel = response.data;
-            $scope.$broadcast('getSecuritiesId', response.data);
-            if ($scope.currentWorkFlowLevel[0].SecurityForms.length > 0) {
-                Object.values($scope.currentWorkFlowLevel[0].SecurityForms).forEach(securityForm => {
-                    if (securityForm.Codes[0] === "HR_ASMT_ADVISE") {
-                        $scope.AllowAdvicePage = true;
-                    }
-                    if (securityForm.Codes[0] === "HR_ASMT_A1" || securityForm.Codes[0] === "HR_ASMT_A2") {
-                        $scope.AllowSpecialPage = true;
-                    }
-                    if (securityForm.Codes[0] === "HR_ASMT_PUBLIC") {
-                        $scope.AllowPublicPage = true;
-                    }
-                    if ($scope.cartableRequestId != null) {
-                        var secondPath = "workflows/request/" + $scope.cartableRequestId + "/form/" + securityForm.Id + "/allow";
-                        var PathForIsStarted = "workflows/request/" + $scope.cartableRequestId + "/is/start";
-                    } else {
-                        var secondPath = "workflows/request/" + $scope.formEntry.RequestId + "/form/" + securityForm.Id + "/allow";
-                        var PathForIsStarted = "workflows/request/" + $scope.formEntry.RequestId + "/is/start";
-                    }
-                    RequestApis.HR(PathForIsStarted, 'Get', '', '', '', function (response) {
-                        if (response.data == null || (response.data.IsStart == true && response.data.IsRequester == true)) {
-                            $scope.Isstarted = true;
-                            $scope.rejectRequest = true;
-                        }
-                    });
-                    RequestApis.HR(secondPath, 'Get', '', '', '', function (allownece) {
-                        if (allownece.status == 406) {
-                            $scope.dynamicButtonAllow = false;
-                        } else {
-                            $scope.dynamicButtonAllow = true;
-                        }
-                        RequestApis.HR("securities/form/" + securityForm.Id, 'Get', '', '', '', function (response1) {
-                            $scope.formInformation = response1.data;
-                            RequestApis.HR("workflows/state/" + $scope.currentWorkFlowLevel[0].StateId + "/actions", 'Get', '', '', '', function (response2) {
-                                if (response2.status !== 200) {
-                                    $scope.buttonsArray = response2.data;
-                                } else {
-                                    $scope.buttonsArray = [];
-                                }
-                                if (securityForm.Codes[0] == "HR_ASMT_A1") {
-                                    $scope.getFirstSpecialData(itemToSet);
-                                } else if (securityForm.Codes[0] == "HR_ASMT_A2") {
-                                    $scope.getSecondSpecialTable(itemToSet);
-                                } else if (securityForm.Codes[0] == "HR_ASMT_PUBLIC") {
-                                    $scope.getPublicTables(itemToSet);
-                                } else if (securityForm.Codes[0] == "HR_ASMT_ADVISE") {
-                                    $scope.getAdvicePart(itemToSet);
-                                }
-                            });
-                        });
-                    });
-                });
-            } else {
-                $scope.loadingTable = false;
-            }
-        });
-
-    };
-    $scope.getworkflowLevels = function (itemToSet) {
-        RequestApis.HR("securities/form/code?seccd=HR_ASMT_A1", 'Get', '', '', '', function (response) {
-            $scope.currentLevel = response.data;
-            RequestApis.HR("securities/form/" + $scope.currentLevel.Id, 'Get', '', '', '', function (response1) {
-                $scope.currentLevels = response1.data;
-                if ($scope.currentLevels != null) {
-                    $scope.checkingWorkflow = true;
-                }
-                $scope.getFirstSpecialData(itemToSet);
-                // $scope.getSecondSpecialTable(itemToSet);
-            });
-        });
-    };
-
-
-    //============= Edit Title From Evaluation Page & Cartable Page ===========
-
-
-    //================== Edit From Evaluation Page ==============
-
-
-    //============== Edit From Cartable Page ===========
-
-
-    //=============== Btns in grid ====================
-
-
-    $scope.addToListPrePed1 = function (event, goal) {
-        if (event.target.checked) {
-
-        }
-        if ($scope.assessment.historyOfTableDataAdd1.length != 0) {
-            var i = 0;
-            for (i; i < $scope.tableDataAdd1.Values.length; i++) {
-
-                if (goal.Id == $scope.tableDataAdd1.Values[i].Id) {
-                    // $scope.goalsToAdd.Values.splice(i, 1);
-                } else if (i == ($scope.tableDataAdd1.Values.length - 1)) {
-                    if (goal.FirstFieldId == undefined) {
-                        goal.FirstFieldId = $scope.children[0].Id;
-                        goal.SecondFieldId = $scope.children[1].Id;
-                        goal.ProgramId = goal.Id;
-                        goal.ValueIndex = $scope.goalsToAdd.Values.length + $scope.tableDataAdd1.Values.length + 1;
-                    }
-                    $scope.tableDataAdd1.Values.push(goal);
-                    break;
-                }
-            }
-        } else {
-            if (goal.FirstFieldId == undefined) {
-                goal.FirstFieldId = $scope.children[0].Id;
-                goal.SecondFieldId = $scope.children[1].Id;
-                goal.ProgramId = goal.Id;
-                goal.ValueIndex = $scope.goalsToAdd.Values.length + 1;
-            }
-            $scope.tableDataAdd1.Values.push(goal);
-        }
-        $scope.submitingForm1();
-        // var flag = true;
-        // for (var i = 0; i < $scope.tableDataAdd.Items.length; i++) {
-        //     if (goal.Id == $scope.tableDataAdd.Items[i].Id) {
-        //         flag = false;
-        //         break;
-        //     }
-        // }
-        // if (flag) {
-        //     if (goal.FirstFieldId == undefined) {
-        //         goal.FirstFieldId = $scope.children[0].Id;
-        //         goal.SecondFieldId = $scope.children[1].Id;
-        //         goal.ProgramId = goal.Id;
-        //         goal.ValueIndex = $scope.goalsToAdd.Values.length + 1;
-        //     }
-        //     $scope.tableDataAdd.Items.push(goal);
-        // }
-        // $scope.tableDataList.Items.splice(index, 1);
-    };
-
-    //=============== Deletation ====================
-    $scope.deleteFromFirstTable = function (goal, index) {
-        //if ($scope.compeleteInfo.TreeId != undefined) {
-        //    $scope.Id = $scope.compeleteInfo.TreeId;
-        //} else {
-        //    $scope.Id = $scope.compeleteInfo.PostId;
-        //}
-        //$scope.openCreateModal($scope.Id);
-        //$scope.$on('getDataForDeleteRow', function (evt, data) {
-        //    var dataToSend = [
-        //        {
-        //            Id: goal.Id,
-        //            RowVersion: goal.RowVersion
-        //        }
-        //    ]
-        //    $scope.deleteData('assessments/program', dataToSend, function (response) {
-        //       $scope.reloadPage();
-        //    })
-        //})
-    };
-
-
-    $scope.sendToDelete = function (data) {
-        $scope.deleteingItem = data;
-        $("#deleteConfirm").modal();
-    };
-
-    $scope.confirmDelete = function () {
-        $("form").submit(function () {
-            return false;
-        });
-        var dataToSend = [
-            {
-                Id: $scope.deleteingItem.Id,
-                RowVersion: $scope.deleteingItem.RowVersion
-            }
-        ];
-        RequestApis.HR('assessments/program', 'delete', '', '', dataToSend, function (response) {
-            $scope.cancelDelete();
-            $scope.openCreateModal($scope.currentItem);
-        });
-    };
-
-    //=============== Editation ====================
-    $scope.JobItemsEdit = [];
-    $scope.openEdit = function (item) {
-        $scope.JobItemsEdit = [];
-        $scope.editItem = item;
-        if (item.JobType != null) {
-            for (var i = 0; i < $scope.jobType.length; i++) {
-                if ($scope.jobType[i].Id & item.JobType) {
-                    $scope.JobItemsEdit.push($scope.jobType[i]);
-                }
-            }
-        } else {
-            $scope.editSearch = {
-                selected: true,
-                unselected: true,
-                text: ''
-            };
-            RequestApis.HR("assessments/program/" + item.Id + "/postclasses", 'Get', '', '', '', function (response) {
-                $scope.EditPostClassData = response.data;
-            });
-        }
-        $("#editModal").modal();
-    };
-    $scope.editChange = {
-        Inserted: [],
-        Deleted: [],
-        Updated: []
-    };
-    $scope.checkEdit = function (edit) {
-        var newVal = edit.Selected;
-        if (edit.Selected) {
-            for (var i = 0; i < $scope.editChange.Deleted.length; i++) {
-                if (edit.Id == $scope.editChange.Deleted[i]) {
-                    newVal = false;
-                    break;
-                }
-            }
-        } else {
-            for (var i = 0; i < $scope.editChange.Inserted.length; i++) {
-                if (edit.Id == $scope.editChange.Inserted[i]) {
-                    newVal = true;
-                    break;
-                }
-            }
-        }
-        return newVal;
-    };
-    $scope.sedEditCheck = function (data) {
-        if (data.Selected) {
-            var found = false;
-            for (var i = 0; i < $scope.editChange.Deleted.length; i++) {
-                if (data.Id == $scope.editChange.Deleted[i]) {
-                    $scope.editChange.Deleted.splice(i, 1);
-                    found = true;
-                }
-            }
-            if (!found) {
-                $scope.editChange.Deleted.push(data.Id);
-            }
-        } else {
-            var found = false;
-            for (var i = 0; i < $scope.editChange.Inserted.length; i++) {
-                if (data.Id == $scope.editChange.Inserted[i]) {
-                    $scope.editChange.Inserted.splice(i, 1);
-                    found = true;
-                }
-            }
-            if (!found) {
-                $scope.editChange.Inserted.push(data.Id);
-            }
-        }
-    };
-    $scope.testCheck = function (item, id) {
-        if (item & id) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    //============== functions that need to be orgnized =======================
-    $scope.JobItems = [];
-    $scope.jobTypeChange = function (item) {
-        if ($("#customCheck-" + item.Id).is(':checked')) {
-            $scope.JobItems.push(item);
-        } else {
-            for (var i = 0; i < $scope.JobItems.length; i++) {
-                if (item.Id == $scope.JobItems[i].Id) {
-                    $scope.JobItems.splice(i, 1);
-                }
-            }
-        }
-    };
-    $scope.jobTypeChangeEdit = function (item) {
-        if ($("#customCheck-edit-" + item.Id).is(':checked')) {
-            $scope.JobItemsEdit.push(item);
-        } else {
-            for (var i = 0; i < $scope.JobItemsEdit.length; i++) {
-                if (item.Id == $scope.JobItemsEdit[i].Id) {
-                    $scope.JobItemsEdit.splice(i, 1);
-                }
-            }
-        }
-    };
-    $scope.createItem = {
-        Title: '',
-        QuantitativeResult: ''
-    };
-    $scope.insertType = 1;
-    $scope.postClassState = false;
-    $scope.getPost = function () {
-        $scope.searchPost = '';
-        RequestApis.HR("postclasses", 'Get', '', '', '', function (response) {
-            $scope.postClassData = response.data;
-        });
-    };
-    $scope.getPostData = function (path) {
-        RequestApis.HR(path, 'Get', '', '', '', function (response) {
-            $scope.postClassData = response.data;
-        });
-    };
-    $scope.loadPagesPost = function (method) {
-        var newPath;
-        if (method == 1) {
-            if (!$scope.postClassData.LastPage) {
-                var page = Number($scope.postClassData.PageIndex) + 1;
-                newPath = "postclasses?paging.pn=" + page + "&search.q=" + $scope.searchP;
-                $scope.getPostData(newPath);
-
-            }
-        } else if (method == -1) {
-            if ($scope.postClassData.PageIndex > 1) {
-                var page = Number($scope.postClassData.PageIndex) - 1;
-                newPath = "postclasses?paging.pn=" + page + "&search.q=" + $scope.searchP;
-                $scope.getPostData(newPath);
-
-            }
-        } else if (method == "first") {
-            var page = 1;
-            newPath = "postclasses?paging.pn=" + page + "&search.q=" + $scope.searchP;
-            $scope.getPostData(newPath);
-        } else {
-            var page = $scope.postClassData.TotalPages;
-            newPath = "postclasses?paging.pn=" + page + "&search.q=" + $scope.searchP;
-            $scope.getPostData(newPath);
-        }
-
-    };
-    $scope.getSearchPost = function (text) {
-        $scope.searchP = text;
-        RequestApis.HR("postclasses?paging.pn=" + 1 + "&search.q=" + $scope.searchP, 'Get', '', '', '', function (response) {
-            $scope.postClassData = response.data;
-        });
-    };
-    $scope.changePagePost = function (event, page) {
-        $("form").submit(function () {
-            return false;
-        });
-        if (event.keyCode == 13) {
-            if (page <= $scope.postClassData.TotalPages && page >= 1) {
-                // $scope.currentPage = page;
-                newPath = "postclasses?paging.pn=" + page + "&search.q=" + $scope.searchP;
-                $scope.getPostData(newPath);
-            } else {
-                $("#paging").val("");
-            }
-        }
-    };
-    $scope.changePState = function () {
-        $scope.postClassState = !$scope.postClassState;
-    };
-    $scope.selectedPostClass = [];
-    $scope.setPostClass = function (data) {
-        var hasAdd = false;
-        for (var i = 0; i < $scope.selectedPostClass.length; i++) {
-            if ($scope.selectedPostClass[i].Id == data.Id) {
-                hasAdd = true;
-                $scope.selectedPostClass.splice(i, 1);
-                break;
-            }
-        }
-        if (!hasAdd) {
-            $scope.selectedPostClass.push(data);
-        }
-    };
-    $scope.checkingPost = function (id) {
-        var found = false;
-        for (var i = 0; i < $scope.selectedPostClass.length; i++) {
-            if ($scope.selectedPostClass[i].Id == id) {
-                found = true;
-                break;
-            }
-        }
-        return found;
-    };
-    $scope.changeInsert = function (type) {
-        $scope.insertType = type;
-    };
-    $scope.addingToList = function (item) {
-        $("form").submit(function () {
-            return false;
-        });
-        if ($scope.insertType == 1) {
-            var Job = 0;
-            for (var i = 0; i < $scope.JobItems.length; i++) {
-                Job = Job + $scope.JobItems[i].Id;
-            }
-            var dataToSend = [
-                {
-                    TypeId: $scope.evaluationType[0].Id,
-                    PeriodId: $scope.period.Id,
-                    ChartId: $scope.currentItem,
-                    JobType: Job,
-                    Title: item.Title,
-                    QuantitativeResult: item.QuantitativeResult,
-                    PostClasses: {
-                        Inserted: [],
-                        Updated: [],
-                        Deleted: []
-                    }
-                }
-            ];
-        } else {
-            var dataToSend = [
-                {
-                    TypeId: $scope.evaluationType[0].Id,
-                    PeriodId: $scope.period.Id,
-                    ChartId: $scope.currentItem,
-                    JobType: 0,
-                    Title: item.Title,
-                    QuantitativeResult: item.QuantitativeResult,
-                    PostClasses: {
-                        Inserted: [],
-                        Updated: [],
-                        Deleted: []
-                    }
-                }
-            ];
-            for (var i = 0; i < $scope.selectedPostClass.length; i++) {
-                dataToSend[0].PostClasses.Inserted.push($scope.selectedPostClass[i].Id);
-            }
-        }
-        RequestApis.HR('assessments/program', 'post', '', '', dataToSend, function (response) {
-            $scope.openCreateModal($scope.currentItem);
-            $scope.JobItems = [];
-            $scope.selectedPostClass = [];
-            $scopecreateItem = {
-                Title: '',
-                QuantitativeResult: ''
-            };
-            $("#goal").val('');
-            $("#result").val('');
-        });
-    };
-    $scope.getPostDataEdit = function (path) {
-        RequestApis.HR(path, 'Get', '', '', '', function (response) {
-            $scope.EditPostClassData = response.data;
-        });
-    };
-    $scope.loadPagesEP = function (method) {
-        var newPath;
-        if (method == 1) {
-            if (!$scope.EditPostClassData.LastPage) {
-                var page = Number($scope.EditPostClassData.PageIndex) + 1;
-                newPath = "assessments/program/" + $scope.editItem.Id + "/postclasses?paging.pn=" + page + "&search.q=" + $scope.editSearch.text;
-                $scope.getPostDataEdit(newPath);
-
-            }
-        } else if (method == -1) {
-            if ($scope.EditPostClassData.PageIndex > 1) {
-                var page = Number($scope.EditPostClassData.PageIndex) - 1;
-                newPath = "assessments/program/" + $scope.editItem.Id + "/postclasses?paging.pn=" + page + "&search.q=" + $scope.editSearch.text;
-                $scope.getPostDataEdit(newPath);
-
-            }
-        } else if (method == "first") {
-            var page = 1;
-            newPath = "assessments/program/" + $scope.editItem.Id + "/postclasses?paging.pn=" + page + "&search.q=" + $scope.editSearch.text;
-            $scope.getPostDataEdit(newPath);
-        } else {
-            var page = $scope.EditPostClassData.TotalPages;
-            newPath = "assessments/program/" + $scope.editItem.Id + "/postclasses?paging.pn=" + page + "&search.q=" + $scope.editSearch.text;
-            $scope.getPostDataEdit(newPath);
-        }
-
-    };
-    $scope.changePagePostEdit = function (event, page) {
-        $("form").submit(function () {
-            return false;
-        });
-        if (event.keyCode == 13) {
-            if (page <= $scope.postClassData.TotalPages && page >= 1) {
-                // $scope.currentPage = page;
-                newPath = "assessments/program/" + $scope.editItem.Id + "/postclasses?paging.pn=" + page + "&search.q=" + $scope.editSearch.text;
-                $scope.getPostDataEdit(newPath);
-            } else {
-                $("#paging").val("");
-            }
-        }
-    };
-    $scope.searchEditPostData = function () {
-        newPath = "assessments/program/" + $scope.editItem.Id + "/postclasses?paging.pn=" + 1 + "&search.q=" + $scope.editSearch.text;
-        $scope.getPostDataEdit(newPath);
-    };
-    $scope.confirmEdit = function () {
-        $("form").submit(function () {
-            return false;
-        });
-        if ($scope.editItem.JobType != null) {
-            var Job = 0;
-            for (var i = 0; i < $scope.JobItemsEdit.length; i++) {
-                Job = Job + $scope.JobItemsEdit[i].Id;
-            }
-            // var dataToSend = [
-            //     {
-            //         TypeId: $scope.evaluationType[0].Id,
-            //         PeriodId: $scope.period.Id,
-            //         ChartId: $scope.currentItem,
-            //         JobType: Job,
-            //         Title: item.Title,
-            //         QuantitativeResult: item.QuantitativeResult
-            //     }
-            // ]
-            $scope.editItem.JobType = Job;
-        } else {
-            $scope.editItem.PostClasses = $scope.editChange;
-        }
-        $scope.patchData('assessments/program', [$scope.editItem], function (response) {
-            $scope.openCreateModal($scope.currentItem);
-            $scope.JobItemsEdit = [];
-            $scope.editChange = {
-                Inserted: [],
-                Updated: [],
-                Deleted: []
-            };
-            $("#editModal").modal('hide');
-            $("#goal").val('');
-            $("#result").val('');
-        });
-    };
-    $scope.cancelEdit = function () {
-        $scope.openCreateModal($scope.currentItem);
-        $("#editModal").modal('hide');
-    };
-
-
-    // $scope.getSecondSpecialData = function() {
-    //     $http({
-    //         url: "../Content/firefoxStyle/newJavascript/A2.json",
-    //         method: "GET",
-    //         ContentType: "application/json; charset = utf-8",
-    //         dataType: 'JSON',
-    //     })
-    //         .then(function (response) {
-    //             // callback(response.data);
-    //             $scope.secondTableMock = response.data;
-    //             var rowIndex = $scope.secondTableMock.Values[$scope.secondTableMock.Values.length - 1].ValueIdx;
-    //             $scope.tableRows = [];
-    //            for(var i =1; i <= rowIndex;i++){
-    //                 var itemToPush = {
-    //                     index: i,
-    //                     items:[]
-    //                 }
-    //                 for(var j = 0; j < $scope.secondTableMock.Values.length;j++) {
-    //                     if($scope.secondTableMock.Values[j].ValueIdx == i) {
-    //                         itemToPush.items.push($scope.secondTableMock.Values[j]);
-    //                     }
-    //                 }
-    //                 $scope.tableRows.push(itemToPush);
-    //             }
-    //          })
-    //         .catch(function (xhr) {
-    //             callback(404)
-    //             // callback(xhr.data);
-    //         })
-    // }
-});
 app.controller('searchCtrl', function ($scope, $templateCache, $state, RequestApis) {
     $templateCache.remove($state.current.templateUrl);
     $scope.searching = function () {

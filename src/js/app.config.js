@@ -23,12 +23,12 @@ app.config(['$stateProvider', '$locationProvider', '$urlRouterProvider', '$authP
     //$locationProvider.html5Mode({ enabled: true, requireBase: true });
     $locationProvider.hashPrefix('');
     $authProvider.configure({
-        authority: 'https://localhost:4431',
+        authority: 'https://localhost:4433/IDP',
         redirect_uri: 'https://localhost:4433/#/auth/callback/',
         popup_redirect_uri: 'https://localhost:4433/#/auth/popup/',
         redirectCallback: 'https://localhost:4433/',
         silent_redirect_uri: 'https://localhost:4433/#/auth/silent/',
-        logout_uri: 'https://localhost:4431/Account/Logout',
+        logout_uri: 'https://localhost:4433/IDP/Account/Logout',
         post_logout_redirect_uri: 'https://localhost:4433/',
         client_id: 'dashboard_spa',
         response_type: 'id_token token',

@@ -1,4 +1,4 @@
-﻿app.controller('DashboardController', function ($scope, $timeout, RequestApis, global,FileSaver,Blob) {
+﻿app.controller('DashboardController', function ($scope, $timeout, RequestApis, global, FileSaver, Blob) {
     $scope.logoImage = "../src/images/logo.png";
     $scope.mailImage = "../src/images/male.png";
     $scope.pageSize = 10;
@@ -101,9 +101,9 @@
         {Id: 7, Title: 'گزارش ارزشیابی', selected: false}
     ]
     $scope.getSideBar = function (sideBar) {
-        $scope.sideBarItems.map(x=>x.selected = false);
+        $scope.sideBarItems.map(x => x.selected = false);
         $timeout(function () {
-            sideBar.selected =true;
+            sideBar.selected = true;
         }, 100)
         if (sideBar.Id === 0) {
             $scope.pageLoading = true;
@@ -168,7 +168,7 @@
                         }
                     })
                 }
-                RequestApis.HR(`personnel/${personnel.Id}/faith`, 'Get', '', '', '', function (response) {
+                RequestApis.HR(`personnel/${$scope.selectedInfo.Religion}/faith`, 'Get', '', '', '', function (response) {
                     if (response.status === 200) {
                         $scope.religionBranch = response.data;
                     }
@@ -179,7 +179,7 @@
                 RequestApis.HR(`constants/enum/MaritalState`, 'Get', '', '', '', function (response) {
                     $scope.marigeStatus = response.data;
                 })
-                RequestApis.HR(`millitaries`, 'Get', '', '', '', function (response) {
+                RequestApis.HR(`military`, 'Get', '', '', '', function (response) {
                     $scope.militaryState = response.data;
                     $scope.pageLoading = false;
                 })
@@ -3571,13 +3571,20 @@
         })
     }
     //==================== assessment report =========================
+    $scope.changePriod = function (item) {
+        $scope.selectedPeriodItem = item;
+    }
     $scope.getPeriods = function () {
         RequestApis.HR('periods', 'Get', '', '', '', function (response) {
             $scope.PriodItems = response.data.Items;
         })
     }
     $scope.getDataTable = function () {
-        RequestApis.HR('assessments?pn=1&ps=100&id=' + $scope.selectedInfo.Id, 'Get', '', '', '', function (response) {
+        $scope.loadingSearch = true;
+        let period = "";
+        if ($scope.selectedPeriodItem !== null)
+            period = period.concat(`&prd=${$scope.selectedPeriodItem}`)
+        RequestApis.HR(`assessments?pn=1&ps=100&id=${$scope.selectedInfo.Id}${period}`, 'Get', '', '', '', function (response) {
             if (response.status === 200) {
                 $scope.priods = response.data;
             } else {
@@ -3625,7 +3632,7 @@
         window.parent.location.href = check ? `${window.origin}/${window.location.pathname.toString().split("/")[1]}/Login/ChangePassword.aspx` : `${window.origin}/Login/ChangePassword.aspx`;
     }
 })
-app.controller('abilityCtrl', function ($scope, $compile, $timeout, RequestApis, global,FileSaver,Blob) {
+app.controller('abilityCtrl', function ($scope, $compile, $timeout, RequestApis, global, FileSaver, Blob) {
     //=============== initial variables ==================
     $scope.loadingCreateCulture = false;
     $scope.loadingEditCulture = false;

@@ -211,7 +211,14 @@ app.controller("cartableCtrl", function ($scope, $templateCache, $state, $stateP
             $scope.pageLoaded = true;
             $scope.requestAssessment = false;
             RequestApis.HR('cartables/request/' + item.Request.Id + '/seen', 'Post', '', '', '', function (response) {
-                $scope.pagesItem = `../../views/Assessment/Assessment.html?v=${Date.now()}`
+                if (global.checkExist($scope.urlParams.hourVacationId) ||
+                    global.checkExist($scope.urlParams.dayVacationId))
+                    $scope.pagesItem = `../../views/Cartable/RequestPages/Vacation.html?v=${Date.now()}`
+                if (global.checkExist($scope.urlParams.hourMissionId) ||
+                    global.checkExist($scope.urlParams.dayMissionId))
+                    $scope.pagesItem = `../../views/Cartable/RequestPages/Mission.html?v=${Date.now()}`
+                if (global.checkExist($scope.urlParams.periodId))
+                    $scope.pagesItem = `../../views/Assessment/Assessment.html?v=${Date.now()}`
             })
             // if (item.Request.AdditionalInfo != null) {
             //     var test = Object.keys(JSON.parse(item.Request.AdditionalInfo))
@@ -370,17 +377,6 @@ app.controller("cartableCtrl", function ($scope, $templateCache, $state, $stateP
 
             } else {
                 $scope.cartableList = [];
-                if (response.status === 404) {
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'مورد جدیدی برای نمایش وجود ندارد.'
-                    })
-                } else {
-                    Toast.fire({
-                        icon: 'warning',
-                        title: 'بارگذاری اطلاعات با خطا مواجه شد'
-                    })
-                }
             }
         })
 
@@ -598,15 +594,6 @@ app.controller("cartableCtrl", function ($scope, $templateCache, $state, $stateP
 app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, RequestApis, $timeout, $location, global) {
     $templateCache.remove($state.current.templateUrl);
     //=========== initial variable ===========
-    this.$onInit = function () {
-        $scope.getDataUrlParams();
-        $scope.getPersonnelInfo();
-        $scope.IsLimited = false;
-        $scope.changeType(2);
-    }
-    let applications = ["HR", "DASHBOARD", "RC", "DASH", "DRC", "HELPDESK"];
-    let appNameFromUrl = window.location.pathname.toString().split("/")[1].toUpperCase();
-    let check = applications.some(x => x === appNameFromUrl);
     $scope.DetailsHourMode = false;
     $scope.DetailsDayMode = false;
     $scope.CheckStateDay = false;
@@ -618,30 +605,28 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
     $scope.showAutoCompleteSubjectMission = false;
     $scope.createHourMissionData = {};
     $scope.getPersonnelInfo = function () {
-        global.urlInfo(function (data) {
+        global.currentUser(function (data) {
             $scope.currentUserId = data.UserId;
-            RequestApis.HR(`personnel/user/${$scope.currentUserId}/current`, 'Get', '', '', '', function (response) {
-                if (response.status === 200) {
-                    $scope.PersonnelInfo = response.data;
-                }
-            })
+            $scope.PersonnelInfo = data.personnelInfo;
+            $scope.IsLimited = false;
+            $scope.changeType(2);
         })
     }
+    $scope.getPersonnelInfo();
     $scope.createDayMissionData = {}
     $scope.finalRequest = false;
     $scope.showChart = false;
     $scope.showLocation = false;
-    $scope.getDataUrlParams = function () {
-        global.urlInfo(function (data) {
-            if (global.checkExist(data.UrlParams)) {
-                if (data.UrlParams.hourMissionId !== undefined) {
-                    $scope.checkStatus($scope.urlsearch);
-                }
-                if (data.UrlParams.DayMissionFormId !== undefined) {
-                    $scope.checkStatusDay($scope.urlsearch);
-                }
+    $scope.getDataFromCartable = function () {
+        if (global.checkExist($scope.$parent.urlParams)){
+            $scope.urlsearch =  $scope.$parent.urlParams
+            if ($scope.urlsearch.hourVacationId != undefined) {
+                $scope.checkStatus($scope.urlsearch);
             }
-        })
+            if ($scope.urlsearch.dailyVacationId != undefined) {
+                $scope.checkStatusDay($scope.urlsearch)
+            }
+        }
     }
     $scope.checkStatusDay = function (items) {
         RequestApis.HR("workflows/request/" + items.requestId + "/status/", 'Get', '', '', '', function (response1) {
@@ -702,7 +687,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
 
     $scope.checkLimitation = function (item) {
         $scope.IsLimited = false;
-        RequestApis.RC(`PersonLeave/CheckRequestTimeLimit?fromDate=${$scope.convertToMiladi(item)}`, 'Get', '', '', function (response) {
+        RequestApis.RC(`PersonLeave/CheckRequestTimeLimit?fromDate=${$scope.convertToMiladi(item)}`, 'Get', '', '', '', function (response) {
             if (response.data.data.isLimit) {
                 Toast.fire({
                     icon: "error",
@@ -779,6 +764,10 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
             });
             $('.time').clockpicker();
         }, 500)
+        Inputmask({
+            clearMaskOnLostFocus: false,
+            clearIncomplete: true,
+        }).mask(document.querySelectorAll("input"));
         $('.time').inputmask({regex: "(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]", "placeholder": "HH:MM"});
         //validation input setter for working correctly with date & time picker
 
@@ -812,7 +801,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
     //---------- residence -----------
     $scope.AutoCompleteSearchResidence = function (item) {
         if (item != undefined && item.length != 0) {
-            RequestApis.RC('Search/GetAutoComplete/ResidenceAC/' + item, 'Get', '', 'json', function (response) {
+            RequestApis.RC('Search/GetAutoComplete/ResidenceAC/' + item, 'Get', '', 'json', '', function (response) {
                 if (response.data.success === true) {
                     if (response.data.data.length) {
                         $scope.showAutoCompleteResidence = true;
@@ -823,7 +812,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 }
             })
         } else {
-            RequestApis.RC('Search/GetAutoComplete/ResidenceAC/ ', 'Get', '', 'json', function (response) {
+            RequestApis.RC('Search/GetAutoComplete/ResidenceAC/ ', 'Get', '', 'json', '', function (response) {
                 if (response.data.success === true) {
                     if (response.data.data.length) {
                         $scope.showAutoCompleteResidence = true;
@@ -844,7 +833,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 }
             })
             if (!same) {
-                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=ResidenceAC&str=' + item, 'Post', '', 'json', function (response) {
+                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=ResidenceAC&str=' + item, 'Post', '', 'json', '', function (response) {
                     $scope.showAutoCompleteResidence = false;
                 })
             }
@@ -862,7 +851,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
     //----------- location -----------
     $scope.AutoCompleteSearchlocation = function (item) {
         if (item != undefined && item.length != 0) {
-            RequestApis.RC('Search/GetAutoComplete/missionLocation/' + item, 'Get', '', 'json', function (response) {
+            RequestApis.RC('Search/GetAutoComplete/missionLocation/' + item, 'Get', '', 'json', '', function (response) {
                 if (response.data.success === true) {
                     if (response.data.data.length) {
                         $scope.showAutoCompletelocation = true;
@@ -873,7 +862,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 }
             })
         } else {
-            RequestApis.RC('Search/GetAutoComplete/missionLocation/ ', 'Get', '', 'json', function (response) {
+            RequestApis.RC('Search/GetAutoComplete/missionLocation/ ', 'Get', '', 'json', '', function (response) {
                 if (response.data.success === true) {
                     if (response.data.data.length) {
                         $scope.showAutoCompletelocation = true;
@@ -894,13 +883,13 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 }
             })
             if (!same) {
-                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=missionLocation&str=' + item, 'Post', '', 'json', function (response) {
-                    $scope.showAutoCompleteSubjectMission = false;
+                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=missionLocation&str=' + item, 'Post', '', 'json', '', function (response) {
+                    $scope.showAutoCompletelocation = false;
                 })
             }
         } else {
             $timeout(function () {
-                $scope.showAutoCompleteSubjectMission = false;
+                $scope.showAutoCompletelocation = false;
             }, 150)
         }
     }
@@ -916,7 +905,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
     //--------- subject mission ------
     $scope.AutoCompleteSearchSubjectMission = function (item) {
         if (item != undefined && item.length != 0) {
-            RequestApis.RC('Search/GetAutoComplete/SubjectMissionAC/' + item, 'Get', '', 'json', function (response) {
+            RequestApis.RC('Search/GetAutoComplete/SubjectMissionAC/' + item, 'Get', '', 'json', '', function (response) {
                 if (response.data.success === true) {
                     if (response.data.data.length) {
                         $scope.showAutoCompleteSubjectMission = true;
@@ -927,7 +916,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 }
             })
         } else {
-            RequestApis.RC('Search/GetAutoComplete/SubjectMissionAC/ ', 'Get', '', 'json', function (response) {
+            RequestApis.RC('Search/GetAutoComplete/SubjectMissionAC/ ', 'Get', '', 'json', '', function (response) {
                 if (response.data.success === true) {
                     if (response.data.data.length) {
                         $scope.showAutoCompleteSubjectMission = true;
@@ -948,7 +937,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 }
             })
             if (!same) {
-                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=SubjectMissionAC&str=' + item, 'Post', '', 'json', function (response) {
+                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=SubjectMissionAC&str=' + item, 'Post', '', 'json', '', function (response) {
                     $scope.showAutoCompleteSubjectMission = false;
                 })
             }
@@ -982,7 +971,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
             "filter": "",
             "orderBy": ""
         }
-        RequestApis.RC('DayMissionType/GetLookUp', 'Post', item, 'json', function (response) {
+        RequestApis.RC('DayMissionType/GetLookUp', 'Post', 'json', '', item, function (response) {
             if (response.status == 200) {
                 $scope.selectgroupMissionType = response.data.data;
                 $scope.selectgroupMissionType.splice(1, 1);
@@ -997,7 +986,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
     }
     //============ vehicle list =================
     $scope.getVehicleType = function () {
-        RequestApis.RC('api/Constants/enum/VehicleType', 'Get', '', 'json', function (response) {
+        RequestApis.RC('api/Constants/enum/VehicleType', 'Get', '', 'json', '', function (response) {
             $scope.vehicleTypesList = response.data;
         })
     }
@@ -1056,6 +1045,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
             $scope.getVehicleType();
             $scope.getTypeOfMission();
         }
+        $scope.inputMasks();
     }
 
     //****************************************************************************
@@ -1080,7 +1070,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
             description: item.description,
             requesterId: Number($scope.currentUserId)
         };
-        RequestApis.RC('HourMission/UpsertHourMissionBatch', 'Post', [createHourMissionData], 'json', function (response) {
+        RequestApis.RC('HourMission/UpsertHourMissionBatch', 'Post', '', 'json', [createHourMissionData], function (response) {
             if (response.data.success == true) {
                 let parentHourId = response.data.data[0].Id;
                 $scope.parentHourId = response.data.data[0].Id;
@@ -1112,7 +1102,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                             "createdBy": Number($scope.currentUserId),
                             "createdAt": moment().format('YYYY-MM-DD')
                         }
-                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', requestItem, 'json', function (response) {
+                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', '', 'json', requestItem, function (response) {
                             if (response.data.success == true) {
                                 $scope.SubmitOccured = true;
                                 $scope.loadingRequestHourM = false;
@@ -1300,7 +1290,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
         $scope.hourMistion = false;
         $scope.DetailsDayMode = false;
         $scope.dayMistion = false;
-        RequestApis.RC('HourMission/GetById/' + id, 'Get', '', 'json', function (response) {
+        RequestApis.RC('HourMission/GetById/' + id, 'Get', '', 'json', '', function (response) {
             if (response.status === 200) {
                 $scope.hourMissionDetailsData = response.data.data;
                 $scope.DetailsHourMode = true;
@@ -1359,7 +1349,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
         }
         $scope.finalRequest = true;
         if ($scope.buttonInfoH.PreUrls != undefined) {
-            RequestApis.RC($scope.buttonInfoH.PreUrls[0], 'Post', subItemToSend, 'json', function (response) {
+            RequestApis.RC($scope.buttonInfoH.PreUrls[0], 'Post', '', 'json', subItemToSend, function (response) {
                 if (response.data.success == true) {
                     RequestApis.HR("workflows/request/" + requestId, 'get', '', '', '', function (response1) {
                         var itemTosend = {
@@ -1466,7 +1456,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                     toDate: $scope.convertToMiladi($scope.createDayMissionData.toDate)
                 };
                 $scope.SideInfoData = {};
-                RequestApis.RC(`PersonLeave/GetAllTimeRollCalls`, 'Post', item, 'json', function (response) {
+                RequestApis.RC(`PersonLeave/GetAllTimeRollCalls`, 'Post', '', 'json', item, function (response) {
                     if (response.data.success) {
                         $scope.SideInfoData = response.data.data;
                         $scope.sideInfo = true;
@@ -1483,7 +1473,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
             }
         }
         if ($scope.createDayMissionData.fromDate != undefined) {
-            RequestApis.RC(`PersonLeave/IsFriday?FromDate=${$scope.convertToMiladi($scope.createDayMissionData.fromDate)}`, 'Get', '', 'json', function (response) {
+            RequestApis.RC(`PersonLeave/IsFriday?FromDate=${$scope.convertToMiladi($scope.createDayMissionData.fromDate)}`, 'Get', '', 'json', '', function (response) {
                 if (response.data) {
                     Toast.fire({
                         icon: "warning",
@@ -1522,7 +1512,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
             "hokmNO": item.hokmNO != undefined ? item.hokmNO : null,
             "licenseNums": []
         }
-        RequestApis.RC('PersonMission/InsertMissionRequest', 'Post', itemtosend, 'json', function (responsep) {
+        RequestApis.RC('PersonMission/InsertMissionRequest', 'Post', '', 'json', itemtosend, function (responsep) {
             if (responsep.data.success == true) {
                 let ParentResponse = responsep.data.data;
                 $scope.requestMD = responsep.data.data.id
@@ -1551,7 +1541,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                             "createdBy": Number($scope.currentUserId),
                             "createdAt": moment().format('YYYY-MM-DD')
                         }
-                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', requestItem, 'json', function (response) {
+                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', '', 'json', requestItem, function (response) {
                             if (response.data.success == true) {
                                 $scope.SubmitOccured = true;
                                 $scope.loadingRequestDayM = false;
@@ -1745,7 +1735,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
         let requestId = items.requestId != undefined ? items.requestId : $scope.requestIdDay != undefined ? $scope.requestIdDay : $scope.urlsearch.requestId;
         $scope.finalRequest = true;
         let id = items.id != undefined ? items.id : $scope.requestMD
-        RequestApis.RC('PersonMission/GetMission?RequestId=' + id + '&PersonId=', 'Get', '', 'json', function (response) {
+        RequestApis.RC('PersonMission/GetMission?RequestId=' + id + '&PersonId=', 'Get', '', 'json', '', function (response) {
             let subItemToSend = {
                 "requestCode": response.data.data[0].requestCode,
                 "chartTreeID": response.data.data[0].chartTreeID,
@@ -1764,7 +1754,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
                 "isDeleted": response.data.data[0].isDeleted
             }
             if ($scope.buttonInfoDay.PreUrls != undefined) {
-                RequestApis.RC($scope.buttonInfoDay.PreUrls[0], 'Post', subItemToSend, 'json', function (response3) {
+                RequestApis.RC($scope.buttonInfoDay.PreUrls[0], 'Post', '', 'json', subItemToSend, function (response3) {
                     if (response3.data.success == true) {
                         RequestApis.HR("workflows/request/" + requestId, 'get', '', '', '', function (response7) {
                             var itemTosend = {
@@ -1861,7 +1851,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
         $scope.hourMistion = false;
         $scope.dayMistion = false;
         $scope.dayVacation = false;
-        RequestApis.RC('PersonMission/GetMission?RequestId=' + id + '&PersonId=', 'Get', '', 'json', function (response1) {
+        RequestApis.RC('PersonMission/GetMission?RequestId=' + id + '&PersonId=', 'Get', '', 'json', '', function (response1) {
             if (response1.status === 200) {
                 $scope.dayMissionDetailsData = response1.data.data[0];
                 $scope.DetailsDayMode = true;
@@ -1887,28 +1877,7 @@ app.controller("missionRequestCtrl", function ($scope, $templateCache, $state, R
 app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCache, $state, $timeout, $location, global) {
     $templateCache.remove($state.current.templateUrl);
     //========= initial variable =============
-    this.$onInit = function () {
-        $scope.getPersonnelInfo();
-        $scope.getDataWithCookie();
-        $scope.IsLimited = false;
-        $scope.changeVacationType(2);
-    }
-    let applications = ["HR", "DASHBOARD", "RC", "DASH", "DRC", "HELPDESK"];
-    let appNameFromUrl = window.location.pathname.toString().split("/")[1].toUpperCase();
-    let check = applications.some(x => x === appNameFromUrl);
-    $scope.getPersonnelInfo = function () {
-        global.urlInfo(function (data) {
-            $scope.currentUserId = data.UserId;
-            RequestApis.HR(`personnel/user/${$scope.currentUserId}/current`, 'Get', '', '', '', function (response) {
-                if (response.status === 200) {
-                    $scope.PersonnelDetails(response.data);
-                }
-            })
-        })
-    }
-    $scope.PersonnelDetails = function (item) {
-        $scope.PersonnelInfo = item;
-    }
+
     $scope.CheckStateDay = false;
     $scope.CheckState = false;
     $scope.createDayVacationData = {};
@@ -1920,7 +1889,13 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
     $scope.buttonsArrayShow = false;
     $scope.finalRequest = false;
     $scope.returnDataFromCreateApi = [];
-
+    global.currentUser(function (data) {
+        $scope.currentUserId = data.UserId;
+        $scope.PersonnelInfo = data.personnelInfo;
+        $scope.IsLimited = false;
+        $scope.changeVacationType(2);
+        $scope.getDataFromCartable();
+    })
     $scope.getIntitlementInfo = function () {
         let item = {
             "toDate": moment().format('YYYY-MM-DD'),
@@ -1931,17 +1906,15 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
             "pageSize": 1,
             "searchList": []
         }
-        RequestApis.RC('Reports/GetLeaveStatusByPersonReport', 'Post', item, '', function (response) {
+        RequestApis.RC('Reports/GetLeaveStatusByPersonReport', 'Post', '', '', item, function (response) {
             $scope.IntitlementInfo = response.data.data.item1[0];
         })
     }
 
-    $scope.getDataWithCookie = function () {
-        if (window.location.toString().split("?").length != 1) {
-            var search = window.location.search.substring(1);
-            $scope.urlsearch = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}')
+    $scope.getDataFromCartable = function () {
+        if (global.checkExist($scope.$parent.urlParams)){
+            $scope.urlsearch =  $scope.$parent.urlParams
             if ($scope.urlsearch.hourVacationId != undefined) {
-
                 $scope.checkStatus($scope.urlsearch);
             }
             if ($scope.urlsearch.dailyVacationId != undefined) {
@@ -2069,6 +2042,10 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
             });
             $('.time').clockpicker();
         }, 500)
+        Inputmask({
+            clearMaskOnLostFocus: false,
+            clearIncomplete: true,
+        }).mask(document.querySelectorAll("input"));
         $('.time').inputmask({regex: "(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]", "placeholder": "HH:MM"});
         $('.date-picker').change(function () {
             angular.element($(this)).triggerHandler('input');
@@ -2083,7 +2060,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         if ($scope.createDayVacationData.fromDate != undefined && $scope.createDayVacationData.toDate != undefined) {
             let fromDate = $scope.convertToMiladi($scope.createDayVacationData.fromDate);
             let toDate = $scope.convertToMiladi($scope.createDayVacationData.toDate);
-            RequestApis.RC(`PersonLeave/GetLeaveDays/${$scope.PersonnelInfo.Id}?FromDate=${fromDate}&ToDate=${toDate}`, 'Get', '', 'json', function (response) {
+            RequestApis.RC(`PersonLeave/GetLeaveDays/${$scope.PersonnelInfo.Id}?FromDate=${fromDate}&ToDate=${toDate}`, 'Get', '', 'json', '', function (response) {
                 $scope.leaveDayInfo = response.data.data;
             })
         }
@@ -2107,11 +2084,12 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
 
             default:
         }
+        $scope.maskInput();
     }
 
     $scope.getRemindVacation = function () {
         let currentDate = moment().format('YYYY-MM-DD');
-        RequestApis.RC(`LeaveRemainings/CalculateCurrentLeaveRemaining?currentDate=${currentDate}`, 'Post', [$scope.PersonnelInfo.Id], 'json', function (response) {
+        RequestApis.RC(`LeaveRemainings/CalculateCurrentLeaveRemaining?currentDate=${currentDate}`, 'Post', '', 'json', [$scope.PersonnelInfo.Id], function (response) {
             $scope.leavInformation = response.data.data[0];
         })
     }
@@ -2228,7 +2206,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
             fillNestedClass: true,
             searchList: []
         }
-        RequestApis.RC('DayLeaveType/GetList', 'Post', $scope.item, 'json', function (response) {
+        RequestApis.RC('DayLeaveType/GetList', 'Post', '', 'json', $scope.item, function (response) {
             if (response.data.success == true) {
                 $scope.selectgroupVacationType = response.data.data;
             } else {
@@ -2241,7 +2219,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
     }
     $scope.checkLimitation = function (item) {
         $scope.IsLimited = false;
-        RequestApis.RC(`PersonLeave/CheckRequestTimeLimit?fromDate=${$scope.convertToMiladi(item)}`, 'Get', '', '', function (response) {
+        RequestApis.RC(`PersonLeave/CheckRequestTimeLimit?fromDate=${$scope.convertToMiladi(item)}`, 'Get', '', '', '', function (response) {
             if (response.data.data.isLimit) {
                 Toast.fire({
                     icon: "error",
@@ -2258,7 +2236,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         if ($scope.createDayVacationData.fromDate != undefined && $scope.createDayVacationData.toDate != undefined) {
             let fromDate = $scope.convertToMiladi($scope.createDayVacationData.fromDate);
             let toDate = $scope.convertToMiladi($scope.createDayVacationData.toDate);
-            RequestApis.RC(`PersonLeave/GetSickLeaveDays/${$scope.PersonnelInfo.Id}?FromDate=${fromDate}&ToDate=${toDate}`, 'Get', '', 'json', function (response) {
+            RequestApis.RC(`PersonLeave/GetSickLeaveDays/${$scope.PersonnelInfo.Id}?FromDate=${fromDate}&ToDate=${toDate}`, 'Get', '', 'json', '', function (response) {
                 $scope.treatmentData = response.data.data;
                 $scope.createDayVacationData.sickLeaveInMonth = response.data.sickLeaveInMonth;
                 $scope.createDayVacationData.sickLeaveInYear = response.data.sickLeaveInYear;
@@ -2271,7 +2249,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         if ($scope.createDayVacationData.fromDate != undefined && $scope.createDayVacationData.toDate != undefined) {
             let fromDate = $scope.convertToMiladi($scope.createDayVacationData.fromDate);
             let toDate = $scope.convertToMiladi($scope.createDayVacationData.toDate);
-            RequestApis.RC('PersonLeave/GetMaternityLeaveDays/' + $scope.PersonnelInfo.Id + '?FromDate=' + fromDate + '&ToDate=' + toDate, 'Get', '', 'json', function (response) {
+            RequestApis.RC('PersonLeave/GetMaternityLeaveDays/' + $scope.PersonnelInfo.Id + '?FromDate=' + fromDate + '&ToDate=' + toDate, 'Get', '', 'json', '', function (response) {
                 $scope.maternityData = response.data.data;
             })
         }
@@ -2318,7 +2296,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
             if (filterTextTimeout) $timeout.cancel(filterTextTimeout);
             filterTextTimeout = $timeout(function () {
                 if (val != undefined && val.length) {
-                    RequestApis.RC('Search/GetAutoComplete/' + typeAuto + '/' + val, 'Get', '', 'json', function (response) {
+                    RequestApis.RC('Search/GetAutoComplete/' + typeAuto + '/' + val, 'Get', '', 'json', '', function (response) {
                         if (response.data.success === true) {
                             if (response.data.data.length) {
                                 type == "TreatmentUnitAC" ? $scope.wordListUnit = response.data.data : (type == "SubjectLeaveAC" ? $scope.wordListReason = response.data.data : (type == "TrustedDoctorAC" ? $scope.wordListDoctor = response.data.data : $scope.wordList = null))
@@ -2328,7 +2306,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
                         }
                     })
                 } else {
-                    RequestApis.RC('Search/GetAutoComplete/' + typeAuto + '/ ', 'Get', '', 'json', function (response) {
+                    RequestApis.RC('Search/GetAutoComplete/' + typeAuto + '/ ', 'Get', '', 'json', '', function (response) {
                         if (response.data.success === true) {
                             if (response.data.data.length) {
                                 type == "TreatmentUnitAC" ? $scope.wordListUnit = response.data.data : (type == "SubjectLeaveAC" ? $scope.wordListReason = response.data.data : (type == "TrustedDoctorAC" ? $scope.wordListDoctor = response.data.data : $scope.wordList = null))
@@ -2376,7 +2354,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
                 })
             }
             if (!same) {
-                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=' + typeAuto + '&str=' + item, 'Post', '', 'json', function (response) {
+                RequestApis.RC('Search/InsertAutoComplete?autoCompleteName=' + typeAuto + '&str=' + item, 'Post', '', 'json', '', function (response) {
                     $scope.showAutoCompleteTreatmentUnitAC = false;
                     $scope.showAutoCompleteTrustedDoctorAC = true;
                     $scope.showAutoCompleteTrustedDoctorAC = false;
@@ -2451,7 +2429,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
                     toDate: $scope.convertToMiladi(Todate)
                 };
                 $scope.SideInfoData = {};
-                RequestApis.RC(`PersonLeave/GetAllTimeRollCalls`, 'Post', item, 'json', function (response) {
+                RequestApis.RC(`PersonLeave/GetAllTimeRollCalls`, 'Post', '', 'json', item, function (response) {
                     if (response.data.success) {
                         $scope.SideInfoData = response.data.data;
                         $scope.sideInfo = true;
@@ -2465,7 +2443,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
     }
     $scope.checkFriday = function (fromDate) {
         if (fromDate != undefined) {
-            RequestApis.RC(`PersonLeave/IsFriday?FromDate=${$scope.convertToMiladi(fromDate)}`, 'Get', '', 'json', function (response) {
+            RequestApis.RC(`PersonLeave/IsFriday?FromDate=${$scope.convertToMiladi(fromDate)}`, 'Get', '', 'json', '', function (response) {
                 if (response.data) {
                     Toast.fire({
                         icon: "warning",
@@ -2519,7 +2497,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
             "createdBy": Number($scope.currentUserId),
             "createdAt": moment().format('YYYY-MM-DD')
         };
-        RequestApis.RC('HourLeaves/Create', 'Post', itemToSend, 'json', function (responsep) {
+        RequestApis.RC('HourLeaves/Create', 'Post', '', 'json', itemToSend, function (responsep) {
             if (responsep.data.success == true) {
                 let ParentResponse = responsep.data.data;
                 $scope.RequestIdVH = responsep.data.data
@@ -2549,7 +2527,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
                             "createdBy": Number($scope.currentUserId),
                             "createdAt": moment().format('YYYY-MM-DD')
                         }
-                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', requestItem, 'json', function (responsex) {
+                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', '', 'json', requestItem, function (responsex) {
                             if (responsex.data.success == true) {
                                 $scope.SubmitOccured = true;
                                 $scope.dynamicBtns(ParentResponse, responsex.data.data);
@@ -2638,7 +2616,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
             "&ToDt=" +
             thisDate;
 
-        RequestApis.RC(path, 'Get', '', 'json', function (response) {
+        RequestApis.RC(path, 'Get', '', 'json', '', function (response) {
             $scope.trafficHours = response.data
         })
     }
@@ -2753,7 +2731,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         $scope.hourVacation = false;
         $scope.DetailsDayMode = false;
         $scope.dayVacation = false;
-        RequestApis.RC('HourLeaves/GetById/' + id + '/true', 'Get', '', 'json', function (response) {
+        RequestApis.RC('HourLeaves/GetById/' + id + '/true', 'Get', '', 'json', '', function (response) {
             if (response.status === 200) {
                 $scope.hourVacationDetailsData = response.data.data;
                 $scope.DetailsHourMode = true;
@@ -2795,7 +2773,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         }
         $scope.finalRequest = true;
         if ($scope.buttonInfoH.PreUrls != undefined) {
-            RequestApis.RC($scope.buttonInfoH.PreUrls[0], 'Post', subItemToSend, 'json', function (response) {
+            RequestApis.RC($scope.buttonInfoH.PreUrls[0], 'Post', '', 'json', subItemToSend, function (response) {
                 if (response.data.success == true) {
                     RequestApis.HR("workflows/request/" + requestId, 'get', '', '', '', function (response7) {
                         var itemTosend = {
@@ -2925,7 +2903,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
                 "createdBy": Number($scope.currentUserId),
                 "createdAt": moment().format('YYYY-MM-DD')
             }
-            RequestApis.RC('PersonLeave/UpsertPersonLeaveBatch', 'Post', [itemtosend], 'json', function (response) {
+            RequestApis.RC('PersonLeave/UpsertPersonLeaveBatch', 'Post', '', 'json', [itemtosend], function (response) {
                 if (response.data.success == true) {
                     let ParentResponse = response.data.data[0];
                     $scope.createdId = response.data.data[0].Id;
@@ -2954,7 +2932,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
                                 "createdBy": Number($scope.currentUserId),
                                 "createdAt": moment().format('YYYY-MM-DD')
                             }
-                            RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', requestItem, 'json', function (response) {
+                            RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', '', 'json', requestItem, function (response) {
                                 if (response.data.success == true) {
                                     $scope.SubmitOccured = true;
                                     $scope.dynamicBtnsDay(ParentResponse, response.data.data);
@@ -3196,7 +3174,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         }
         $scope.finalRequest = true;
         if ($scope.buttonInfoDay.PreUrls != undefined) {
-            RequestApis.RC($scope.buttonInfoDay.PreUrls[0], 'Post', subItemToSend, 'json', function (response3) {
+            RequestApis.RC($scope.buttonInfoDay.PreUrls[0], 'Post', '', 'json', subItemToSend, function (response3) {
                 if (response3.data.success == true) {
                     RequestApis.HR("workflows/request/" + requestId, 'get', '', '', '', function (response7) {
                         var itemTosend = {
@@ -3258,7 +3236,7 @@ app.controller("vacationRequestCtrl", function ($scope, RequestApis, $templateCa
         $scope.dayVacation = false;
         $scope.DetailsHourMode = false;
         $scope.hourVacation = false;
-        RequestApis.RC('PersonLeave/GetById/' + id, 'Get', '', 'json', function (response) {
+        RequestApis.RC('PersonLeave/GetById/' + id, 'Get', '', 'json', '', function (response) {
             if (response.status === 200) {
                 $scope.dayVacationDetailsData = response.data.data;
                 $scope.DetailsDayMode = true;
@@ -3292,11 +3270,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
     $scope.getPersonnelInfo = function (id) {
         global.urlInfo(function (data) {
             $scope.currentUserId = data.UserId;
-            RequestApis.HR(`personnel/user/${$scope.currentUserId}/current`, 'Get', '', '', '', function (response) {
-                if (response.status === 200) {
-                    $scope.PersonnelDetails(response.data);
-                }
-            })
+            $scope.PersonnelDetails(data.PersonnelInfo);
         })
     }
     $scope.PersonnelDetails = function (item) {
@@ -3407,6 +3381,10 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
             });
             $('.time').clockpicker();
         }, 500)
+        Inputmask({
+            clearMaskOnLostFocus: false,
+            clearIncomplete: true,
+        }).mask(document.querySelectorAll("input"));
         $('.time').inputmask({regex: "(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]", "placeholder": "HH:MM"});
         $('.date-picker').change(function () {
             angular.element($(this)).triggerHandler('input');
@@ -3486,7 +3464,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
             "createdAt": moment().format('YYYY-MM-DD'),
             "isDeleted": true
         };
-        RequestApis.RC('PersonRollCalls/Create', 'Post', itemToSend, 'json', function (responsep) {
+        RequestApis.RC('PersonRollCalls/Create', 'Post', '', 'json', itemToSend, function (responsep) {
             if (responsep.data.success == true) {
                 let ParentResponse = responsep.data.data;
                 $scope.RequestIdVH = responsep.data.data
@@ -3516,7 +3494,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
                             "createdBy": Number($scope.currentUserId),
                             "createdAt": moment().format('YYYY-MM-DD')
                         }
-                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', requestItem, 'json', function (responsex) {
+                        RequestApis.RC('Request/CreateRequest/' + $scope.PersonnelInfo.Id, 'Post', '', 'json', requestItem, function (responsex) {
                             if (responsex.data.success == true) {
                                 $scope.SubmitOccured = true;
                                 $scope.dynamicBtns(ParentResponse, responsex.data.data);
@@ -3601,7 +3579,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
             "&ToDt=" +
             thisDate;
 
-        RequestApis.RC(path, 'Get', '', 'json', function (response) {
+        RequestApis.RC(path, 'Get', '', 'json', '', function (response) {
             $scope.trafficHours = response.data
         })
     }
@@ -3717,7 +3695,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
     }
     $scope.getDetailsForManagerAcception = function (id) {
         $scope.useVacationId = id;
-        RequestApis.RC(`PersonRollCalls/GetById/${id}`, 'Get', '', 'json', function (response) {
+        RequestApis.RC(`PersonRollCalls/GetById/${id}`, 'Get', '', 'json', '', function (response) {
             if (response.status === 200) {
                 $scope.rollCall = response.data.data;
                 $scope.DetailsHourMode = true;
@@ -3730,7 +3708,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
         })
     }
     $scope.itemToUpdateFuncH = function (id) {
-        RequestApis.RC(`PersonRollCalls/GetById/${id}`, 'Get', '', '', function (response) {
+        RequestApis.RC(`PersonRollCalls/GetById/${id}`, 'Get', '', '', '', function (response) {
             $scope.loadingUpdateHourM = true;
             let items = response.data.data;
             let requestId = $scope.requestId ?? $scope.urlsearch.requestId;
@@ -3762,7 +3740,7 @@ app.controller("trafficRequestCtrl", function ($scope, RequestApis, $templateCac
             }
             $scope.finalRequest = true;
             if ($scope.buttonInfoH.PreUrls != undefined) {
-                RequestApis.RC($scope.buttonInfoH.PreUrls[0], 'Post', subItemToSend, 'json', function (response) {
+                RequestApis.RC($scope.buttonInfoH.PreUrls[0], 'Post', '', 'json', subItemToSend, function (response) {
                     if (response.data.success == true) {
                         RequestApis.HR("workflows/request/" + requestId, 'get', '', '', '', function (response1) {
                             var itemTosend = {

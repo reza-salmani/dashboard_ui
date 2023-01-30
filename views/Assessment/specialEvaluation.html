@@ -1,6 +1,6 @@
 <div ng-if="assessment.AllowSpecialPage">
   <!-- Form Alef-1 -->
-  <div class="card" ng-if="section.form == 1">
+  <div class="card">
     <ul class="list-group list-group-horizontal">
       <li id="HR_ASM_A1" class="list-group-item selected-list-group">
         فرم الف 1
@@ -8,7 +8,7 @@
       </li>
     </ul>
   </div>
-  <div ng-if="section.form == 1">
+  <div >
     <div class="card">
       <div>
         <table class="defaultTableStyle">
@@ -157,7 +157,7 @@
   </div>
 
   <!-- Form Alef-2 -->
-  <div class="card" ng-if="checkingExist(assessment.formEntryInfo.RequestId) && section.form == 2">
+  <div class="card" ng-if="checkingExist(assessment.formEntryInfo.RequestId)">
     <!-- <div class="card"> -->
     <ul class="list-group list-group-horizontal">
       <li id="HR_ASM_A2" class="list-group-item selected-list-group">
@@ -166,13 +166,13 @@
       </li>
     </ul>
   </div>
-  <div ng-if="section.form == 2">
+  <div>
     <div class="card">
       <div style="overflow:auto;max-height:300px">
         <table class="defaultTableStyle">
           <thead>
             <tr>
-              <th ng-style="{'font-size':assessment.isFromCartable?'8px':'11px'}" ng-repeat="tableHead in assessment.secondTableData.Fields.Children">
+              <th ng-style="{'font-size':'11px'}" ng-repeat="tableHead in assessment.secondTableData.Fields.Children">
                 {{tableHead.Title}}
               </th>
             </tr>
@@ -181,11 +181,11 @@
             <tr ng-repeat="goal in assessment.secondTableData.Values[0].Rows">
               <td ng-repeat="tableBody in assessment.secondTableData.Fields.Children">
                 <span ng-repeat="value in goal.Items" ng-if="value.FieldId == tableBody.Id">
-                  <span class="small-font" ng-style="{'min-width':assessment.isFromCartable?'200px':'400px'}" ng-if="!checkingPermissionForSecond(tableBody.Id)">
+                  <span class="small-font" ng-style="{'min-width':'200px'}" ng-if="!checkingPermissionForSecond(tableBody.Id)">
                     {{value.NumericValue}} {{value.StringValue}}
                   </span>
                 </span>
-                <input id="{{$parent.$parent.$index}}-{{tableBody.Id}}" ng-class="{'sumationInput':tableBody.IsScore}" type="text" class="form-control small-font" ng-style="{width:assessment.isFromCartable?'200px':'400px'}" ng-if="(tableBody.TypeIdentity == 0 || tableBody.TypeIdentity == 1) && checkingPermissionForSecond(tableBody.Id) && assessment.dynamicButtonAllow"
+                <input id="{{$parent.$parent.$index}}-{{tableBody.Id}}" ng-class="{'sumationInput':tableBody.IsScore}" type="text" class="form-control small-font" ng-style="{width:'200px'}" ng-if="(tableBody.TypeIdentity == 0 || tableBody.TypeIdentity == 1) && checkingPermissionForSecond(tableBody.Id) && assessment.dynamicButtonAllow"
                        ng-blur="settingValueForSec(tableBody.Id,$parent.$parent.$index,tableBody.TypeIdentity)"
                        ng-model="value.StringValue" ng-value="getValue(goal.Items,tableBody.Id);" ng-init="inputMasks()">
                 <input id="{{$parent.$parent.$index}}-{{tableBody.Id}}" ng-class="{'sumationInput':tableBody.IsScore}" type="text" style="min-width:50px" class="form-control precentF small-font" ng-if="tableBody.TypeIdentity == 2 && checkingPermissionForSecond(tableBody.Id) && assessment.dynamicButtonAllow"
